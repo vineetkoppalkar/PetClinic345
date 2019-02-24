@@ -183,6 +183,12 @@ public class ClinicServiceTests {
         assertThat(owner6.getPets().size()).isEqualTo(found + 1);
         // checks that id has been generated
         assertThat(pet.getId()).isNotNull();
+        // checks that the pet is saved properly
+        Pet savedPet = this.pets.findById(pet.getId());
+        assertThat(savedPet.getType()).isEqualTo(pet.getType());
+        assertThat(savedPet.getBirthDate()).isEqualTo(pet.getBirthDate());
+        assertThat(savedPet.getOwner()).isEqualTo(pet.getOwner());
+        assertThat(savedPet.getName()).isEqualTo(pet.getName());
     }
 
     @Test
