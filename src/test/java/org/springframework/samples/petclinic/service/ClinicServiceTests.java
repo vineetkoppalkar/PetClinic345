@@ -18,6 +18,7 @@ package org.springframework.samples.petclinic.service;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -237,6 +238,12 @@ public class ClinicServiceTests {
         pet7 = this.pets.findById(7);
         assertThat(pet7.getVisits().size()).isEqualTo(found + 1);
         assertThat(visit.getId()).isNotNull();
+
+        List<Visit> savedVisits = pet7.getVisits();
+        Visit savedVisit = savedVisits.get(0);
+        assertThat(savedVisit.getDescription()).isEqualTo(visit.getDescription());
+        assertThat(savedVisit.getDate()).isEqualTo(visit.getDate());
+        assertThat(savedVisit.getPetId()).isEqualTo(visit.getPetId());
     }
 
     @Test
