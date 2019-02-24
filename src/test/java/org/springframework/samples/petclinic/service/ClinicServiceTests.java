@@ -231,8 +231,11 @@ public class ClinicServiceTests {
         Collection<Visit> visits = this.visits.findByPetId(7);
         assertThat(visits.size()).isEqualTo(2);
         Visit[] visitArr = visits.toArray(new Visit[visits.size()]);
-        assertThat(visitArr[0].getDate()).isNotNull();
-        assertThat(visitArr[0].getPetId()).isEqualTo(7);
+        for (Visit visit: visitArr) {
+            assertThat(visit.getDate()).isNotNull();
+            assertThat(visit.getDescription()).isNotNull();
+            assertThat(visit.getPetId()).isEqualTo(7);
+        }
     }
 
 }
