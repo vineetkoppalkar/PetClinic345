@@ -28,9 +28,17 @@ public class PetTypeFormatterTests {
 
     private PetTypeFormatter petTypeFormatter;
 
+    private List<PetType> petTypes = new ArrayList<>();
+
     @Before
     public void setup() {
         this.petTypeFormatter = new PetTypeFormatter(pets);
+        PetType dog = new PetType();
+        dog.setName("Dog");
+        PetType bird = new PetType();
+        bird.setName("Bird");
+        petTypes.add(dog);
+        petTypes.add(bird);
     }
 
     @Test
@@ -43,35 +51,15 @@ public class PetTypeFormatterTests {
 
     @Test
     public void shouldParse() throws ParseException {
-        Mockito.when(this.pets.findPetTypes()).thenReturn(makePetTypes());
+        Mockito.when(this.pets.findPetTypes()).thenReturn(petTypes);
         PetType petType = petTypeFormatter.parse("Bird", Locale.ENGLISH);
         assertEquals("Bird", petType.getName());
     }
 
     @Test(expected = ParseException.class)
     public void shouldThrowParseException() throws ParseException {
-        Mockito.when(this.pets.findPetTypes()).thenReturn(makePetTypes());
+        Mockito.when(this.pets.findPetTypes()).thenReturn(petTypes);
         petTypeFormatter.parse("Fish", Locale.ENGLISH);
-    }
-
-    /**
-     * Helper method to produce some sample pet types just for test purpose
-     *
-     * @return {@link Collection} of {@link PetType}
-     */
-    private List<PetType> makePetTypes() {
-        List<PetType> petTypes = new ArrayList<>();
-        petTypes.add(new PetType() {
-            {
-                setName("Dog");
-            }
-        });
-        petTypes.add(new PetType() {
-            {
-                setName("Bird");
-            }
-        });
-        return petTypes;
     }
 
 }
