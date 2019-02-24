@@ -150,8 +150,16 @@ public class ClinicServiceTests {
 
         PetType petType1 = EntityUtils.getById(petTypes, PetType.class, 1);
         assertThat(petType1.getName()).isEqualTo("cat");
+        PetType petType2 = EntityUtils.getById(petTypes, PetType.class, 2);
+        assertThat(petType2.getName()).isEqualTo("dog");
+        PetType petType3 = EntityUtils.getById(petTypes, PetType.class, 3);
+        assertThat(petType3.getName()).isEqualTo("lizard");
         PetType petType4 = EntityUtils.getById(petTypes, PetType.class, 4);
         assertThat(petType4.getName()).isEqualTo("snake");
+        PetType petType5 = EntityUtils.getById(petTypes, PetType.class, 5);
+        assertThat(petType5.getName()).isEqualTo("bird");
+        PetType petType6 = EntityUtils.getById(petTypes, PetType.class, 6);
+        assertThat(petType6.getName()).isEqualTo("hamster");
     }
 
     @Test
