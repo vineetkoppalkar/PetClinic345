@@ -119,6 +119,13 @@ public class ClinicServiceTests {
 
         owners = this.owners.findByLastName("Schultz");
         assertThat(owners.size()).isEqualTo(found + 1);
+
+        Owner savedOwner = this.owners.findById(owner.getId());
+        assertThat(savedOwner.getAddress()).isEqualTo(owner.getAddress());
+        assertThat(savedOwner.getCity()).isEqualTo(owner.getCity());
+        assertThat(savedOwner.getTelephone()).isEqualTo(owner.getTelephone());
+        assertThat(savedOwner.getFirstName()).isEqualTo(owner.getFirstName());
+        assertThat(savedOwner.getLastName()).isEqualTo(owner.getLastName());
     }
 
     @Test
