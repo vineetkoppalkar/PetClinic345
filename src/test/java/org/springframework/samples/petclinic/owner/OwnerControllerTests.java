@@ -8,11 +8,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.mockito.Mockito.*;
 
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -39,17 +41,18 @@ public class OwnerControllerTests {
     @MockBean
     private OwnerRepository owners;
 
+    @Mock
     private Owner george;
 
     @Before
     public void setup() {
-        george = new Owner();
-        george.setId(TEST_OWNER_ID);
-        george.setFirstName("George");
-        george.setLastName("Franklin");
-        george.setAddress("110 W. Liberty St.");
-        george.setCity("Madison");
-        george.setTelephone("6085551023");
+    	when(george.getId()).thenReturn(TEST_OWNER_ID);
+    	when(george.getFirstName()).thenReturn("George");
+    	when(george.getLastName()).thenReturn("Franklin");
+    	when(george.getAddress()).thenReturn("110 W. Liberty St.");
+    	when(george.getCity()).thenReturn("Madison");
+    	when(george.getTelephone()).thenReturn("6085551023");
+    
         given(this.owners.findById(TEST_OWNER_ID)).willReturn(george);
     }
 
