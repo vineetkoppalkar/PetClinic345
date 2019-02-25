@@ -18,6 +18,7 @@ package org.springframework.samples.petclinic.service;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -119,6 +120,13 @@ public class ClinicServiceTests {
 
         owners = this.owners.findByLastName("Schultz");
         assertThat(owners.size()).isEqualTo(found + 1);
+
+        Owner savedOwner = this.owners.findById(owner.getId());
+        assertThat(savedOwner.getAddress()).isEqualTo("4, Evans Street");
+        assertThat(savedOwner.getCity()).isEqualTo("Wollongong");
+        assertThat(savedOwner.getTelephone()).isEqualTo("4444444444");
+        assertThat(savedOwner.getFirstName()).isEqualTo("Sam");
+        assertThat(savedOwner.getLastName()).isEqualTo("Schultz");
     }
 
     @Test
@@ -150,8 +158,16 @@ public class ClinicServiceTests {
 
         PetType petType1 = EntityUtils.getById(petTypes, PetType.class, 1);
         assertThat(petType1.getName()).isEqualTo("cat");
+        PetType petType2 = EntityUtils.getById(petTypes, PetType.class, 2);
+        assertThat(petType2.getName()).isEqualTo("dog");
+        PetType petType3 = EntityUtils.getById(petTypes, PetType.class, 3);
+        assertThat(petType3.getName()).isEqualTo("lizard");
         PetType petType4 = EntityUtils.getById(petTypes, PetType.class, 4);
         assertThat(petType4.getName()).isEqualTo("snake");
+        PetType petType5 = EntityUtils.getById(petTypes, PetType.class, 5);
+        assertThat(petType5.getName()).isEqualTo("bird");
+        PetType petType6 = EntityUtils.getById(petTypes, PetType.class, 6);
+        assertThat(petType6.getName()).isEqualTo("hamster");
     }
 
     @Test
@@ -175,6 +191,12 @@ public class ClinicServiceTests {
         assertThat(owner6.getPets().size()).isEqualTo(found + 1);
         // checks that id has been generated
         assertThat(pet.getId()).isNotNull();
+        // checks that the pet is saved properly
+        Pet savedPet = this.pets.findById(pet.getId());
+        assertThat(savedPet.getType()).isEqualTo(pet.getType());
+        assertThat(savedPet.getBirthDate()).isEqualTo(pet.getBirthDate());
+        assertThat(savedPet.getOwner()).isEqualTo(pet.getOwner());
+        assertThat(savedPet.getName()).isEqualTo(pet.getName());
     }
 
     @Test
@@ -216,6 +238,12 @@ public class ClinicServiceTests {
         pet7 = this.pets.findById(7);
         assertThat(pet7.getVisits().size()).isEqualTo(found + 1);
         assertThat(visit.getId()).isNotNull();
+
+        List<Visit> savedVisits = pet7.getVisits();
+        Visit savedVisit = savedVisits.get(0);
+        assertThat(savedVisit.getDescription()).isEqualTo(visit.getDescription());
+        assertThat(savedVisit.getDate()).isEqualTo(visit.getDate());
+        assertThat(savedVisit.getPetId()).isEqualTo(visit.getPetId());
     }
 
     @Test
@@ -223,8 +251,11 @@ public class ClinicServiceTests {
         Collection<Visit> visits = this.visits.findByPetId(7);
         assertThat(visits.size()).isEqualTo(2);
         Visit[] visitArr = visits.toArray(new Visit[visits.size()]);
-        assertThat(visitArr[0].getDate()).isNotNull();
-        assertThat(visitArr[0].getPetId()).isEqualTo(7);
+        for (Visit visit: visitArr) {
+            assertThat(visit.getDate()).isNotNull();
+            assertThat(visit.getDescription()).isNotNull();
+            assertThat(visit.getPetId()).isEqualTo(7);
+        }
     }
 
 }
