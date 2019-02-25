@@ -31,6 +31,7 @@ import javax.validation.constraints.NotEmpty;
 
 import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
+import org.springframework.beans.support.SortDefinition;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.samples.petclinic.model.Person;
 
@@ -60,7 +61,17 @@ public class Owner extends Person {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private Set<Pet> pets;
-
+        
+    // Old constructor
+    public Owner() {
+    	this("", "");
+    }
+    
+    // New parameterized constructor
+    public Owner(String firstName, String lastName) {
+    	super(firstName, lastName);
+    }
+    
     public String getAddress() {
         return this.address;
     }
@@ -98,8 +109,8 @@ public class Owner extends Person {
 
     public List<Pet> getPets() {
         List<Pet> sortedPets = new ArrayList<>(getPetsInternal());
-        PropertyComparator.sort(sortedPets,
-                new MutableSortDefinition("name", true, true));
+        PropertyComparator.sort(sortedPets, 
+        		new MutableSortDefinition("name", true, true));
         return Collections.unmodifiableList(sortedPets);
     }
 

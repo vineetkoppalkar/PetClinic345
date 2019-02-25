@@ -34,7 +34,18 @@ public class Person extends BaseEntity {
     @Column(name = "last_name")
     @NotEmpty
     private String lastName;
-
+    
+    // Old constructor
+    public Person() {
+    	this("", "");
+    }
+    
+    // New parameterized constructor
+    public Person(String firstName, String lastName) {
+    	this.firstName = firstName;
+    	this.lastName = lastName;
+    }
+    
     public String getFirstName() {
         return this.firstName;
     }

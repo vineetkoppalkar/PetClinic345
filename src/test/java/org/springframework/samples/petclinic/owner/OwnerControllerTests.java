@@ -43,10 +43,8 @@ public class OwnerControllerTests {
 
     @Before
     public void setup() {
-        george = new Owner();
+        george = new Owner("George", "Franklin");
         george.setId(TEST_OWNER_ID);
-        george.setFirstName("George");
-        george.setLastName("Franklin");
         george.setAddress("110 W. Liberty St.");
         george.setCity("Madison");
         george.setTelephone("6085551023");
