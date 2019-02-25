@@ -122,11 +122,11 @@ public class ClinicServiceTests {
         assertThat(owners.size()).isEqualTo(found + 1);
 
         Owner savedOwner = this.owners.findById(owner.getId());
-        assertThat(savedOwner.getAddress()).isEqualTo(owner.getAddress());
-        assertThat(savedOwner.getCity()).isEqualTo(owner.getCity());
-        assertThat(savedOwner.getTelephone()).isEqualTo(owner.getTelephone());
-        assertThat(savedOwner.getFirstName()).isEqualTo(owner.getFirstName());
-        assertThat(savedOwner.getLastName()).isEqualTo(owner.getLastName());
+        assertThat(savedOwner.getAddress()).isEqualTo("4, Evans Street");
+        assertThat(savedOwner.getCity()).isEqualTo("Wollongong");
+        assertThat(savedOwner.getTelephone()).isEqualTo("4444444444");
+        assertThat(savedOwner.getFirstName()).isEqualTo("Sam");
+        assertThat(savedOwner.getLastName()).isEqualTo("Schultz");
     }
 
     @Test
