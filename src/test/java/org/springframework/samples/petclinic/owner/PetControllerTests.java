@@ -53,10 +53,10 @@ public class PetControllerTests {
 
     @Before
     public void setup() {
-        PetType cat = new PetType();
-        cat.setId(3);
-        cat.setName("hamster");
-        given(this.pets.findPetTypes()).willReturn(Lists.newArrayList(cat));
+        PetType hamster = new PetType();
+        hamster.setId(3);
+        hamster.setName("hamster");
+        given(this.pets.findPetTypes()).willReturn(Lists.newArrayList(hamster));
         given(this.owners.findById(TEST_OWNER_ID)).willReturn(new Owner());
         given(this.pets.findById(TEST_PET_ID)).willReturn(new Pet());
 
