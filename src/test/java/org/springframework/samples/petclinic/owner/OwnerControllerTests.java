@@ -46,6 +46,7 @@ public class OwnerControllerTests {
 
     @Before
     public void setup() {
+      
     	when(george.getId()).thenReturn(TEST_OWNER_ID);
     	when(george.getFirstName()).thenReturn("George");
     	when(george.getLastName()).thenReturn("Franklin");
@@ -53,7 +54,7 @@ public class OwnerControllerTests {
     	when(george.getCity()).thenReturn("Madison");
     	when(george.getTelephone()).thenReturn("6085551023");
     
-        given(this.owners.findById(TEST_OWNER_ID)).willReturn(george);
+      given(this.owners.findById(TEST_OWNER_ID)).willReturn(george);
     }
 
     @Test
