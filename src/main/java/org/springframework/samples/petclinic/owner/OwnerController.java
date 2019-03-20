@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import org.springframework.samples.petclinic.migration.TDGSQLite;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,6 +27,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -53,6 +56,14 @@ class OwnerController {
 
     @GetMapping("/owners/new")
     public String initCreationForm(Map<String, Object> model) {
+        ResultSet rs = TDGSQLite.selectQuery("SELECT * FROM owners;");
+        try {
+            while (rs.next()) {
+                System.out.println(rs.getString("first_name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         Owner owner = new Owner();
         model.put("owner", owner);
         return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
