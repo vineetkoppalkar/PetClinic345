@@ -18,6 +18,7 @@ package org.springframework.samples.petclinic;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.samples.petclinic.migration.Forklift;
 
 /**
  * PetClinic Spring Boot Application.
@@ -29,7 +30,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PetClinicApplication {
 
     public static void main(String[] args) {
+        Thread migration = new Thread(new Forklift());
+        migration.setPriority(Thread.MIN_PRIORITY);
+        migration.start();
         SpringApplication.run(PetClinicApplication.class, args);
     }
+
 
 }
