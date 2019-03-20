@@ -1,5 +1,6 @@
 package org.springframework.samples.petclinic.model;
 
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
@@ -26,21 +27,23 @@ public class ValidatorTests {
     }
 
     @Test
-    public void shouldNotValidateWhenFirstNameEmpty() {
+    public void shouldNotValidateWhenFirstOrLastNameEmpty() {
 
         LocaleContextHolder.setLocale(Locale.ENGLISH);
-        Person person = new Person();
-        person.setFirstName("");
-        person.setLastName("smith");
+
+        Person person = new Person("", "smith");
 
         Validator validator = createValidator();
         Set<ConstraintViolation<Person>> constraintViolations = validator
                 .validate(person);
 
         assertThat(constraintViolations.size()).isEqualTo(1);
-        ConstraintViolation<Person> violation = constraintViolations.iterator().next();
+        Iterator<ConstraintViolation<Person> > validations =  constraintViolations.iterator();
+
+        ConstraintViolation<Person> violation = validations.next();
         assertThat(violation.getPropertyPath().toString()).isEqualTo("firstName");
         assertThat(violation.getMessage()).isEqualTo("must not be empty");
+
     }
 
 }

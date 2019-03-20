@@ -6,11 +6,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-
+import static org.mockito.Mockito.*;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -50,15 +51,24 @@ public class PetControllerTests {
 
     @MockBean
     private OwnerRepository owners;
+    
+    @Mock
+    private PetType hamster;
+    
+    @Mock
+    private Owner Bob;
+    
+    @Mock
+    private Pet Alice;
 
     @Before
     public void setup() {
-        PetType cat = new PetType();
-        cat.setId(3);
-        cat.setName("hamster");
-        given(this.pets.findPetTypes()).willReturn(Lists.newArrayList(cat));
-        given(this.owners.findById(TEST_OWNER_ID)).willReturn(new Owner());
-        given(this.pets.findById(TEST_PET_ID)).willReturn(new Pet());
+    	when(hamster.getId()).thenReturn(3);
+    	when(hamster.getName()).thenReturn("hamster");
+    	
+        given(this.pets.findPetTypes()).willReturn(Lists.newArrayList(hamster));
+        given(this.owners.findById(TEST_OWNER_ID)).willReturn(Bob);
+        given(this.pets.findById(TEST_PET_ID)).willReturn(Alice);
 
     }
 
