@@ -10,26 +10,24 @@ public class Forklift implements Runnable {
     public void run() {
         System.out.println("Forklift running");
         try {
-            constructDatabase();
-            forkliftDatabase();
+            constructDatabase("jdbc:sqlite:memory");
+            forkliftDatabase("jdbc:sqlite:memory");
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void constructDatabase() throws SQLException, IOException {
-        String url = "jdbc:sqlite:memory";
+    static void constructDatabase(String root) throws SQLException, IOException {
         // create a connection to the database
-        Connection c = DriverManager.getConnection(url);
+        Connection c = DriverManager.getConnection(root);
         FileReader fr = new FileReader(new File("src\\main\\resources\\db\\sqlite\\schema.sql"));
         BufferedReader br = new BufferedReader(fr);
         executeSQL(c, br);
     }
 
-    private static void forkliftDatabase() throws SQLException, IOException {
-        String url = "jdbc:sqlite:memory";
+    static void forkliftDatabase(String root) throws SQLException, IOException {
         // create a connection to the database
-        Connection c = DriverManager.getConnection(url);
+        Connection c = DriverManager.getConnection(root);
         FileReader fr = new FileReader(new File("src\\main\\resources\\db\\hsqldb\\data.sql"));
         BufferedReader br = new BufferedReader(fr);
         executeSQL(c, br);

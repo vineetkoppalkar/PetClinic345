@@ -45,13 +45,10 @@ public class OwnerControllerTests {
     @Mock
     private Owner george;
 
-    @Mock
-    private TDGSQLite sqlite;
-
     @Before
     public void setup() {
 
-
+        TDGSQLite sqlite = new TDGSQLite("jdbc:sqlite:test");
     	when(george.getId()).thenReturn(TEST_OWNER_ID);
     	when(george.getFirstName()).thenReturn("George");
     	when(george.getLastName()).thenReturn("Franklin");
