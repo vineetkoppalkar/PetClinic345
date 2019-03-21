@@ -20,7 +20,7 @@ public class Forklift implements Runnable {
     static void constructDatabase(String root) throws SQLException, IOException {
         // create a connection to the database
         Connection c = DriverManager.getConnection(root);
-        FileReader fr = new FileReader(new File("src\\main\\resources\\db\\sqlite\\schema.sql"));
+        FileReader fr = new FileReader(new File("src/main/resources/db/sqlite/schema.sql"));
         BufferedReader br = new BufferedReader(fr);
         executeSQL(c, br);
     }
@@ -28,7 +28,7 @@ public class Forklift implements Runnable {
     static void forkliftDatabase(String root) throws SQLException, IOException {
         // create a connection to the database
         Connection c = DriverManager.getConnection(root);
-        FileReader fr = new FileReader(new File("src\\main\\resources\\db\\hsqldb\\data.sql"));
+        FileReader fr = new FileReader(new File("src/main/resources/db/hsqldb/data.sql"));
         BufferedReader br = new BufferedReader(fr);
         executeSQL(c, br);
     }
