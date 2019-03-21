@@ -29,6 +29,8 @@ import org.springframework.samples.petclinic.migration.Forklift;
 @SpringBootApplication
 public class PetClinicApplication {
 
+    public static boolean shadowWrites = false;
+
     public static void main(String[] args) {
         Thread migration = new Thread(new Forklift());
         migration.setPriority(Thread.MIN_PRIORITY);
