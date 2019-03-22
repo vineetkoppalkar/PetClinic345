@@ -98,6 +98,11 @@ public class Pet extends NamedEntity {
         this.owner = owner;
     }
 
+    //Code added for new db    
+    public void setOwnerTdg(Owner owner) {
+    	setOwner(owner);
+    }
+    
     protected Set<Visit> getVisitsInternal() {
         if (this.visits == null) {
             this.visits = new HashSet<>();
@@ -107,6 +112,12 @@ public class Pet extends NamedEntity {
 
     protected void setVisitsInternal(Set<Visit> visits) {
         this.visits = visits;
+    }
+    
+    //code added for new db
+    public void setVisitsTdg(List<Visit> visits) {
+    	Set<Visit> visitSet = new HashSet<Visit>(visits);
+    	setVisitsInternal(visitSet);
     }
 
     public List<Visit> getVisits() {
