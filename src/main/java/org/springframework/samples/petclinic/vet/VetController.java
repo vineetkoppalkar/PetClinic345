@@ -49,7 +49,6 @@ class VetController {
         vets.getVetList().addAll(this.vets.findAll());
         model.put("vets", vets);
         if(PetClinicApplication.shadowReads){
-            TDGSQLite.getAllVets();
             try{
                 ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vets, TDGSQLite.getAllVets());
             }
@@ -67,7 +66,6 @@ class VetController {
         Vets vets = new Vets();
         vets.getVetList().addAll(this.vets.findAll());
         if(PetClinicApplication.shadowReads){
-            TDGSQLite.getAllVets();
             try{
                 ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vets, TDGSQLite.getAllVets());
             }

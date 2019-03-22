@@ -104,7 +104,6 @@ class OwnerController {
             // 1 owner found
             owner = results.iterator().next();
             if(PetClinicApplication.shadowReads){
-                TDGSQLite.getOwner(owner.getId());
                 try {
                     ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
                 }
@@ -117,7 +116,6 @@ class OwnerController {
             // multiple owners found
             model.put("selections", results);
             if(PetClinicApplication.shadowReads){
-                TDGSQLite.getOwner(owner.getId());
                 try {
                     ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(results, TDGSQLite.getOwnersByLastName(owner.getLastName()));
                 }
@@ -134,8 +132,6 @@ class OwnerController {
         Owner owner = this.owners.findById(ownerId);
         model.addAttribute(owner);
         if(PetClinicApplication.shadowReads){
-            TDGSQLite.updateOwner(owner.getId(), owner.getFirstName(), owner.getLastName(), owner.getAddress()
-            owner.getCity(), owner.getTelephone());
             try {
                 ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
             }
@@ -176,7 +172,6 @@ class OwnerController {
         ModelAndView mav = new ModelAndView("owners/ownerDetails");
         mav.addObject(this.owners.findById(ownerId));
         if(PetClinicApplication.shadowReads){
-            TDGSQLite.getOwner(ownerId);
             try {
                 ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(this.owners.findById(ownerId), TDGSQLite.getOwner(ownerId));
             }
