@@ -114,13 +114,7 @@ public class ConsistencyChecker implements Runnable {
     }
 
 
-    public static void shadowWritesOwner(Integer id) throws SQLException{
-
-        Owner oldDatastoreOwner;
-        Owner newDatastoreOwner;
-
-        oldDatastoreOwner = TDGHSQLDB.getOwner(id);
-        newDatastoreOwner = TDGSQLite.getOwner(id);
+    public static boolean shadowWritesOwner(Owner oldDatastoreOwner, Owner newDatastoreOwner) throws SQLException{
 
         if(!oldDatastoreOwner.equals(newDatastoreOwner)) {
             System.out.println("Inconsistency detected for owner: ");
@@ -132,16 +126,14 @@ public class ConsistencyChecker implements Runnable {
 
             TDGSQLite.updateOwner(oldDatastoreOwner.getId(), oldDatastoreOwner.getFirstName(), oldDatastoreOwner.getLastName(),
                 oldDatastoreOwner.getAddress(), oldDatastoreOwner.getCity(), oldDatastoreOwner.getTelephone());
+
+            return false;
         }
+
+        return true;
     }
 
-    public static void shadowWritesPet(String name) throws SQLException{
-
-        Pet oldDatastorePet;
-        Pet newDatastorePet;
-
-        oldDatastorePet = TDGHSQLDB.getPet(name);
-        newDatastorePet = TDGSQLite.getPet(name);
+    public static void shadowWritesPet(Pet oldDatastorePet, Pet newDatastorePet) throws SQLException{
 
         //TODO: Add a equals method in Pet class
         if(!oldDatastorePet.equals(newDatastorePet)) {
@@ -157,60 +149,21 @@ public class ConsistencyChecker implements Runnable {
         }
     }
 
-    public static void shadowWritesVisit(Integer id) throws SQLException{
+    public static void shadowWritesVisit(Visit oldDatastoreVisit, Visit newDatastoreVisit) throws SQLException{
 
-        List<Visit> oldDatastoreVisit;
-        List<Visit> newDatastoreVisit;
-
-        oldDatastoreVisit = TDGHSQLDB.getVisits(id);
-        newDatastoreVisit = TDGSQLite.getVisits(id);
-
-        if(oldDatastoreVisit.size() == newDatastoreVisit.size()) {
-            for (int i = 0; i < newDatastoreVisit.size(); i++) {
-                Visit expected = oldDatastoreVisit.get(i);
-                Visit actual = newDatastoreVisit.get(i);
-                //TODO: add an equals method for Visit
-                if(!actual.equals(expected)) {
-                    System.out.println("Inconsistency detected for visit: ");
-                    System.out.println("[Actual]: " + newDatastoreVisit.toString());
-                    System.out.println("[Expected]: " + oldDatastoreVisit.toString());
-
-                    //Cannot increment this, either make the whole thing static or everything dynamic
-//            nbOfOwnerInconsistencies++;
-                    TDGSQLite.updateVisit(expected.getId(), expected.getPetId(), Date.valueOf(expected.getDate()), expected.getDescription());
-                }
-            }
-        }
-        else {
-            //If the size of the lists are not equal, wipe everything in the new datastore and replace with the ones from olddb
-            for (Visit visit : newDatastoreVisit) {
-                //            nbOfOwnerInconsistencies++;
-                TDGSQLite.deleteVisit(visit.getId());
-            }
-            for(Visit visit : oldDatastoreVisit){
-                TDGSQLite.addVisit(visit.getId(), visit.getPetId(), Date.valueOf(visit.getDate()), visit.getDescription());
-            }
-        }
-    }
-
-    public static void shadowWritesVet(Integer id) throws SQLException{
-
-        Vet oldDatastoreVet;
-        Vet newDatastoreVet;
-
-        oldDatastoreVet = TDGHSQLDB.getVet(id);
-        newDatastoreVet = TDGSQLite.getVet(id);
-
-        //TODO: Add a equals method in Vet class
-        if(!oldDatastoreVet.equals(newDatastoreVet)) {
-            System.out.println("Inconsistency detected for vet: ");
-            System.out.println("[Actual]: " + newDatastoreVet.toString());
-            System.out.println("[Expected]: " + oldDatastoreVet.toString());
+        //TODO: add an equals method for Visit
+        if(!oldDatastoreVisit.equals(newDatastoreVisit)) {
+            System.out.println("Inconsistency detected for visit: ");
+            System.out.println("[Actual]: " + newDatastoreVisit.toString());
+            System.out.println("[Expected]: " + oldDatastoreVisit.toString());
 
             //Cannot increment this, either make the whole thing static or everything dynamic
 //            nbOfOwnerInconsistencies++;
 
-            TDGSQLite.updateVet(oldDatastoreVet.getId(), oldDatastoreVet.getFirstName(), oldDatastoreVet.getLastName());
+            TDGSQLite.updateVisit(oldDatastoreVisit.getId(), oldDatastoreVisit.getPetId(), Date.valueOf(oldDatastoreVisit.getDate()),
+                oldDatastoreVisit.getDescription());
         }
+
     }
+
 }
