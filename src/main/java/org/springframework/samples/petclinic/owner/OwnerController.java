@@ -58,14 +58,6 @@ class OwnerController {
 
     @GetMapping("/owners/new")
     public String initCreationForm(Map<String, Object> model) {
-        ResultSet rs = TDGSQLite.selectQuery("SELECT * FROM owners;");
-        try {
-            while (rs.next()) {
-                System.out.println(rs.getString("first_name"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         Owner owner = new Owner();
         model.put("owner", owner);
         return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
