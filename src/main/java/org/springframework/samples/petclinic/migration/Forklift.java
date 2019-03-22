@@ -34,13 +34,13 @@ public class Forklift implements Runnable {
     }
 
     static void forkliftDatabase() {
-        ResultSet owners = TDGHSQL.getAllOwners();
-        ResultSet types = TDGHSQL.getAllTypes();
-        ResultSet pets = TDGHSQL.getAllPets();
-        ResultSet specialties = TDGHSQL.getAllSpecialties();
-        ResultSet vets = TDGHSQL.getAllVets();
-        ResultSet vetSpecialties = TDGHSQL.getAllVetSpecialties();
-        ResultSet visits = TDGHSQL.getAllVisits();
+        ResultSet owners = TDGHSQL.forkliftAllOwners();
+        ResultSet types = TDGHSQL.forkliftAllTypes();
+        ResultSet pets = TDGHSQL.forkliftAllPets();
+        ResultSet specialties = TDGHSQL.forkliftAllSpecialties();
+        ResultSet vets = TDGHSQL.forkliftAllVets();
+        ResultSet vetSpecialties = TDGHSQL.forkliftAllVetSpecialties();
+        ResultSet visits = TDGHSQL.forkliftAllVisits();
 
         try {
             while (owners.next()) {
