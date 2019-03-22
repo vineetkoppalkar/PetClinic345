@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import org.springframework.samples.petclinic.PetClinicApplication;
 import org.springframework.samples.petclinic.migration.TDGSQLite;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -74,6 +75,9 @@ class OwnerController {
         if (result.hasErrors()) {
             return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
         } else {
+            if(PetClinicApplication.shadowWrites){
+                TDGSQLite.addOwner(owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(), owner.getTelephone());
+            }
             this.owners.save(owner);
             return "redirect:/owners/" + owner.getId();
         }
@@ -122,6 +126,9 @@ class OwnerController {
         if (result.hasErrors()) {
             return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
         } else {
+            if(PetClinicApplication.shadowWrites){
+                TDGSQLite.updateOwner(owner.getId(), owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(), owner.getTelephone());
+            }
             owner.setId(ownerId);
             this.owners.save(owner);
             return "redirect:/owners/{ownerId}";
