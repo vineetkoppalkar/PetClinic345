@@ -18,37 +18,37 @@ public class TDGHSQL {
         return conn;
     }
 
-    public static ResultSet getAllOwners() {
+    public static ResultSet forkliftAllOwners() {
         String sql = "SELECT * FROM owners;";
         return getRecords(sql);
     }
 
-    public static ResultSet getAllTypes() {
+    public static ResultSet forkliftAllTypes() {
         String sql = "SELECT * FROM types;";
         return getRecords(sql);
     }
 
-    public static ResultSet getAllPets() {
+    public static ResultSet forkliftAllPets() {
         String sql = "SELECT * FROM pets;";
         return getRecords(sql);
     }
 
-    public static ResultSet getAllSpecialties() {
+    public static ResultSet forkliftAllSpecialties() {
         String sql = "SELECT * FROM specialties;";
         return getRecords(sql);
     }
 
-    public static ResultSet getAllVets() {
+    public static ResultSet forkliftAllVets() {
         String sql = "SELECT * FROM vets;";
         return getRecords(sql);
     }
 
-    public static ResultSet getAllVetSpecialties() {
+    public static ResultSet forkliftAllVetSpecialties() {
         String sql = "SELECT * FROM vet_specialties;";
         return getRecords(sql);
     }
 
-    public static ResultSet getAllVisits() {
+    public static ResultSet forkliftAllVisits() {
         String sql = "SELECT * FROM visits;";
         return getRecords(sql);
     }
