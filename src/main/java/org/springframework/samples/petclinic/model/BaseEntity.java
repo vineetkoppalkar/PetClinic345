@@ -15,6 +15,8 @@
  */
 package org.springframework.samples.petclinic.model;
 
+import com.fasterxml.jackson.databind.ser.Serializers;
+
 import java.io.Serializable;
 
 import javax.persistence.GeneratedValue;
@@ -34,6 +36,12 @@ public class BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    public BaseEntity() { /* Default constructor required by Person class */}
+
+    public BaseEntity(Integer id) {
+        this.id = id;
+    }
 
     public Integer getId() {
         return id;
