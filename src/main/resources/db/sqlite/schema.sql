@@ -8,14 +8,14 @@ DROP TABLE IF EXISTS owners;
 
 
 CREATE TABLE vets (
-  id         INTEGER IDENTITY PRIMARY KEY,
+  id         INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
   first_name VARCHAR(30),
   last_name  VARCHAR(30)
 );
 CREATE INDEX vets_last_name ON vets (last_name);
 
 CREATE TABLE specialties (
-  id   INTEGER IDENTITY PRIMARY KEY,
+  id   INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
   name VARCHAR(80)
 );
 CREATE INDEX specialties_name ON specialties (name);
@@ -26,13 +26,13 @@ CREATE TABLE vet_specialties (
 );
 
 CREATE TABLE types (
-  id   INTEGER IDENTITY PRIMARY KEY,
+  id   INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
   name VARCHAR(80)
 );
 CREATE INDEX types_name ON types (name);
 
 CREATE TABLE owners (
-  id         INTEGER IDENTITY PRIMARY KEY,
+  id         INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
   first_name VARCHAR(30),
   last_name  VARCHAR_IGNORECASE(30),
   address    VARCHAR(255),
@@ -42,7 +42,7 @@ CREATE TABLE owners (
 CREATE INDEX owners_last_name ON owners (last_name);
 
 CREATE TABLE pets (
-  id         INTEGER IDENTITY PRIMARY KEY,
+  id         INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
   name       VARCHAR(30),
   birth_date DATE,
   type_id    INTEGER NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE pets (
 CREATE INDEX pets_name ON pets (name);
 
 CREATE TABLE visits (
-  id          INTEGER IDENTITY PRIMARY KEY,
+  id          INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
   pet_id      INTEGER NOT NULL,
   visit_date  DATE,
   description VARCHAR(255)

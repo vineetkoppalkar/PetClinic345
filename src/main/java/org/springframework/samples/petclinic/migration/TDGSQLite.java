@@ -38,12 +38,25 @@ public class TDGSQLite {
     }
 
     public static ResultSet selectQuery(String s) {
-
+        System.out.println(s);
         Statement stmt;
         ResultSet rs = null;
         try {
             stmt = sqlite.createStatement();
             rs    = stmt.executeQuery(s);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rs;
+    }
+
+    public static ResultSet insertQuery(String s) {
+        System.out.println(s);
+        Statement stmt;
+        ResultSet rs = null;
+        try {
+            stmt = sqlite.createStatement();
+            stmt.execute(s);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -61,8 +74,8 @@ public class TDGSQLite {
     }
 
     public static void addOwner(String firstName, String lastName, String address, String city, String telephone) {
-        selectQuery("INSERT INTO owners id, first_name, last_name VALUES (NULL, " + firstName + ", " + lastName + ", " + address +
-            ", " + city + ", " + telephone + ");");
+        insertQuery("INSERT INTO owners (id, first_name, last_name, address, city, address) VALUES (NULL, '" + firstName + "', '" + lastName + "', '" + address +
+            "', '" + city + "', '" + telephone + "');");
     }
 
     public static Owner getOwner(Integer id) {
@@ -95,17 +108,17 @@ public class TDGSQLite {
     }
 
     public static void updateOwner(Integer id, String firstName, String lastName, String address, String city, String telephone) {
-        selectQuery("UPDATE owners SET first_name = " + firstName + ", last_name = " + lastName + ", address = " + address+
-            ", city =" + city + ", telephone" + telephone + " WHERE id = " + String.valueOf(id) + ";");
+        insertQuery("UPDATE owners SET first_name = '" + firstName + "', last_name = '" + lastName + "', address = '" + address+
+            "', city ='" + city + "', telephone ='" + telephone + "' WHERE id = " + String.valueOf(id) + ";");
     }
 
     public static void deleteOwner(Integer id) {
-        selectQuery("DELETE FROM owners WHERE id=" + String.valueOf(id) + ";");
+        insertQuery("DELETE FROM owners WHERE id=" + String.valueOf(id) + ";");
     }
 
 
     public static void addVet(String firstName, String lastName) {
-    	selectQuery("INSERT INTO vets id, first_name, last_name VALUES (NULL, " + firstName + ", " + lastName + ");");
+        insertQuery("INSERT INTO vets (id, first_name, last_name) VALUES (NULL, '" + firstName + "', '" + lastName + "');");
     }
     
     public static Vet getVet(Integer id) {
@@ -135,23 +148,23 @@ public class TDGSQLite {
     }
     
     public static void updateVet(Integer id, String firstName, String lastName) {
-    	selectQuery("UPDATE vets SET first_name = " + firstName + ", last_name = " + lastName + " WHERE id = " + String.valueOf(id) + ";");
+        insertQuery("UPDATE vets SET first_name = '" + firstName + "', last_name = '" + lastName + "' WHERE id = " + String.valueOf(id) + ";");
     }
     
     public static void deleteVet(Integer id) {
-    	selectQuery("DELETE FROM vets WHERE id=" + String.valueOf(id) + ";");
+        insertQuery("DELETE FROM vets WHERE id=" + String.valueOf(id) + ";");
     }
     
     public static void addSpecialty(String specialty) {
-    	selectQuery("INSERT INTO specialties id, name VALUES (NULL, " + specialty + ");");
+        insertQuery("INSERT INTO specialties (id, name) VALUES (NULL, '" + specialty + "');");
     }
     
     public static void addVetSpecialty(Integer vetId, Integer specialtyId) {
-    	selectQuery("INSERT INTO vet_specialties vet_id, specialty_id VALUES ("+ String.valueOf(vetId) + ", "+ String.valueOf(specialtyId) + ");");
+        insertQuery("INSERT INTO vet_specialties (vet_id, specialty_id) VALUES ("+ String.valueOf(vetId) + ", "+ String.valueOf(specialtyId) + ");");
     }
     
     public static void addVisit(Integer id, Integer petId, Date visitDate, String description){
-    	selectQuery("INSERT INTO visits id, pet_id, visit_date, description VALUES (" + String.valueOf(id) + ", " + String.valueOf(petId) +", " + String.valueOf(visitDate) + ", " + description + ");");
+        insertQuery("INSERT INTO visits (id, pet_id, visit_date, description) VALUES (" + String.valueOf(id) + ", " + String.valueOf(petId) +", " + String.valueOf(visitDate) + ", '" + description + "');");
     }
     
     public static List<Visit> getVisits(Integer petId){
@@ -176,9 +189,36 @@ public class TDGSQLite {
     	}
     	return null;
     }
+
+    public static Visit getVisit(Integer visitId){
+        ResultSet rs = selectQuery("SELECT * FROM visits where id=" + String.valueOf(visitId) + ";");
+        if(rs != null){
+            try{
+                Visit visit = new Visit();
+
+                visit.setDate(rs.getDate("visit_date").toLocalDate());
+    			visit.setId(rs.getInt("id"));
+    			visit.setPetId(rs.getInt("pet_id"));
+    			visit.setDescription(rs.getString("description"));
+
+                return visit;
+            }catch (SQLException e){
+    			e.printStackTrace();
+    		}
+        }
+        return null;
+    }
+    
+    public static void updateVisit(Integer id, Integer petId, Date visitDate, String description){
+        insertQuery("UPDATE visits SET pet_id = " + String.valueOf(petId) + ", visit_date = '" + String.valueOf(visitDate) + "', description = '" + description + "' WHERE id = " + String.valueOf(id) + ";");
+    }
+    
+    public static void deleteVisit(Integer id) {
+        insertQuery("DELETE FROM visits WHERE id=" + String.valueOf(id) + ";");
+    }
     
     public static void addPet(String name, Date birthDate, Integer typeId, Integer ownerId) {
-    	selectQuery("INSERT INTO pets id, name, birth_date, type_id, owner_id VALUES (NULL, " + name + ", " + String.valueOf(birthDate) + ", " + String.valueOf(typeId) + ", " + String.valueOf(ownerId) + ");");
+        insertQuery("INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (NULL, '" + name + "', '" + String.valueOf(birthDate) + "', " + String.valueOf(typeId) + ", " + String.valueOf(ownerId) + ");");
     }
     
     public static Pet getPet(String name) {
@@ -190,6 +230,8 @@ public class TDGSQLite {
 				pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
 				PetType petType = getPetType(rs.getInt("type_id"));
 				pet.setType(petType);
+				pet.setOwnerTdg(getOwner(rs.getInt("owner_id")));
+				pet.setVisitsTdg(getVisits(rs.getInt("id")));
 				return pet;
 			} catch (SQLException e) {
 					e.printStackTrace();
@@ -212,13 +254,17 @@ public class TDGSQLite {
 		}
     	return null;
     }
+
+    public static void addPetType(String name) {
+        insertQuery("INSERT INTO types (id, name) VALUES (NULL, '" + name + "');");
+    }
     
     public static void updatePet(Integer id, String name, Date birthDate, Integer typeId, Integer ownerId) {
-    	selectQuery("UPDATE pets SET  name = " + name + ", birth_date = " + birthDate + ", type_id = " + String.valueOf(typeId) + ", owner_id = " + String.valueOf(ownerId) + " WHERE id = " + String.valueOf(id) + ";");
+        insertQuery("UPDATE pets SET  name = '" + name + "', birth_date = '" + birthDate + "', type_id = " + String.valueOf(typeId) + ", owner_id = " + String.valueOf(ownerId) + " WHERE id = " + String.valueOf(id) + ";");
     }
     
     public static void deletePet(Integer id) {
-        selectQuery("DELETE FROM pets WHERE id=" + String.valueOf(id) + ";");
+        insertQuery("DELETE FROM pets WHERE id=" + String.valueOf(id) + ";");
 
     }
     
