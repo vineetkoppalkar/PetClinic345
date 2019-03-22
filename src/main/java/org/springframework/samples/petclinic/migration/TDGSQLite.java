@@ -190,6 +190,8 @@ public class TDGSQLite {
 				pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
 				PetType petType = getPetType(rs.getInt("type_id"));
 				pet.setType(petType);
+				pet.setOwnerTdg(getOwner(rs.getInt("owner_id")));
+				pet.setVisitsTdg(getVisits(rs.getInt("id")));
 				return pet;
 			} catch (SQLException e) {
 					e.printStackTrace();
