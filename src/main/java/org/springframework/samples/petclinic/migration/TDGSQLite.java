@@ -189,6 +189,25 @@ public class TDGSQLite {
     	}
     	return null;
     }
+
+    public static Visit getVisit(Intger visitId){
+        ResultSet rs = selectQuery("SELECT * FROM visits where id=" + String.valueOf(visitId) + ";");
+        if(rs != null){
+            try{
+                Visit visit = new Visit();
+
+                visit.setDate(rs.getDate("visit_date").toLocalDate());
+    			visit.setId(rs.getInt("id"));
+    			visit.setPetId(rs.getInt("pet_id"));
+    			visit.setDescription(rs.getString("description"));
+
+                return visit;
+            }catch (SQLException e){
+    			e.printStackTrace();
+    		}
+        }
+        return null;
+    }
     
     public static void updateVisit(Integer id, Integer petId, Date visitDate, String description){
         insertQuery("UPDATE visits SET pet_id = " + String.valueOf(petId) + ", visit_date = '" + String.valueOf(visitDate) + "', description = '" + description + "' WHERE id = " + String.valueOf(id) + ";");
