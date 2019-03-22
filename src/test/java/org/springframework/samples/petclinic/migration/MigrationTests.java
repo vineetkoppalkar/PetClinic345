@@ -80,7 +80,7 @@ public class MigrationTests {
     }
 
     @Test
-    public void testShadowWriteOwnerConsistencyCheckerSameOwner(){
+    public void testShadowWriteAndReadConsistencyCheckerSameOwner(){
         try {
             assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner1, owner2));
         }
@@ -91,7 +91,7 @@ public class MigrationTests {
     }
 
     @Test
-    public void testShadowWriteOwnerConsistencyCheckerDifferentOwner(){
+    public void testShadowWriteAndReadConsistencyCheckerDifferentOwner(){
         try {
             assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner1, owner3));
         }
@@ -101,7 +101,7 @@ public class MigrationTests {
     }
 
     @Test
-    public void testShadowWriteOwnerConsistencyCheckerSamePet(){
+    public void testShadowWriteAndReadConsistencyCheckerSamePet(){
         try {
             assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerPet(pet1, pet2));
         }
@@ -112,7 +112,7 @@ public class MigrationTests {
     }
 
     @Test
-    public void testShadowWriteOwnerConsistencyCheckerDifferentPet(){
+    public void testShadowWriteAndReadConsistencyCheckerDifferentPet(){
         try {
             assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerPet(pet1, pet3));
         }
@@ -122,7 +122,7 @@ public class MigrationTests {
     }
 
     @Test
-    public void testShadowWriteOwnerConsistencyCheckerSameVisit(){
+    public void testShadowWriteAndReadConsistencyCheckerSameVisit(){
         try {
             assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVisit(visit1, visit2));
         }
@@ -133,7 +133,7 @@ public class MigrationTests {
     }
 
     @Test
-    public void testShadowWriteOwnerConsistencyCheckerDifferentVisit(){
+    public void testShadowWriteAndReadConsistencyCheckerDifferentVisit(){
         try {
             assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVisit(visit1, visit3));
         }
