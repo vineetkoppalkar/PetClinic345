@@ -7,6 +7,11 @@ import java.util.List;
 
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.vet.Specialty;
+import java.time.LocalDate;
+
+import org.springframework.samples.petclinic.migration.Forklift;
+import org.springframework.samples.petclinic.owner.Pet;
+import org.springframework.samples.petclinic.owner.PetType;
 import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
 
@@ -141,8 +146,8 @@ public class TDGSQLite {
     	selectQuery("INSERT INTO specialties id, name VALUES (NULL, " + specialty + ");");
     }
     
-    public static void addVetSpecialty(int vet_id, int specialty_id) {
-    	selectQuery("INSERT INTO vet_specialties vet_id, specialty_id VALUES ("+ String.valueOf(vet_id) + ", "+ String.valueOf(specialty_id) + ");");
+    public static void addVetSpecialty(int vetId, int specialtyId) {
+    	selectQuery("INSERT INTO vet_specialties vet_id, specialty_id VALUES ("+ String.valueOf(vetId) + ", "+ String.valueOf(specialtyId) + ");");
     }
     
     public static void addVisit(int id, int petId, Date visitDate, String description){
@@ -172,10 +177,49 @@ public class TDGSQLite {
     	return null;
     }
     
+    public static void addPet(String name, Date birthDate, int typeId, int ownerId) {
+    	selectQuery("INSERT INTO pets id, name, birth_date, type_id, owner_id VALUES (NULL, " + name + ", " + String.valueOf(birthDate) + ", " + String.valueOf(typeId) + ", " + String.valueOf(ownerId) + ");");
+    }
     
+    public static Pet getPet(String name) {
+    	ResultSet rs = selectQuery("SELECT * FROM pets WHERE name=" + name + ";");
+    	if(rs != null) {
+    		try {
+    			Pet pet = new Pet();
+				pet.setName(rs.getString("name"));
+				pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
+				PetType petType = getPetType(rs.getInt("type_id"));
+				pet.setType(petType);
+				return pet;
+			} catch (SQLException e) {
+					e.printStackTrace();
+			}
+    	}
+    	return null;
+    }
     
+    public static PetType getPetType(int id) {
+    	ResultSet rs = selectQuery("SELECT name FROM types WHERE id=" + id + ";");
+    	try {
+    		if(rs != null) {
+				PetType petType = new PetType();
+				petType.setId(id);
+				petType.setName(rs.getString("name"));
+				return petType;
+    		}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	return null;
+    }
     
+    public static void updatePet(int id, String name, Date birthDate, int typeId, int ownerId) {
+    	selectQuery("UPDATE pets SET  name = " + name + ", birth_date = " + birthDate + ", type_id = " + String.valueOf(typeId) + ", owner_id = " + String.valueOf(ownerId) + " WHERE id = " + String.valueOf(id) + ";");
+    }
     
-    
+    public static void deletePet(int id) {
+        selectQuery("DELETE FROM pets WHERE id=" + String.valueOf(id) + ";");
+
+    }
     
 }
