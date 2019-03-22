@@ -51,43 +51,43 @@ public class Forklift implements Runnable {
                 String address = owners.getString("address");
                 String city = owners.getString("city");
                 String telephone = owners.getString("telephone");
-                //TDGSQLite.addOwner(firstName, lastName, address, city, telephone);
+                TDGSQLite.addOwner(firstName, lastName, address, city, telephone);
             }
             while (types.next()) {
                 Integer id = types.getInt("id");
                 String name = types.getString("name");
-                //TDGSQLite.addType(id, name);
+                TDGSQLite.addPetType(name);
             }
             while(pets.next()) {
                 Integer id = pets.getInt("id");
                 String name = pets.getString("name");
                 Date birthDate = pets.getDate("birth_date");
                 Integer typeId = pets.getInt("type_id");
-                Integer ownderId = pets.getInt("owner_id");
-                //TDGSQLite.addPet(id, name, birthDate, typeId, ownerId);
+                Integer ownerId = pets.getInt("owner_id");
+                TDGSQLite.addPet(name, birthDate, typeId, ownerId);
             }
             while(specialties.next()) {
                 Integer id = specialties.getInt("id");
                 String name = specialties.getString("name");
-                //TDGSQLite.addSpecialty(id, name);
+                TDGSQLite.addSpecialty(name);
             }
             while(vets.next()) {
                 Integer id = vets.getInt("id");
                 String firstName = vets.getString("first_name");
                 String lastName = vets.getString("last_name");
-                //TDGSQLite.addVet(id, firstName, lastName);
+                TDGSQLite.addVet(firstName, lastName);
             }
             while(vetSpecialties.next()) {
                 Integer vetId = vetSpecialties.getInt("vet_id");
                 Integer specialtyId = vetSpecialties.getInt("specialty_id");
-                //TDGSQLite.addVetSpecialty(vetId, specialtyId);
+                TDGSQLite.addVetSpecialty(vetId, specialtyId);
             }
             while(visits.next()) {
                 Integer id = visits.getInt("id");
                 Integer petId = visits.getInt("pet_id");
                 Date visitDate = visits.getDate("visit_date");
                 String description = visits.getString("description");
-                //TDGSQLite.addVisit(id, petId, visitDate, description,);
+                TDGSQLite.addVisit(id, petId, visitDate, description);
             }
         } catch (SQLException e) {
             e.printStackTrace();

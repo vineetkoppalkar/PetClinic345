@@ -37,6 +37,19 @@ public class TDGSQLite {
         return conn;
     }
 
+    public static ResultSet selectQuery(String s) {
+
+        Statement stmt;
+        ResultSet rs = null;
+        try {
+            stmt = sqlite.createStatement();
+            rs    = stmt.executeQuery(s);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rs;
+    }
+
     private static void populate() {
         try {
             Forklift.constructDatabase("jdbc:sqlite:test");
@@ -208,6 +221,10 @@ public class TDGSQLite {
 			e.printStackTrace();
 		}
     	return null;
+    }
+
+    public static void addPetType(String name) {
+        selectQuery("INSERT INTO types id, name VALUES (NULL, " + name + ");");
     }
     
     public static void updatePet(Integer id, String name, Date birthDate, Integer typeId, Integer ownerId) {
