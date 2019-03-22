@@ -177,6 +177,14 @@ public class TDGSQLite {
     	return null;
     }
     
+    public static void updateVisit(Integer id, Integer petId, Date visitDate, String description){
+    	selectQuery("UPDATE visits SET pet_id = " + String.valueOf(petId) + ", visit_date = " + String.valueOf(visitDate) + ", description = " + description + "WHERE id = " + String.valueOf(id) + ";");
+    }
+    
+    public static void deleteVisit(Integer id) {
+    	selectQuery("DELETE FROM visits WHERE id=" + String.valueOf(id) + ";");
+    }
+    
     public static void addPet(String name, Date birthDate, Integer typeId, Integer ownerId) {
     	selectQuery("INSERT INTO pets id, name, birth_date, type_id, owner_id VALUES (NULL, " + name + ", " + String.valueOf(birthDate) + ", " + String.valueOf(typeId) + ", " + String.valueOf(ownerId) + ");");
     }
