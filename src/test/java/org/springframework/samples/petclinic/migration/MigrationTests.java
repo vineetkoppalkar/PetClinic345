@@ -43,11 +43,7 @@ public class MigrationTests {
         when(TDGSQLite.getAllOwners()).thenReturn(newDatastoreOwners);
 
         ConsistencyChecker cc = new ConsistencyChecker();
-        try{
-            cc.ownerCheckConsistency();
-        }catch (SQLException e) {
-            e.getStackTrace();
-        }
+        cc.ownerCheckConsistency();
 
         assertEquals(1, cc.getNbOfOwnerInconsistencies());
     }

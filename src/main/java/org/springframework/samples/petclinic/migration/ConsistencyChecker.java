@@ -16,17 +16,10 @@ public class ConsistencyChecker implements Runnable {
     public void run() {
         System.out.println("Consistency checker running");
         resetInconsistencyCounters();
-
-        try {
-            // TODO loop over the owner table
-            ownerCheckConsistency();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        ownerCheckConsistency();
     }
 
-	public void ownerCheckConsistency() throws SQLException {
-
+	public void ownerCheckConsistency() {
         List<Owner> oldDatastoreOwners = TDGHSQL.getAllOwners();
         List<Owner> newDatastoreOwners = TDGSQLite.getAllOwners();
 
@@ -34,7 +27,7 @@ public class ConsistencyChecker implements Runnable {
             Owner expected = oldDatastoreOwners.get(i);
             Owner actual = newDatastoreOwners.get(i);
 
-            if(!actual.equals(expected)) {
+            if (!actual.equals(expected)) {
                 System.out.println("Inconsistency detected for owner: ");
                 System.out.println("[Actual]: " + actual.toString());
                 System.out.println("[Expected]: " + expected.toString());
