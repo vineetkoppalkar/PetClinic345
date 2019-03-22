@@ -32,9 +32,6 @@ public class PetClinicApplication {
     public static boolean shadowWrites = false;
 
     public static void main(String[] args) {
-        Thread migration = new Thread(new Forklift());
-        migration.setPriority(Thread.MIN_PRIORITY);
-        migration.start();
         SpringApplication.run(PetClinicApplication.class, args);
     }
 
