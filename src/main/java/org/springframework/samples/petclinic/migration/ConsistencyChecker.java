@@ -11,6 +11,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class ConsistencyChecker implements Runnable {
@@ -168,6 +169,58 @@ public class ConsistencyChecker implements Runnable {
         }
         return true;
 
+    }
+
+    public static boolean shadowWritesAndReadsConsistencyCheckerVet(Vet oldDatastoreVet, Vet newDatastoreVet) throws SQLException {
+
+        if(!oldDatastoreVet.equals(newDatastoreVet)) {
+            System.out.println("Inconsistency detected for vet: ");
+            System.out.println("[Actual]: " + newDatastoreVet.toString());
+            System.out.println("[Expected]: " + oldDatastoreVet.toString());
+
+            //Cannot increment this, either make the whole thing static or everything dynamic
+//            nbOfOwnerInconsistencies++;
+
+            TDGSQLite.updateVet(oldDatastoreVet.getId(), oldDatastoreVet.getFirstName(), oldDatastoreVet.getLastName());
+
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean shadowWritesAndReadsConsistencyCheckerOwners(Collection<Owner> oldDatastoreOwners,Collection<Owner> newDatastoreOwners) throws SQLException {
+
+        if(oldDatastoreOwners.size() == newDatastoreOwners.size()) {
+            for (int i = 0; i < newDatastoreOwners.size(); i++) {
+                Owner expected = (Owner)oldDatastoreOwners.toArray()[i];
+                Owner actual = (Owner)newDatastoreOwners.toArray()[i];
+                //TODO: add an equals method for Visit
+                if(!actual.equals(expected)) {
+                    System.out.println("Inconsistency detected for visit: ");
+                    System.out.println("[Actual]: " + newDatastoreOwners.toString());
+                    System.out.println("[Expected]: " + oldDatastoreOwners.toString());
+
+                    //Cannot increment this, either make the whole thing static or everything dynamic
+//            nbOfOwnerInconsistencies++;
+                    TDGSQLite.updateOwner(expected.getId(), expected.getFirstName(), expected.getLastName(), expected.getAddress(),
+                    expected.getCity(), expected.getTelephone());
+                    return false;
+                }
+            }
+            return true;
+        }
+        else {
+            //If the size of the lists are not equal, wipe everything in the new datastore and replace with the ones from olddb
+            for (Owner owner : newDatastoreOwners) {
+                //            nbOfOwnerInconsistencies++;
+                TDGSQLite.deleteOwner(owner.getId());
+            }
+            for(Owner owner : oldDatastoreOwners){
+                TDGSQLite.addOwner(owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(),
+                owner.getTelephone());
+            }
+            return false;
+        }
     }
 
 }

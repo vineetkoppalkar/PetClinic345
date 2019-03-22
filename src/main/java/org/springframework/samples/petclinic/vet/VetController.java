@@ -15,10 +15,15 @@
  */
 package org.springframework.samples.petclinic.vet;
 
+import org.springframework.samples.petclinic.PetClinicApplication;
+import org.springframework.samples.petclinic.migration.ConsistencyChecker;
+import org.springframework.samples.petclinic.migration.TDGSQLite;
+import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -43,6 +48,15 @@ class VetController {
         Vets vets = new Vets();
         vets.getVetList().addAll(this.vets.findAll());
         model.put("vets", vets);
+        if(PetClinicApplication.shadowReads){
+            TDGSQLite.getAllVets();
+            try{
+                ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vets, TDGSQLite.getAllVets());
+            }
+            catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
         return "vets/vetList";
     }
 
@@ -52,6 +66,15 @@ class VetController {
         // objects so it is simpler for JSon/Object mapping
         Vets vets = new Vets();
         vets.getVetList().addAll(this.vets.findAll());
+        if(PetClinicApplication.shadowReads){
+            TDGSQLite.getAllVets();
+            try{
+                ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vets, TDGSQLite.getAllVets());
+            }
+            catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
         return vets;
     }
 

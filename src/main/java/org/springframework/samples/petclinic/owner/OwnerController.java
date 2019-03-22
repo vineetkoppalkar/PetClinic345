@@ -103,10 +103,28 @@ class OwnerController {
         } else if (results.size() == 1) {
             // 1 owner found
             owner = results.iterator().next();
+            if(PetClinicApplication.shadowReads){
+                TDGSQLite.getOwner(owner.getId());
+                try {
+                    ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
+                }
+                catch (SQLException e){
+                    e.printStackTrace();
+                }
+            }
             return "redirect:/owners/" + owner.getId();
         } else {
             // multiple owners found
             model.put("selections", results);
+            if(PetClinicApplication.shadowReads){
+                TDGSQLite.getOwner(owner.getId());
+                try {
+                    ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(results, TDGSQLite.getOwnersByLastName(owner.getLastName()));
+                }
+                catch (SQLException e){
+                    e.printStackTrace();
+                }
+            }
             return "owners/ownersList";
         }
     }
@@ -115,6 +133,16 @@ class OwnerController {
     public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) {
         Owner owner = this.owners.findById(ownerId);
         model.addAttribute(owner);
+        if(PetClinicApplication.shadowReads){
+            TDGSQLite.updateOwner(owner.getId(), owner.getFirstName(), owner.getLastName(), owner.getAddress()
+            owner.getCity(), owner.getTelephone());
+            try {
+                ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
+            }
+            catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
         return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
     }
 
@@ -147,6 +175,15 @@ class OwnerController {
     public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
         ModelAndView mav = new ModelAndView("owners/ownerDetails");
         mav.addObject(this.owners.findById(ownerId));
+        if(PetClinicApplication.shadowReads){
+            TDGSQLite.getOwner(ownerId);
+            try {
+                ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(this.owners.findById(ownerId), TDGSQLite.getOwner(ownerId));
+            }
+            catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
         return mav;
     }
 

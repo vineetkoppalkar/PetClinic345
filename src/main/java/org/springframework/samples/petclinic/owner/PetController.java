@@ -103,6 +103,16 @@ class PetController {
     public String initUpdateForm(@PathVariable("petId") int petId, ModelMap model) {
         Pet pet = this.pets.findById(petId);
         model.put("pet", pet);
+        if(PetClinicApplication.shadowReads){
+            TDGSQLite.updatePet(pet.getId(), pet.getName(), Date.valueOf(pet.getBirthDate()), pet.getType().getId(),
+            pet.getOwner().getId());
+            try {
+                ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerPet(pet, TDGSQLite.getPet(pet.getName()));
+            }
+            catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
         return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
     }
 
