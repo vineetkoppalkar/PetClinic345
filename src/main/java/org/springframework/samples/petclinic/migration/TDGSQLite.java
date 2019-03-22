@@ -26,19 +26,6 @@ public class TDGSQLite {
         return conn;
     }
 
-    public static ResultSet selectQuery(String s) {
-
-        Statement stmt;
-        ResultSet rs = null;
-        try {
-            stmt = sqlite.createStatement();
-            rs    = stmt.executeQuery(s);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return rs;
-    }
-
     private static void populate() {
         try {
             Forklift.constructDatabase("jdbc:sqlite:test");
