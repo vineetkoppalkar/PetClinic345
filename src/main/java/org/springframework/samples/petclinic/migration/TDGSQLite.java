@@ -2,9 +2,13 @@ package org.springframework.samples.petclinic.migration;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.samples.petclinic.migration.Forklift;
 import org.springframework.samples.petclinic.vet.Specialty;
 import org.springframework.samples.petclinic.vet.Vet;
+import org.springframework.samples.petclinic.visit.Visit;
 
 public class TDGSQLite {
 
@@ -97,8 +101,31 @@ public class TDGSQLite {
     	selectQuery("INSERT INTO vet_specialties vet_id, specialty_id VALUES ("+ String.valueOf(vet_id) + ", "+ String.valueOf(specialty_id) + ");");
     }
     
-    public static void addVisit(){
-    	
+    public static void addVisit(int id, int petId, Date visitDate, String description){
+    	selectQuery("INSERT INTO visits id, pet_id, visit_date, description VALUES (" + String.valueOf(id) + ", " + String.valueOf(petId) +", " + String.valueOf(visitDate) + ", " + description + ");");
+    }
+    
+    public static List<Visit> getVisits(int petId){
+    	ResultSet rs = selectQuery("SELECT * FROM visits where pet_id=" + String.valueOf(petId) + ";");
+    	if(rs != null){
+    		try{
+    		List<Visit> visits = new ArrayList<Visit>();
+    		while(rs.next()){
+    			Visit visit = new Visit();
+    			
+    			visit.setDate(rs.getDate("visit_date").toLocalDate());
+    			visit.setId(rs.getInt("id"));
+    			visit.setPetId(rs.getInt("pet_id"));
+    			visit.setDescription(rs.getString("description"));
+    			
+    			visits.add(visit);
+    		}
+    		return visits;
+    		}catch (SQLException e){
+    			e.printStackTrace();
+    		}
+    	}
+    	return null;
     }
     
     
