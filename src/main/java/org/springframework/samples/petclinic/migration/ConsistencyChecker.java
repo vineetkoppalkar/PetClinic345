@@ -25,23 +25,50 @@ public class ConsistencyChecker implements Runnable {
 
         for (int i = 0; i < oldDatastoreOwners.size(); i++) {
             Owner expected = oldDatastoreOwners.get(i);
-            Owner actual = newDatastoreOwners.get(i);
+            Owner actual;
+            try {
+                actual = newDatastoreOwners.get(i);
+            } catch (IndexOutOfBoundsException e) {
+                // New data was added since the forklift
+                printViolation("owners", "null", expected.toString());
+                nbOfOwnerInconsistencies++;
 
-            if (!actual.equals(expected)) {
-                System.out.println("Inconsistency detected for owner: ");
-                System.out.println("[Actual]: " + actual.toString());
-                System.out.println("[Expected]: " + expected.toString());
+                insertNewOwnerIntoSQLite(expected);
+                newDatastoreOwners.add(i, expected);
 
+                continue;
+            }
+
+            if (actual != null && !actual.equals(expected)) {
+                // Inconsistency for a specific owner between new and old datastores
+                printViolation("owners", actual.toString(), expected.toString());
                 nbOfOwnerInconsistencies++;
 
                 fixInconsistencyInOwners(actual.getId(), expected);
-                oldDatastoreOwners.set(i, expected);
+                newDatastoreOwners.set(i, expected);
             }
         }
 	}
 
+	private void printViolation(String tableName, String actual, String expected) {
+        System.out.println("\nInconsistency detected for table " + tableName + ": ");
+        System.out.println("[Actual]: " + actual);
+        System.out.println("[Expected]: " + expected);
+    }
+
+	private void insertNewOwnerIntoSQLite(Owner expected) {
+        TDGSQLite.addOwner(
+            expected.getFirstName(),
+            expected.getLastName(),
+            expected.getAddress(),
+            expected.getCity(),
+            expected.getTelephone()
+        );
+    }
+
     private void fixInconsistencyInOwners(int id, Owner expected) {
-        TDGSQLite.updateOwner(id,
+        TDGSQLite.updateOwner(
+            id,
             expected.getFirstName(),
             expected.getLastName(),
             expected.getAddress(),
