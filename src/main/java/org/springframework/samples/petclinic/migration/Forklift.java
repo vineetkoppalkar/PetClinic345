@@ -11,8 +11,7 @@ public class Forklift implements Runnable {
         System.out.println("Forklift running");
         try {
             constructDatabase("jdbc:sqlite:memory");
-            fakeData("jdbc:sqlite:memory");
-            //forkliftData();
+            forkliftDatabase();
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
