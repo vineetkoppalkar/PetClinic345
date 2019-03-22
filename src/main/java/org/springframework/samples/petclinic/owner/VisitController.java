@@ -15,14 +15,19 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import org.springframework.samples.petclinic.PetClinicApplication;
 import org.springframework.samples.petclinic.visit.Visit;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.samples.petclinic.migration.TDGSQLite;
 
 import javax.validation.Valid;
+
+import java.time.ZoneId;
+import java.sql.Date;
 import java.util.Map;
 
 /**
@@ -80,6 +85,9 @@ class VisitController {
         if (result.hasErrors()) {
             return "pets/createOrUpdateVisitForm";
         } else {
+            if(PetClinicApplication.shadowWrites){
+            	TDGSQLite.addVisit(visit.getId(), visit.getPetId(), Date.valueOf(visit.getDate()), visit.getDescription());
+            }
             this.visits.save(visit);
             return "redirect:/owners/{ownerId}";
         }
