@@ -53,7 +53,7 @@ public class TDGSQLite {
     private static void populate() {
         try {
             Forklift.constructDatabase("jdbc:sqlite:test");
-            Forklift.forkliftDatabase("jdbc:sqlite:test");
+            Forklift.fakeData("jdbc:sqlite:test");
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }

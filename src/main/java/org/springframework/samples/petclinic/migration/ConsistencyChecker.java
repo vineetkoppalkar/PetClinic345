@@ -18,13 +18,17 @@ public class ConsistencyChecker implements Runnable {
     private final String USER = "sa";
     private final String PASSWORD = "";
 
-    private final String URL_SQLite = "jdbc:sqlite:memory";
-    private TDGSQLite tdg;
+    private TDGHSQL tdghsql;
+    private TDGSQLite tdgsqLite;
+
+    public ConsistencyChecker(TDGHSQL tdghsql, TDGSQLite tdgsqLite){
+        this.tdghsql = tdghsql;
+        this.tdgsqLite = tdgsqLite;
+    }
 
     @Override
     public void run() {
         System.out.println("Consistency checker running");
-        tdg = new TDGSQLite(URL_SQLite);
         resetInconsistencyCounters();
 
         try {

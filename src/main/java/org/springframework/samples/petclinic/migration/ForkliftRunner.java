@@ -8,6 +8,8 @@ import java.sql.*;
 @Component
 public class ForkliftRunner {
 
+    private static String root = "jdbc:sqlite:memory";
+
     @PostConstruct
     public void init() {
         Thread migration = new Thread(new Forklift());
@@ -29,7 +31,7 @@ public class ForkliftRunner {
 //            e.printStackTrace();
 //        }
 
-        Thread consistency = new Thread(new ConsistencyChecker());
+        Thread consistency = new Thread(new ConsistencyChecker(new TDGHSQL(), new TDGSQLite(root)));
         consistency.setPriority(Thread.MIN_PRIORITY);
         consistency.start();
 
