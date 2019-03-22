@@ -190,7 +190,7 @@ public class TDGSQLite {
     	return null;
     }
 
-    public static Visit getVisit(Intger visitId){
+    public static Visit getVisit(Integer visitId){
         ResultSet rs = selectQuery("SELECT * FROM visits where id=" + String.valueOf(visitId) + ";");
         if(rs != null){
             try{
