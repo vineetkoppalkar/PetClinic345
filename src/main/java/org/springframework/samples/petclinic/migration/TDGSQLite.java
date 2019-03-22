@@ -3,6 +3,7 @@ package org.springframework.samples.petclinic.migration;
 import java.io.IOException;
 import java.sql.*;
 import org.springframework.samples.petclinic.migration.Forklift;
+import org.springframework.samples.petclinic.vet.Specialty;
 import org.springframework.samples.petclinic.vet.Vet;
 
 public class TDGSQLite {
@@ -57,18 +58,25 @@ public class TDGSQLite {
     public static Vet getVet(int id) {
     	ResultSet rs = selectQuery("SELECT * FROM vets WHERE id=" + String.valueOf(id) + ";");
     	if(rs != null) {
+    		try{
     		Vet vet = new Vet();
-    		vet.setId(rs.getInt('id'));
-    		vet.setFirstName(rs.getString('first_name'));
-    		vet.setLastName(rs.getString('last_name'));
+    		vet.setId(rs.getInt("id"));
+    		vet.setFirstName(rs.getString("first_name"));
+    		vet.setLastName(rs.getString("last_name"));
     		rs = selectQuery("SELECT specialty_id FROM vet_specialties WHERE vet_id=" + String.valueOf(id) + ";");
     		if(rs != null) {
-    			ResultSet specialty = selectQuery("SELECT name FROM specialties WHERE id=" + String.valueOf(rs.getInt('specialty_id')) +";");
+    			ResultSet specialty = selectQuery("SELECT name FROM specialties WHERE id=" + String.valueOf(rs.getInt("specialty_id")) +";");
     			if(specialty != null) {
-    				vet.addSpecialty(specialty.getString('name'));
+    				Specialty vetSpecialty = new Specialty();
+    				vetSpecialty.setId(rs.getInt("specialty_id"));
+    				vetSpecialty.setName(specialty.getString("name"));
+    				vet.addSpecialty(vetSpecialty);
     			}
     		}		
     		return vet;
+    		}catch(SQLException e){
+    			e.printStackTrace();
+    		}
     	}
     	return null;
     }
@@ -89,6 +97,9 @@ public class TDGSQLite {
     	selectQuery("INSERT INTO vet_specialties vet_id, specialty_id VALUES ("+ String.valueOf(vet_id) + ", "+ String.valueOf(specialty_id) + ");");
     }
     
+    public static void addVisit(){
+    	
+    }
     
     
     
