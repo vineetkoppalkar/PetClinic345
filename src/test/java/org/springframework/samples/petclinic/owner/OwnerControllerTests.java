@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.samples.petclinic.migration.TDGSQLite;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.OwnerController;
 import org.springframework.samples.petclinic.owner.OwnerRepository;
@@ -46,7 +47,8 @@ public class OwnerControllerTests {
 
     @Before
     public void setup() {
-      
+
+        TDGSQLite sqlite = new TDGSQLite("jdbc:sqlite:test");
     	when(george.getId()).thenReturn(TEST_OWNER_ID);
     	when(george.getFirstName()).thenReturn("George");
     	when(george.getLastName()).thenReturn("Franklin");
