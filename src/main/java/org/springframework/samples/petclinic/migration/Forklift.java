@@ -11,7 +11,8 @@ public class Forklift implements Runnable {
         System.out.println("Forklift running");
         try {
             constructDatabase("jdbc:sqlite:memory");
-            forkliftDatabase("jdbc:sqlite:memory");
+            fakeData("jdbc:sqlite:memory");
+            //forkliftData();
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
@@ -25,12 +26,29 @@ public class Forklift implements Runnable {
         executeSQL(c, br);
     }
 
-    static void forkliftDatabase(String root) throws SQLException, IOException {
+    static void fakeData(String root) throws SQLException, IOException {
         // create a connection to the database
         Connection c = DriverManager.getConnection(root);
         FileReader fr = new FileReader(new File("src/main/resources/db/hsqldb/data.sql"));
         BufferedReader br = new BufferedReader(fr);
         executeSQL(c, br);
+    }
+
+    static void forkliftDatabase() {
+        ResultSet owners = TDGHSQL.getAllOwners();
+        try {
+            while (owners.next()) {
+                Integer id = owners.getInt("id");
+                String firstName = owners.getString("first_name");
+                String lastName = owners.getString("last_name");
+                String address = owners.getString("address");
+                String city = owners.getString("city");
+                String telephone = owners.getString("telephone");
+                //TDGSQLite.addOwner(firstName, lastName, address, city, telephone);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void executeSQL(Connection c, BufferedReader br) throws IOException, SQLException {
