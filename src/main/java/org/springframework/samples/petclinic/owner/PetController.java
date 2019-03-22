@@ -15,6 +15,9 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import org.springframework.samples.petclinic.PetClinicApplication;
+import org.springframework.samples.petclinic.migration.ConsistencyChecker;
+import org.springframework.samples.petclinic.migration.TDGSQLite;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
@@ -23,6 +26,8 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.sql.Date;
+import java.sql.SQLException;
 import java.util.Collection;
 
 /**
@@ -82,6 +87,14 @@ class PetController {
             return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
         } else {
             this.pets.save(pet);
+            if(PetClinicApplication.shadowWrites) {
+                TDGSQLite.addPet(pet.getName(), Date.valueOf(pet.getBirthDate()), pet.getType().getId(), pet.getOwner().getId());
+                try {
+                    ConsistencyChecker.shadowWritesPet(pet.getName());
+                }catch(SQLException e){
+                    e.printStackTrace();
+                }
+            }
             return "redirect:/owners/{ownerId}";
         }
     }
@@ -102,6 +115,14 @@ class PetController {
         } else {
             owner.addPet(pet);
             this.pets.save(pet);
+            if(PetClinicApplication.shadowWrites) {
+                TDGSQLite.updatePet(pet.getId(), pet.getName(), Date.valueOf(pet.getBirthDate()), pet.getType().getId(), pet.getOwner().getId());
+                try {
+                    ConsistencyChecker.shadowWritesPet(pet.getName());
+                }catch(SQLException e){
+                    e.printStackTrace();
+                }
+            }
             return "redirect:/owners/{ownerId}";
         }
     }
