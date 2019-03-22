@@ -12,20 +12,6 @@ public class ConsistencyChecker implements Runnable {
 
     private int nbOfOwnerInconsistencies;
 
-    private int sumOfInconsistencies = nbOfOwnerInconsistencies;
-
-    private final String URL_HSQLDB = "jdbc:hsqldb:mem:petclinic;readonly=true";
-    private final String USER = "sa";
-    private final String PASSWORD = "";
-
-    private TDGHSQL tdghsql;
-    private TDGSQLite tdgsqLite;
-
-    public ConsistencyChecker(TDGHSQL tdghsql, TDGSQLite tdgsqLite){
-        this.tdghsql = tdghsql;
-        this.tdgsqLite = tdgsqLite;
-    }
-
     @Override
     public void run() {
         System.out.println("Consistency checker running");
@@ -39,15 +25,12 @@ public class ConsistencyChecker implements Runnable {
         }
     }
 
-	private void ownerCheckConsistency() throws SQLException {
+	public void ownerCheckConsistency() throws SQLException {
 
-        List<Owner> oldDatastoreOwners;
-        List<Owner> newDatastoreOwners;
+        List<Owner> oldDatastoreOwners = TDGHSQL.getAllOwners();
+        List<Owner> newDatastoreOwners = TDGSQLite.getAllOwners();
 
-        oldDatastoreOwners = getOwnersFromDatastore(URL_HSQLDB);
-        newDatastoreOwners = getOwnersFromDatastore(URL_SQLite);
-
-        for (int i = 0; i < newDatastoreOwners.size(); i++) {
+        for (int i = 0; i < oldDatastoreOwners.size(); i++) {
             Owner expected = oldDatastoreOwners.get(i);
             Owner actual = newDatastoreOwners.get(i);
 
@@ -64,52 +47,26 @@ public class ConsistencyChecker implements Runnable {
         }
 	}
 
-	private List<Owner> getOwnersFromDatastore(String url) throws SQLException {
-
-        List<Owner> results = new ArrayList<>();
-
-        Connection c;
-        if (url.equals(URL_HSQLDB)) {
-            c =  DriverManager.getConnection(URL_HSQLDB, USER, PASSWORD);
-        } else {
-            c = DriverManager.getConnection(URL_SQLite);
-        }
-
-        Statement st = c.createStatement();
-        String query = "select * from owners";
-        ResultSet rs = st.executeQuery(query);
-        while (rs.next()) {
-
-            int id = rs.getInt("id");
-            String first_name = rs.getString("first_name");
-            String last_name = rs.getString("last_name");
-            String address = rs.getString("address");
-            String city = rs.getString("city");
-            String telephone = rs.getString("telephone");
-
-//            System.out.println("@@ " + id + " " + first_name + " " + last_name + " " + address + " " + city + " " + telephone);
-
-            results.add(new Owner(id, first_name, last_name, address, city, telephone));
-        }
-        return results;
-    }
-
-    private void fixInconsistencyInOwners(int id, Owner expected) throws SQLException {
-        Connection c = DriverManager.getConnection(URL_SQLite);
-        Statement st = c.createStatement();
-        String query = "update owners SET " +
-                        "first_name = '" + expected.getFirstName() + "', " +
-                        "last_name = '" + expected.getLastName() + "', " +
-                        "address = '" + expected.getAddress() + "', " +
-                        "city = '" + expected.getCity() + "', " +
-                        "telephone = '" + expected.getTelephone() + "' " +
-                        "WHERE id = " + id;
-
-        st.executeQuery(query);
+    private void fixInconsistencyInOwners(int id, Owner expected) {
+        TDGSQLite.updateOwner(id,
+            expected.getFirstName(),
+            expected.getLastName(),
+            expected.getAddress(),
+            expected.getCity(),
+            expected.getTelephone()
+        );
     }
 
     private void resetInconsistencyCounters() {
         nbOfOwnerInconsistencies = 0;
+    }
+
+    public int getNbOfInconcistencies() {
+        return nbOfOwnerInconsistencies;
+    }
+
+    public int getNbOfOwnerInconsistencies() {
+        return nbOfOwnerInconsistencies;
     }
 
 }
