@@ -82,7 +82,7 @@ public class MigrationTests {
     @Test
     public void testShadowWriteOwnerConsistencyCheckerSameOwner(){
         try {
-            assertTrue(ConsistencyChecker.shadowWritesOwner(owner1, owner2));
+            assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner1, owner2));
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -93,7 +93,7 @@ public class MigrationTests {
     @Test
     public void testShadowWriteOwnerConsistencyCheckerDifferentOwner(){
         try {
-            assertFalse(ConsistencyChecker.shadowWritesOwner(owner1, owner3));
+            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner1, owner3));
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -103,7 +103,7 @@ public class MigrationTests {
     @Test
     public void testShadowWriteOwnerConsistencyCheckerSamePet(){
         try {
-            assertTrue(ConsistencyChecker.shadowWritesPet(pet1, pet2));
+            assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerPet(pet1, pet2));
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -114,7 +114,7 @@ public class MigrationTests {
     @Test
     public void testShadowWriteOwnerConsistencyCheckerDifferentPet(){
         try {
-            assertFalse(ConsistencyChecker.shadowWritesPet(pet1, pet3));
+            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerPet(pet1, pet3));
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -124,7 +124,7 @@ public class MigrationTests {
     @Test
     public void testShadowWriteOwnerConsistencyCheckerSameVisit(){
         try {
-            assertTrue(ConsistencyChecker.shadowWritesVisit(visit1, visit2));
+            assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVisit(visit1, visit2));
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -135,7 +135,7 @@ public class MigrationTests {
     @Test
     public void testShadowWriteOwnerConsistencyCheckerDifferentVisit(){
         try {
-            assertFalse(ConsistencyChecker.shadowWritesVisit(visit1, visit3));
+            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVisit(visit1, visit3));
         }
         catch(SQLException e){
             e.printStackTrace();

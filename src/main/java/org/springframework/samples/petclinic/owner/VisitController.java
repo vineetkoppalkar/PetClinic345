@@ -28,7 +28,6 @@ import org.springframework.samples.petclinic.migration.TDGSQLite;
 import javax.validation.Valid;
 
 import java.sql.SQLException;
-import java.time.ZoneId;
 import java.sql.Date;
 import java.util.Map;
 
@@ -91,7 +90,7 @@ class VisitController {
             if(PetClinicApplication.shadowWrites){
                 TDGSQLite.addVisit(visit.getId(), visit.getPetId(), Date.valueOf(visit.getDate()), visit.getDescription());
                 try{
-                    ConsistencyChecker.shadowWritesVisit(visit, TDGSQLite.getVisit((Integer)visit.getId()));
+                    ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVisit(visit, TDGSQLite.getVisit((Integer)visit.getId()));
                 }
                 catch(SQLException e){
                     e.printStackTrace();

@@ -114,7 +114,7 @@ public class ConsistencyChecker implements Runnable {
     }
 
 
-    public static boolean shadowWritesOwner(Owner oldDatastoreOwner, Owner newDatastoreOwner) throws SQLException{
+    public static boolean shadowWritesAndReadsConsistencyCheckerOwner(Owner oldDatastoreOwner, Owner newDatastoreOwner) throws SQLException{
 
         if(!oldDatastoreOwner.equalsA(newDatastoreOwner)) {
             System.out.println("Inconsistency detected for owner: ");
@@ -133,7 +133,7 @@ public class ConsistencyChecker implements Runnable {
         return true;
     }
 
-    public static boolean shadowWritesPet(Pet oldDatastorePet, Pet newDatastorePet) throws SQLException{
+    public static boolean shadowWritesAndReadsConsistencyCheckerPet(Pet oldDatastorePet, Pet newDatastorePet) throws SQLException{
 
         //TODO: Add a equals method in Pet class
         if(!oldDatastorePet.equals(newDatastorePet)) {
@@ -151,7 +151,7 @@ public class ConsistencyChecker implements Runnable {
         return true;
     }
 
-    public static boolean shadowWritesVisit(Visit oldDatastoreVisit, Visit newDatastoreVisit) throws SQLException{
+    public static boolean shadowWritesAndReadsConsistencyCheckerVisit(Visit oldDatastoreVisit, Visit newDatastoreVisit) throws SQLException{
 
         //TODO: add an equals method for Visit
         if(!oldDatastoreVisit.equals(newDatastoreVisit)) {

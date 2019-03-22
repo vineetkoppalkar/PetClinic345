@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
@@ -72,7 +71,7 @@ class OwnerController {
             if(PetClinicApplication.shadowWrites) {
                 try {
                     TDGSQLite.addOwner(owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(), owner.getTelephone());
-                    ConsistencyChecker.shadowWritesOwner(owner, TDGSQLite.getOwner(owner.getId()));
+                    ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -129,7 +128,7 @@ class OwnerController {
             if(PetClinicApplication.shadowWrites) {
                 try {
                     TDGSQLite.updateOwner(owner.getId(), owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(), owner.getTelephone());
-                    ConsistencyChecker.shadowWritesOwner(owner, TDGSQLite.getOwner(owner.getId()));
+                    ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
