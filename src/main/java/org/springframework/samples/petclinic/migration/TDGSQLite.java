@@ -5,7 +5,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.samples.petclinic.migration.Forklift;
+import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.vet.Specialty;
 import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
@@ -54,7 +54,51 @@ public class TDGSQLite {
         }
 
     }
-    
+
+    public static void addOwner(String firstName, String lastName, String address, String city, int telephone) {
+        selectQuery("INSERT INTO owners id, first_name, last_name VALUES (NULL, " + firstName + ", " + lastName + ", " + address +
+            ", " + city + ", " + telephone + ");");
+    }
+
+    public static Owner getOwner(int id) {
+        ResultSet rs = selectQuery("SELECT * FROM owners WHERE id=" + String.valueOf(id) + ";");
+        if(rs != null) {
+            try{
+                Owner owner = new Owner();
+                owner.setId(rs.getInt("id"));
+                owner.setFirstName(rs.getString("first_name"));
+                owner.setLastName(rs.getString("last_name"));
+                owner.setAddress(rs.getString("address"));
+                owner.setCity(rs.getString("city"));
+                owner.setTelephone(rs.getString("telephone"));
+                rs = selectQuery("SELECT name FROM pets WHERE owner_id=" + String.valueOf(id) + ";");
+                ArrayList<String> petId = new ArrayList();
+                if(rs != null) {
+                    while(rs.next()) {
+                        petId.add(rs.getString("name"));
+                    }
+                    for(String ownerPetId: petId){
+                        owner.addPet(getPet(ownerPetId));
+                    }
+                }
+                return owner;
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static void updateOwner(int id, String firstName, String lastName, String address, String city, int telephone) {
+        selectQuery("UPDATE owners SET first_name = " + firstName + ", last_name = " + lastName + ", address = " + address+
+            ", city =" + city + ", telephone" + telephone + " WHERE id = " + String.valueOf(id) + ";");
+    }
+
+    public static void deleteOwner(int id) {
+        selectQuery("DELETE FROM owners WHERE id=" + String.valueOf(id) + ";");
+    }
+
+
     public static void addVet(String firstName, String lastName) {
     	selectQuery("INSERT INTO vets id, first_name, last_name VALUES (NULL, " + firstName + ", " + lastName + ");");
     }
