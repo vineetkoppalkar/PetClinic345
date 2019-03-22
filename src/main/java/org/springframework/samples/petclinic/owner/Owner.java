@@ -170,8 +170,8 @@ public class Owner extends Person {
     }
 
 
-    @Override
-    public boolean equals(Object obj) {
+
+    public boolean equalsA(Object obj) {
         if (this == obj)
             return true;
 

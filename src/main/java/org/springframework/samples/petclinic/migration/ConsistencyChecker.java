@@ -116,7 +116,7 @@ public class ConsistencyChecker implements Runnable {
 
     public static boolean shadowWritesOwner(Owner oldDatastoreOwner, Owner newDatastoreOwner) throws SQLException{
 
-        if(!oldDatastoreOwner.equals(newDatastoreOwner)) {
+        if(!oldDatastoreOwner.equalsA(newDatastoreOwner)) {
             System.out.println("Inconsistency detected for owner: ");
             System.out.println("[Actual]: " + newDatastoreOwner.toString());
             System.out.println("[Expected]: " + oldDatastoreOwner.toString());
@@ -133,7 +133,7 @@ public class ConsistencyChecker implements Runnable {
         return true;
     }
 
-    public static void shadowWritesPet(Pet oldDatastorePet, Pet newDatastorePet) throws SQLException{
+    public static boolean shadowWritesPet(Pet oldDatastorePet, Pet newDatastorePet) throws SQLException{
 
         //TODO: Add a equals method in Pet class
         if(!oldDatastorePet.equals(newDatastorePet)) {
@@ -146,10 +146,12 @@ public class ConsistencyChecker implements Runnable {
 
             TDGSQLite.updatePet(oldDatastorePet.getId(), oldDatastorePet.getName(), Date.valueOf(oldDatastorePet.getBirthDate()),
                 oldDatastorePet.getType().getId(), oldDatastorePet.getOwner().getId());
+            return false;
         }
+        return true;
     }
 
-    public static void shadowWritesVisit(Visit oldDatastoreVisit, Visit newDatastoreVisit) throws SQLException{
+    public static boolean shadowWritesVisit(Visit oldDatastoreVisit, Visit newDatastoreVisit) throws SQLException{
 
         //TODO: add an equals method for Visit
         if(!oldDatastoreVisit.equals(newDatastoreVisit)) {
@@ -162,7 +164,9 @@ public class ConsistencyChecker implements Runnable {
 
             TDGSQLite.updateVisit(oldDatastoreVisit.getId(), oldDatastoreVisit.getPetId(), Date.valueOf(oldDatastoreVisit.getDate()),
                 oldDatastoreVisit.getDescription());
+            return false;
         }
+        return true;
 
     }
 

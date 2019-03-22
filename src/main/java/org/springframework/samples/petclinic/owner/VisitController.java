@@ -91,7 +91,7 @@ class VisitController {
             if(PetClinicApplication.shadowWrites){
                 TDGSQLite.addVisit(visit.getId(), visit.getPetId(), Date.valueOf(visit.getDate()), visit.getDescription());
                 try{
-                    ConsistencyChecker.shadowWritesVisit(visit, TDGSQLite.getVisit(visit.getPetId()));
+                    ConsistencyChecker.shadowWritesVisit(visit, TDGSQLite.getVisit((Integer)visit.getId()));
                 }
                 catch(SQLException e){
                     e.printStackTrace();
