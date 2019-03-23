@@ -15,6 +15,8 @@ public class Forklift implements Runnable {
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Forklift has finished.");
+
     }
 
     static void constructDatabase(String root, String dbName) throws SQLException, IOException {
