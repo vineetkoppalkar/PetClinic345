@@ -22,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
+import org.springframework.core.style.ToStringCreator;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.samples.petclinic.model.BaseEntity;
 
@@ -51,6 +52,13 @@ public class Visit extends BaseEntity {
      */
     public Visit() {
         this.date = LocalDate.now();
+    }
+
+    public Visit(int id, Integer petId, String description, LocalDate date) {
+        super(id);
+        this.petId = petId;
+        this.description = description;
+        this.date = date;
     }
 
     public LocalDate getDate() {
@@ -102,4 +110,12 @@ public class Visit extends BaseEntity {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return new ToStringCreator(this)
+            .append("id", this.getId())
+            .append("petId", this.getPetId())
+            .append("date", this.getDate())
+            .append("description", this.getDescription()).toString();
+    }
 }
