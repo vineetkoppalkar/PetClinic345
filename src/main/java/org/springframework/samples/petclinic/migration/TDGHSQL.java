@@ -201,14 +201,7 @@ public class TDGHSQL {
             try{
                 List<Visit> visits = new ArrayList<Visit>();
                 while(rs.next()){
-                    Visit visit = new Visit();
-
-                    visit.setDate(rs.getDate("visit_date").toLocalDate());
-                    visit.setId(rs.getInt("id"));
-                    visit.setPetId(rs.getInt("pet_id"));
-                    visit.setDescription(rs.getString("description"));
-
-                    visits.add(visit);
+                    visits.add(createVisitFromResultSet(rs));
                 }
                 return visits;
             }catch (SQLException e){
@@ -216,6 +209,34 @@ public class TDGHSQL {
             }
         }
         return null;
+    }
+
+    public static List<Visit> getAllVisits() {
+        ResultSet rs = selectQuery("SELECT * FROM visits");
+        List<Visit> results = new ArrayList<>();
+        try {
+            while (rs.next()) {
+                results.add(createVisitFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    private static Visit createVisitFromResultSet(ResultSet rs) {
+        Visit visit = new Visit();
+        if(rs != null) {
+            try{
+                visit.setId(rs.getInt("id"));
+                visit.setPetId(rs.getInt("pet_id"));
+                visit.setDate(LocalDate.parse(rs.getString("visit_date")));
+                visit.setDescription(rs.getString("description"));
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return visit;
     }
 
     public static ResultSet getRecords(String sql) {
