@@ -77,4 +77,29 @@ public class Visit extends BaseEntity {
         this.petId = petId;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+
+        if(obj == null || obj.getClass()!= this.getClass())
+            return false;
+
+        Visit owner = (Visit) obj;
+
+        if (this.getId() == null || !this.getId().equals(owner.getId()))
+            return false;
+
+        if (this.getDescription() == null || !this.getDescription().equals(owner.getDescription()))
+            return false;
+
+        if (this.getPetId() == null || !this.getPetId().equals(owner.getPetId()))
+            return false;
+
+        if (this.getDate() == null || !this.getDate().equals(owner.getDate()))
+            return false;
+
+        return true;
+    }
+
 }
