@@ -80,25 +80,24 @@ public class TDGSQLite {
     }
 
     public static Owner getOwner(Integer id) {
-        ResultSet rs = selectQuery("SELECT * FROM owners WHERE id=" + String.valueOf(id) + ";");
+        ResultSet rs = selectQuery("SELECT * FROM owners o LEFT JOIN pets p ON o.id = p.owner_id WHERE o.id =" + id + ";");
         if(rs != null) {
+            Owner owner = new Owner();
             try{
-                Owner owner = new Owner();
-                owner.setId(rs.getInt("id"));
-                owner.setFirstName(rs.getString("first_name"));
-                owner.setLastName(rs.getString("last_name"));
-                owner.setAddress(rs.getString("address"));
-                owner.setCity(rs.getString("city"));
-                owner.setTelephone(rs.getString("telephone"));
-                rs = selectQuery("SELECT name FROM pets WHERE owner_id=" + String.valueOf(id) + ";");
-                ArrayList<String> petName = new ArrayList<String>();
-                if(rs != null) {
-                    while(rs.next()) {
-                        petName.add(rs.getString("name"));
-                    }
-                    for(String ownerPetName: petName){
-                        owner.addPet(getPet(ownerPetName));
-                    }
+                while(rs.next()) {
+                    owner.setId(rs.getInt("id"));
+                    owner.setFirstName(rs.getString("first_name"));
+                    owner.setLastName(rs.getString("last_name"));
+                    owner.setAddress(rs.getString("address"));
+                    owner.setCity(rs.getString("city"));
+                    owner.setTelephone(rs.getString("telephone"));
+                    Pet pet = new Pet();
+                    pet.setId(rs.getInt(7));
+                    pet.setName(rs.getString("name"));
+                    pet.setBirthDate(LocalDate.parse(rs.getString("birth_date")));
+                    pet.setType(getPetType(rs.getInt("type_id")));
+                    pet.setOwnerTdg(owner);
+                    owner.addPet(pet);
                 }
                 return owner;
             }catch(SQLException e){
@@ -373,7 +372,7 @@ public class TDGSQLite {
     		try {
     			Pet pet = new Pet();
 				pet.setName(rs.getString("name"));
-				pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
+				pet.setBirthDate(LocalDate.parse(rs.getString("birth_date")));
 				PetType petType = getPetType(rs.getInt("type_id"));
 				pet.setType(petType);
 				pet.setOwnerTdg(getOwner(rs.getInt("owner_id")));
