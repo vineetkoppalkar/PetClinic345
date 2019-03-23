@@ -9,13 +9,13 @@ import java.util.List;
 
 public class ConsistencyChecker implements Runnable {
 
-    private final String OWNER_TABLE_NAME = "owners";
-    private final String PET_TABLE_NAME = "pets";
-    private final String VISIT_TABLE_NAME = "visits";
+    private static final String OWNER_TABLE_NAME = "owners";
+    private static final String PET_TABLE_NAME = "pets";
+    private static final String VISIT_TABLE_NAME = "visits";
 
-    private int nbOfOwnerInconsistencies;
-    private int nbOfPetInconsistencies;
-    private int nbOfVisitInconsistencies;
+    private static int nbOfOwnerInconsistencies;
+    private static int nbOfPetInconsistencies;
+    private static int nbOfVisitInconsistencies;
 
     @Override
     public void run() {
@@ -128,13 +128,13 @@ public class ConsistencyChecker implements Runnable {
         }
     }
 
-	private void printViolation(String tableName, String actual, String expected) {
+	private static void printViolation(String tableName, String actual, String expected) {
         System.out.println("\nInconsistency detected for table " + tableName + ": ");
         System.out.println("[Actual]: " + actual);
         System.out.println("[Expected]: " + expected);
     }
 
-	private void insertNewOwnerIntoSQLite(Owner expected) {
+	private static void insertNewOwnerIntoSQLite(Owner expected) {
         System.out.println("<SQLite> Inserting new owner in table: " + OWNER_TABLE_NAME);
         TDGSQLite.addOwner(
             expected.getFirstName(),
@@ -145,7 +145,7 @@ public class ConsistencyChecker implements Runnable {
         );
     }
 
-    private void fixInconsistencyInOwners(int id, Owner expected) {
+    private static void fixInconsistencyInOwners(int id, Owner expected) {
         System.out.println("<SQLite> Updating owner in table: " + OWNER_TABLE_NAME);
         TDGSQLite.updateOwner(
             id,
@@ -157,7 +157,7 @@ public class ConsistencyChecker implements Runnable {
         );
     }
 
-    private void insertNewPetIntoSQLite(Pet expected) {
+    private static void insertNewPetIntoSQLite(Pet expected) {
         System.out.println("<SQLite> Inserting new pet in table: " + PET_TABLE_NAME);
         TDGSQLite.addPet(
             expected.getName(),
@@ -167,7 +167,7 @@ public class ConsistencyChecker implements Runnable {
         );
     }
 
-    private void fixInconsistencyInPets(int id, Pet expected) {
+    private static void fixInconsistencyInPets(int id, Pet expected) {
         System.out.println("<SQLite> Updating pet in table: " + PET_TABLE_NAME);
         TDGSQLite.updatePet(
             id,
@@ -178,7 +178,7 @@ public class ConsistencyChecker implements Runnable {
         );
     }
 
-    private void insertNewVisitIntoSQLite(Visit expected) {
+    private static void insertNewVisitIntoSQLite(Visit expected) {
         System.out.println("<SQLite> Inserting new visit in table: " + VISIT_TABLE_NAME);
         TDGSQLite.addVisit(
             expected.getId(),
@@ -188,7 +188,7 @@ public class ConsistencyChecker implements Runnable {
         );
     }
 
-    private void fixInconsistencyInVisits(int id, Visit expected) {
+    private static void fixInconsistencyInVisits(int id, Visit expected) {
         System.out.println("<SQLite> Updating visit in table: " + VISIT_TABLE_NAME);
         TDGSQLite.updateVisit(
             id,
@@ -198,27 +198,27 @@ public class ConsistencyChecker implements Runnable {
         );
     }
 
-    private void resetInconsistencyCounters() {
+    private static void resetInconsistencyCounters() {
         nbOfOwnerInconsistencies = 0;
         nbOfPetInconsistencies = 0;
         nbOfVisitInconsistencies = 0;
     }
 
-    public int getNbOfInconcistencies() {
+    public static int getNbOfInconcistencies() {
         return nbOfOwnerInconsistencies +
                nbOfPetInconsistencies +
                nbOfVisitInconsistencies;
     }
 
-    public int getNbOfOwnerInconsistencies() {
+    public static int getNbOfOwnerInconsistencies() {
         return nbOfOwnerInconsistencies;
     }
 
-    public int getNbOfPetInconsistencies() {
+    public static int getNbOfPetInconsistencies() {
         return nbOfPetInconsistencies;
     }
 
-    public int getNbOfVisitInconsistencies() {
+    public static int getNbOfVisitInconsistencies() {
         return nbOfVisitInconsistencies;
     }
 }
