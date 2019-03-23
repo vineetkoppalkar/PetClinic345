@@ -30,7 +30,7 @@ import org.springframework.samples.petclinic.migration.Forklift;
 public class PetClinicApplication {
 
     public static boolean shadowWrites = true;
-    public static boolean shadowReads = false;
+    public static boolean shadowReads = true;
 
     public static void main(String[] args) {
         SpringApplication.run(PetClinicApplication.class, args);
