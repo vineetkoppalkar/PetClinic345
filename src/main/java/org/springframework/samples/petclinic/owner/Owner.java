@@ -171,7 +171,7 @@ public class Owner extends Person {
 
 
 
-    public boolean equalsA(Object obj) {
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
 
