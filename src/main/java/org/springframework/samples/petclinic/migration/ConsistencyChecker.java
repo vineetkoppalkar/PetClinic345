@@ -173,7 +173,6 @@ public class ConsistencyChecker implements Runnable {
             System.out.println("[Actual]: " + newDatastoreOwner.toString());
             System.out.println("[Expected]: " + oldDatastoreOwner.toString());
 
-            //Cannot increment this, either make the whole thing static or everything dynamic
 //            nbOfOwnerInconsistencies++;
 
             TDGSQLite.updateOwner(oldDatastoreOwner.getId(), oldDatastoreOwner.getFirstName(), oldDatastoreOwner.getLastName(),
@@ -187,13 +186,11 @@ public class ConsistencyChecker implements Runnable {
 
     public static boolean shadowWritesAndReadsConsistencyCheckerPet(Pet oldDatastorePet, Pet newDatastorePet) throws SQLException{
 
-        //TODO: Add a equals method in Pet class
         if(!oldDatastorePet.equals(newDatastorePet)) {
             System.out.println("Inconsistency detected for pet: ");
             System.out.println("[Actual]: " + newDatastorePet.toString());
             System.out.println("[Expected]: " + oldDatastorePet.toString());
 
-            //Cannot increment this, either make the whole thing static or everything dynamic
 //            nbOfOwnerInconsistencies++;
 
             TDGSQLite.updatePet(oldDatastorePet.getId(), oldDatastorePet.getName(), Date.valueOf(oldDatastorePet.getBirthDate()),
@@ -205,13 +202,11 @@ public class ConsistencyChecker implements Runnable {
 
     public static boolean shadowWritesAndReadsConsistencyCheckerVisit(Visit oldDatastoreVisit, Visit newDatastoreVisit) throws SQLException{
 
-        //TODO: add an equals method for Visit
         if(!oldDatastoreVisit.equals(newDatastoreVisit)) {
             System.out.println("Inconsistency detected for visit: ");
             System.out.println("[Actual]: " + newDatastoreVisit.toString());
             System.out.println("[Expected]: " + oldDatastoreVisit.toString());
 
-            //Cannot increment this, either make the whole thing static or everything dynamic
 //            nbOfOwnerInconsistencies++;
 
             TDGSQLite.updateVisit(oldDatastoreVisit.getId(), oldDatastoreVisit.getPetId(), Date.valueOf(oldDatastoreVisit.getDate()),

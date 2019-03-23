@@ -373,6 +373,7 @@ public class TDGSQLite {
     	if(rs != null) {
     		try {
     			Pet pet = new Pet();
+				pet.setId(rs.getInt("id"));
 				pet.setName(rs.getString("name"));
 				pet.setBirthDate(LocalDate.parse(rs.getString("birth_date")));
 				PetType petType = getPetType(rs.getInt("type_id"));
