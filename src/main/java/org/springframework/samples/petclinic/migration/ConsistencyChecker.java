@@ -2,6 +2,7 @@ package org.springframework.samples.petclinic.migration;
 
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
+import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
 
 import java.sql.*;
@@ -12,10 +13,12 @@ public class ConsistencyChecker implements Runnable {
     private static final String OWNER_TABLE_NAME = "owners";
     private static final String PET_TABLE_NAME = "pets";
     private static final String VISIT_TABLE_NAME = "visits";
+    private static final String VET_TABLE_NAME = "vets";
 
     private static int nbOfOwnerInconsistencies;
     private static int nbOfPetInconsistencies;
     private static int nbOfVisitInconsistencies;
+    private static int nbOfVetInconsistencies;
 
     @Override
     public void run() {
@@ -33,6 +36,10 @@ public class ConsistencyChecker implements Runnable {
         System.out.println("\nConsistency checker RUNNING for table: " + VISIT_TABLE_NAME);
         visitCheckConsistency();
         System.out.println("Consistency checker COMPLETE for table: " + VISIT_TABLE_NAME);
+
+        System.out.println("\nConsistency checker RUNNING for table: " + VET_TABLE_NAME);
+        vetCheckConsistency();
+        System.out.println("Consistency checker COMPLETE for table: " + VET_TABLE_NAME);
     }
 
 	public void ownerCheckConsistency() {
@@ -128,6 +135,37 @@ public class ConsistencyChecker implements Runnable {
         }
     }
 
+    public void vetCheckConsistency() {
+        List<Vet> oldDatastoreVets = TDGHSQL.getAllVets();
+        List<Vet> newDatastoreVets = TDGSQLite.getAllVets();
+
+        for (int i = 0; i < oldDatastoreVets.size(); i++) {
+            Vet expected = oldDatastoreVets.get(i);
+            Vet actual;
+            try {
+                actual = newDatastoreVets.get(i);
+            } catch (IndexOutOfBoundsException e) {
+                // New data was added since the forklift
+                printViolation(VET_TABLE_NAME, "null", expected.toString());
+                nbOfVetInconsistencies++;
+
+                insertNewVetIntoSQLite(expected);
+                newDatastoreVets.add(i, expected);
+
+                continue;
+            }
+
+            if (actual != null && !actual.equals(expected)) {
+                // Inconsistency for a specific row between new and old datastores
+                printViolation(VET_TABLE_NAME, actual.toString(), expected.toString());
+                nbOfVetInconsistencies++;
+
+                fixInconsistencyInVets(actual.getId(), expected);
+                newDatastoreVets.set(i, expected);
+            }
+        }
+    }
+
 	private static void printViolation(String tableName, String actual, String expected) {
         System.out.println("\nInconsistency detected for table " + tableName + ": ");
         System.out.println("[Actual]: " + actual);
@@ -198,6 +236,23 @@ public class ConsistencyChecker implements Runnable {
         );
     }
 
+    private static void insertNewVetIntoSQLite(Vet expected) {
+        System.out.println("<SQLite> Inserting new visit in table: " + VET_TABLE_NAME);
+        TDGSQLite.addVet(
+            expected.getFirstName(),
+            expected.getLastName()
+        );
+    }
+
+    private static void fixInconsistencyInVets(int id, Vet expected) {
+        System.out.println("<SQLite> Updating visit in table: " + VET_TABLE_NAME);
+        TDGSQLite.updateVet(
+            id,
+            expected.getFirstName(),
+            expected.getLastName()
+        );
+    }
+
     private static void resetInconsistencyCounters() {
         nbOfOwnerInconsistencies = 0;
         nbOfPetInconsistencies = 0;
@@ -207,7 +262,8 @@ public class ConsistencyChecker implements Runnable {
     public static int getNbOfInconcistencies() {
         return nbOfOwnerInconsistencies +
                nbOfPetInconsistencies +
-               nbOfVisitInconsistencies;
+               nbOfVisitInconsistencies +
+               nbOfVetInconsistencies;
     }
 
     public static int getNbOfOwnerInconsistencies() {
@@ -220,5 +276,9 @@ public class ConsistencyChecker implements Runnable {
 
     public static int getNbOfVisitInconsistencies() {
         return nbOfVisitInconsistencies;
+    }
+
+    public static int getNbOfVetInconsistencies() {
+        return nbOfVetInconsistencies;
     }
 }

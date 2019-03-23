@@ -16,6 +16,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.owner.PetType;
+import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
 
 @RunWith(PowerMockRunner.class)
@@ -95,5 +96,25 @@ public class MigrationTests {
         cc.visitCheckConsistency();
 
         assertEquals(1, cc.getNbOfVisitInconsistencies());
+    }
+
+    @Test
+    public void testConsistencyCheckerVets() {
+        Vet expectedVet = new Vet(1, "Billy", "Maze");
+        Vet actualVet = new Vet(1, "Billy", "Jones");
+
+        List<Vet> oldDatastoreVets = new ArrayList<>();
+        oldDatastoreVets.add(expectedVet);
+
+        List<Vet> newDatastoreVets = new ArrayList<>();
+        newDatastoreVets.add(actualVet);
+
+        when(TDGHSQL.getAllVets()).thenReturn(oldDatastoreVets);
+        when(TDGSQLite.getAllVets()).thenReturn(newDatastoreVets);
+
+        ConsistencyChecker cc = new ConsistencyChecker();
+        cc.vetCheckConsistency();
+
+        assertEquals(1, cc.getNbOfVetInconsistencies());
     }
 }
