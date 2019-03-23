@@ -162,15 +162,17 @@ public class Owner extends Person {
     @Override
     public String toString() {
         return new ToStringCreator(this)
-
-                .append("id", this.getId()).append("new", this.isNew())
-                .append("lastName", this.getLastName())
-                .append("firstName", this.getFirstName()).append("address", this.address)
-                .append("city", this.city).append("telephone", this.telephone).toString();
+            .append("id", this.getId())
+            .append("new", this.isNew())
+            .append("lastName", this.getLastName())
+            .append("firstName", this.getFirstName())
+            .append("address", this.address)
+            .append("city", this.city)
+            .append("telephone", this.telephone).toString();
     }
 
 
-
+@Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -180,22 +182,22 @@ public class Owner extends Person {
 
         Owner owner = (Owner) obj;
 
-        if (!this.getId().equals(owner.getId()))
+        if (this.getId() == null || !this.getId().equals(owner.getId()))
             return false;
 
-        if (!this.getFirstName().equals(owner.getFirstName()))
+        if (this.getFirstName() == null || !this.getFirstName().equals(owner.getFirstName()))
             return false;
 
-        if (!this.getLastName().equals(owner.getLastName()))
+        if (this.getLastName() == null || !this.getLastName().equals(owner.getLastName()))
             return false;
 
-        if (!this.getAddress().equals(owner.getAddress()))
+        if (this.getAddress() == null || !this.getAddress().equals(owner.getAddress()))
             return false;
 
-        if (!this.getCity().equals(owner.getCity()))
+        if (this.getCity() == null || !this.getCity().equals(owner.getCity()))
             return false;
 
-        if (!this.getTelephone().equals(owner.getTelephone()))
+        if (this.getTelephone() == null || !this.getTelephone().equals(owner.getTelephone()))
             return false;
 
         return true;

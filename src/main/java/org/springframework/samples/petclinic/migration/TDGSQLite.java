@@ -2,15 +2,16 @@ package org.springframework.samples.petclinic.migration;
 
 import java.io.IOException;
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.vet.Specialty;
-import java.time.LocalDate;
 
-import org.springframework.samples.petclinic.migration.Forklift;
 import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.owner.PetType;
 import org.springframework.samples.petclinic.vet.Vet;
@@ -66,38 +67,38 @@ public class TDGSQLite {
 
     private static void populate() {
         try {
-            Forklift.constructDatabase("jdbc:sqlite:test");
+            Forklift.constructDatabase("jdbc:sqlite:test", "sqlite");
             Forklift.fakeData("jdbc:sqlite:test");
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public static void addOwner(String firstName, String lastName, String address, String city, String telephone) {
-        insertQuery("INSERT INTO owners (id, first_name, last_name, address, city, address) VALUES (NULL, '" + firstName + "', '" + lastName + "', '" + address +
+        insertQuery("INSERT INTO owners (id, first_name, last_name, address, city, telephone) VALUES (NULL, '" + firstName + "', '" + lastName + "', '" + address +
             "', '" + city + "', '" + telephone + "');");
     }
 
     public static Owner getOwner(Integer id) {
-        ResultSet rs = selectQuery("SELECT * FROM owners WHERE id=" + String.valueOf(id) + ";");
+        ResultSet rs = selectQuery("SELECT * FROM owners o LEFT JOIN pets p ON o.id = p.owner_id WHERE o.id =" + id + ";");
         if(rs != null) {
+            Owner owner = new Owner();
             try{
-                Owner owner = new Owner();
-                owner.setId(rs.getInt("id"));
-                owner.setFirstName(rs.getString("first_name"));
-                owner.setLastName(rs.getString("last_name"));
-                owner.setAddress(rs.getString("address"));
-                owner.setCity(rs.getString("city"));
-                owner.setTelephone(rs.getString("telephone"));
-                rs = selectQuery("SELECT name FROM pets WHERE owner_id=" + String.valueOf(id) + ";");
-                ArrayList<String> petName = new ArrayList<String>();
-                if(rs != null) {
-                    while(rs.next()) {
-                        petName.add(rs.getString("name"));
-                    }
-                    for(String ownerPetName: petName){
-                        owner.addPet(getPet(ownerPetName));
+                while(rs.next()) {
+                    owner.setId(rs.getInt("id"));
+                    owner.setFirstName(rs.getString("first_name"));
+                    owner.setLastName(rs.getString("last_name"));
+                    owner.setAddress(rs.getString("address"));
+                    owner.setCity(rs.getString("city"));
+                    owner.setTelephone(rs.getString("telephone"));
+                    if(rs.getString("name") != null) {
+                        Pet pet = new Pet();
+                        pet.setId(rs.getInt(7));
+                        pet.setName(rs.getString("name"));
+                        pet.setBirthDate(LocalDate.parse(rs.getString("birth_date")));
+                        pet.setType(getPetType(rs.getInt("type_id")));
+                        pet.setOwnerTdg(owner);
+                        owner.addPet(pet);
                     }
                 }
                 return owner;
@@ -107,6 +108,37 @@ public class TDGSQLite {
         }
         return null;
     }
+
+    public static List<Owner> getAllOwners() {
+        List<Owner> results = new ArrayList<>();
+        ResultSet rs = selectQuery("SELECT * FROM owners");
+        try {
+            while (rs.next()) {
+                results.add(createOwnerFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    private static Owner createOwnerFromResultSet(ResultSet rs) {
+        Owner owner = new Owner();
+        if(rs != null) {
+            try{
+                owner.setId(rs.getInt("id"));
+                owner.setFirstName(rs.getString("first_name"));
+                owner.setLastName(rs.getString("last_name"));
+                owner.setAddress(rs.getString("address"));
+                owner.setCity(rs.getString("city"));
+                owner.setTelephone(rs.getString("telephone"));
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return owner;
+    }
+
 
     public static void updateOwner(Integer id, String firstName, String lastName, String address, String city, String telephone) {
         insertQuery("UPDATE owners SET first_name = '" + firstName + "', last_name = '" + lastName + "', address = '" + address+
@@ -333,16 +365,17 @@ public class TDGSQLite {
     }
     
     public static void addPet(String name, Date birthDate, Integer typeId, Integer ownerId) {
-        insertQuery("INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (NULL, '" + name + "', '" + String.valueOf(birthDate) + "', " + String.valueOf(typeId) + ", " + String.valueOf(ownerId) + ");");
+        insertQuery("INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (NULL, '" + name + "', '" + birthDate + "', " + typeId + ", " + String.valueOf(ownerId) + ");");
     }
     
     public static Pet getPet(String name) {
-    	ResultSet rs = selectQuery("SELECT * FROM pets WHERE name=" + name + ";");
+    	ResultSet rs = selectQuery("SELECT * FROM pets WHERE name= '" + name + "';");
     	if(rs != null) {
     		try {
     			Pet pet = new Pet();
+				pet.setId(rs.getInt("id"));
 				pet.setName(rs.getString("name"));
-				pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
+				pet.setBirthDate(LocalDate.parse(rs.getString("birth_date")));
 				PetType petType = getPetType(rs.getInt("type_id"));
 				pet.setType(petType);
 				pet.setOwnerTdg(getOwner(rs.getInt("owner_id")));
@@ -353,6 +386,36 @@ public class TDGSQLite {
 			}
     	}
     	return null;
+    }
+
+    public static List<Pet> getAllPets() {
+        List<Pet> results = new ArrayList<>();
+        ResultSet rs = selectQuery("SELECT * FROM pets");
+        try {
+            while (rs.next()) {
+                results.add(createPetFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    private static Pet createPetFromResultSet(ResultSet rs) {
+        Pet pet = new Pet();
+        if(rs != null) {
+            try{
+                pet.setId(rs.getInt("id"));
+                pet.setName(rs.getString("name"));
+                pet.setBirthDate(LocalDate.parse(rs.getString("birth_date")));
+                pet.setType(getPetType(rs.getInt("type_id")));
+                pet.setOwnerTdg(getOwner(rs.getInt("owner_id")));
+                pet.setVisitsTdg(getVisits(rs.getInt("id")));
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return pet;
     }
     
     public static PetType getPetType(Integer id) {
@@ -375,7 +438,7 @@ public class TDGSQLite {
     }
     
     public static void updatePet(Integer id, String name, Date birthDate, Integer typeId, Integer ownerId) {
-        insertQuery("UPDATE pets SET  name = '" + name + "', birth_date = '" + birthDate + "', type_id = " + String.valueOf(typeId) + ", owner_id = " + String.valueOf(ownerId) + " WHERE id = " + String.valueOf(id) + ";");
+        insertQuery("UPDATE pets SET  name = '" + name + "', birth_date = '" + birthDate + "', type_id = " + typeId + ", owner_id = " + ownerId + " WHERE id = " + id + ";");
     }
     
     public static void deletePet(Integer id) {
