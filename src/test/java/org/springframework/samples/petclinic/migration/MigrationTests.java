@@ -17,7 +17,6 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,10 +24,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.powermock.api.mockito.PowerMockito.when;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.springframework.samples.petclinic.owner.Owner;
-import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.owner.PetType;
-import org.springframework.samples.petclinic.visit.Visit;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({TDGHSQL.class, TDGSQLite.class})
@@ -215,24 +211,40 @@ public class MigrationTests {
 
     @Test
     public void testShadowWriteAndReadConsistencyCheckerConsistentCollection(){
-        try {
-            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(vet1, vet2));
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-        }
+        Owner expectedOwner = owner1;
+        Owner actualOwner = owner2;
+
+        List<Owner> oldDatastoreOwners = new ArrayList<>();
+        oldDatastoreOwners.add(expectedOwner);
+        oldDatastoreOwners.add(actualOwner);
+
+        List<Owner> newDatastoreOwners = new ArrayList<>();
+        newDatastoreOwners.add(expectedOwner);
+        newDatastoreOwners.add(actualOwner);
+
+        when(TDGHSQL.getAllOwners()).thenReturn(oldDatastoreOwners);
+        when(TDGSQLite.getAllOwners()).thenReturn(newDatastoreOwners);
+
+        assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(oldDatastoreOwners));
     }
 
     @Test
     public void testShadowWriteAndReadConsistencyCheckerInconsistentCollection(){
-        try {
-            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(vet1, vet3));
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-        }
-    }
+        Owner expectedOwner = owner1;
+        Owner actualOwner = owner2;
 
+        List<Owner> oldDatastoreOwners = new ArrayList<>();
+        oldDatastoreOwners.add(expectedOwner);
+        oldDatastoreOwners.add(actualOwner);
+
+        List<Owner> newDatastoreOwners = new ArrayList<>();
+        newDatastoreOwners.add(expectedOwner);
+
+        when(TDGHSQL.getAllOwners()).thenReturn(oldDatastoreOwners);
+        when(TDGSQLite.getAllOwners()).thenReturn(newDatastoreOwners);
+
+        assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(oldDatastoreOwners));
+    }
 
         @Test
         public void testConsistencyCheckerOwners () {
