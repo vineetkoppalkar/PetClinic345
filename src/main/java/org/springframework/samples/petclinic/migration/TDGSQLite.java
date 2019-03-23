@@ -350,8 +350,39 @@ public class TDGSQLite {
     	return null;
     }
 
+    public static List<PetType> getAllTypes() {
+        List<PetType> results = new ArrayList<>();
+        ResultSet rs = selectQuery("SELECT * FROM types");
+        try {
+            while (rs.next()) {
+                results.add(createPetTypeFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+    private static PetType createPetTypeFromResultSet(ResultSet rs) {
+        PetType petType = new PetType();
+        if(rs != null) {
+            try{
+                petType.setId(rs.getInt("id"));
+                petType.setName(rs.getString("name"));
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return petType;
+    }
+
     public static void addPetType(String name) {
         insertQuery("INSERT INTO types (id, name) VALUES (NULL, '" + name + "');");
+    }
+
+    public static void updatePetType(int id, String name) {
+        insertQuery("UPDATE types SET name = '" + name + "' WHERE id = " + id + ";");
     }
     
     public static void updatePet(Integer id, String name, Date birthDate, Integer typeId, Integer ownerId) {

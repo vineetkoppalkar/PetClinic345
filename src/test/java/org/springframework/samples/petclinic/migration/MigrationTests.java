@@ -137,4 +137,23 @@ public class MigrationTests {
 
         assertEquals(1, consistencyChecker.getNbOfSpecialtiesInconsistencies());
     }
+
+    @Test
+    public void testConsistencyCheckerTypes() {
+        PetType expectedPetType = new PetType(1, "cat");
+        PetType actualPetType = new PetType(1, "dog");
+
+        List<PetType> oldDatastorePetTypes = new ArrayList<>();
+        oldDatastorePetTypes.add(expectedPetType);
+
+        List<PetType> newDatastorePetTypes = new ArrayList<>();
+        newDatastorePetTypes.add(actualPetType);
+
+        when(TDGHSQL.getAllTypes()).thenReturn(oldDatastorePetTypes);
+        when(TDGSQLite.getAllTypes()).thenReturn(newDatastorePetTypes);
+
+        consistencyChecker.typesCheckConsistency();
+
+        assertEquals(1, consistencyChecker.getNbOfTypeInconsistencies());
+    }
 }

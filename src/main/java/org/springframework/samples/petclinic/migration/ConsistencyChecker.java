@@ -2,6 +2,7 @@ package org.springframework.samples.petclinic.migration;
 
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
+import org.springframework.samples.petclinic.owner.PetType;
 import org.springframework.samples.petclinic.vet.Specialty;
 import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
@@ -16,12 +17,14 @@ public class ConsistencyChecker implements Runnable {
     private static final String VISIT_TABLE_NAME = "visits";
     private static final String VET_TABLE_NAME = "vets";
     private static final String SPECIALITIES_TABLE_NAME = "specialties";
+    private static final String TYPES_TABLE_NAME = "types";
 
     private static int nbOfOwnerInconsistencies;
     private static int nbOfPetInconsistencies;
     private static int nbOfVisitInconsistencies;
     private static int nbOfVetInconsistencies;
     private static int nbOfSpecialtiesInconsistencies;
+    private static int nbOfTypeInconsistencies;
 
     @Override
     public void run() {
@@ -47,6 +50,10 @@ public class ConsistencyChecker implements Runnable {
         System.out.println("\nConsistency checker RUNNING for table: " + SPECIALITIES_TABLE_NAME);
         specialtiesCheckConsistency();
         System.out.println("Consistency checker COMPLETE for table: " + SPECIALITIES_TABLE_NAME);
+
+        System.out.println("\nConsistency checker RUNNING for table: " + TYPES_TABLE_NAME);
+        typesCheckConsistency();
+        System.out.println("Consistency checker COMPLETE for table: " + TYPES_TABLE_NAME);
     }
 
 	public void ownerCheckConsistency() {
@@ -204,6 +211,37 @@ public class ConsistencyChecker implements Runnable {
         }
     }
 
+    public void typesCheckConsistency() {
+        List<PetType> oldDatastoreTypes = TDGHSQL.getAllTypes();
+        List<PetType> newDatastoreTypes = TDGSQLite.getAllTypes();
+
+        for (int i = 0; i < oldDatastoreTypes.size(); i++) {
+            PetType expected = oldDatastoreTypes.get(i);
+            PetType actual;
+            try {
+                actual = newDatastoreTypes.get(i);
+            } catch (IndexOutOfBoundsException e) {
+                // New data was added since the forklift
+                printViolation(TYPES_TABLE_NAME, "null", expected.toString());
+                nbOfTypeInconsistencies++;
+
+                insertNewTypeIntoSQLite(expected);
+                newDatastoreTypes.add(i, expected);
+
+                continue;
+            }
+
+            if (actual != null && !actual.equals(expected)) {
+                // Inconsistency for a specific row between new and old datastores
+                printViolation(TYPES_TABLE_NAME, actual.toString(), expected.toString());
+                nbOfTypeInconsistencies++;
+
+                fixInconsistencyInTypes(actual.getId(), expected);
+                newDatastoreTypes.set(i, expected);
+            }
+        }
+    }
+
 	private static void printViolation(String tableName, String actual, String expected) {
         System.out.println("\nInconsistency detected for table " + tableName + ": ");
         System.out.println("[Actual]: " + actual);
@@ -306,12 +344,28 @@ public class ConsistencyChecker implements Runnable {
         );
     }
 
+    private static void insertNewTypeIntoSQLite(PetType expected) {
+        System.out.println("<SQLite> Inserting new visit in table: " + TYPES_TABLE_NAME);
+        TDGSQLite.addPetType(
+            expected.getName()
+        );
+    }
+
+    private static void fixInconsistencyInTypes(int id, PetType expected) {
+        System.out.println("<SQLite> Updating visit in table: " + TYPES_TABLE_NAME);
+        TDGSQLite.updatePetType(
+            id,
+            expected.getName()
+        );
+    }
+
     private static void resetInconsistencyCounters() {
         nbOfOwnerInconsistencies = 0;
         nbOfPetInconsistencies = 0;
         nbOfVisitInconsistencies = 0;
         nbOfVetInconsistencies = 0;
         nbOfSpecialtiesInconsistencies = 0;
+        nbOfTypeInconsistencies = 0;
     }
 
     public static int getNbOfInconcistencies() {
@@ -319,7 +373,8 @@ public class ConsistencyChecker implements Runnable {
                nbOfPetInconsistencies +
                nbOfVisitInconsistencies +
                nbOfVetInconsistencies +
-               nbOfSpecialtiesInconsistencies;
+               nbOfSpecialtiesInconsistencies +
+               nbOfTypeInconsistencies;
     }
 
     public static int getNbOfOwnerInconsistencies() {
@@ -340,5 +395,9 @@ public class ConsistencyChecker implements Runnable {
 
     public static int getNbOfSpecialtiesInconsistencies() {
         return nbOfSpecialtiesInconsistencies;
+    }
+
+    public static int getNbOfTypeInconsistencies() {
+        return nbOfTypeInconsistencies;
     }
 }

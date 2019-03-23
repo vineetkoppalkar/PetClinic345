@@ -182,6 +182,33 @@ public class TDGHSQL {
         return null;
     }
 
+    public static List<PetType> getAllTypes() {
+        List<PetType> results = new ArrayList<>();
+        ResultSet rs = selectQuery("SELECT * FROM types");
+        try {
+            while (rs.next()) {
+                results.add(createPetTypeFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+    private static PetType createPetTypeFromResultSet(ResultSet rs) {
+        PetType petType = new PetType();
+        if(rs != null) {
+            try{
+                petType.setId(rs.getInt("id"));
+                petType.setName(rs.getString("name"));
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return petType;
+    }
+
     public static List<Visit> getVisits(Integer petId){
         ResultSet rs = selectQuery("SELECT * FROM visits where pet_id=" + String.valueOf(petId) + ";");
         if(rs != null){
