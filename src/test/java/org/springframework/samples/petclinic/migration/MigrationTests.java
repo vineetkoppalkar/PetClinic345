@@ -24,8 +24,12 @@ import org.springframework.samples.petclinic.visit.Visit;
 @PrepareForTest({TDGHSQL.class, TDGSQLite.class})
 public class MigrationTests {
 
+    private ConsistencyChecker consistencyChecker;
+
     @Before
     public void setup() {
+        consistencyChecker = new ConsistencyChecker();
+
         TDGHSQL hsqldb = new TDGHSQL("jdbc:hsqldb:test");
         TDGSQLite sqlite = new TDGSQLite("jdbc:sqlite:test");
 
@@ -47,10 +51,9 @@ public class MigrationTests {
         when(TDGHSQL.getAllOwners()).thenReturn(oldDatastoreOwners);
         when(TDGSQLite.getAllOwners()).thenReturn(newDatastoreOwners);
 
-        ConsistencyChecker cc = new ConsistencyChecker();
-        cc.ownerCheckConsistency();
+        consistencyChecker.ownerCheckConsistency();
 
-        assertEquals(1, cc.getNbOfOwnerInconsistencies());
+        assertEquals(1, consistencyChecker.getNbOfOwnerInconsistencies());
     }
 
     @Test
@@ -73,10 +76,9 @@ public class MigrationTests {
         when(TDGHSQL.getAllPets()).thenReturn(oldDatastorePets);
         when(TDGSQLite.getAllPets()).thenReturn(newDatastorePets);
 
-        ConsistencyChecker cc = new ConsistencyChecker();
-        cc.petCheckConsistency();
+        consistencyChecker.petCheckConsistency();
 
-        assertEquals(1, cc.getNbOfPetInconsistencies());
+        assertEquals(1, consistencyChecker.getNbOfPetInconsistencies());
     }
 
     @Test
@@ -93,10 +95,9 @@ public class MigrationTests {
         when(TDGHSQL.getAllVisits()).thenReturn(oldDatastoreVisits);
         when(TDGSQLite.getAllVisits()).thenReturn(newDatastoreVisits);
 
-        ConsistencyChecker cc = new ConsistencyChecker();
-        cc.visitCheckConsistency();
+        consistencyChecker.visitCheckConsistency();
 
-        assertEquals(1, cc.getNbOfVisitInconsistencies());
+        assertEquals(1, consistencyChecker.getNbOfVisitInconsistencies());
     }
 
     @Test
@@ -113,10 +114,9 @@ public class MigrationTests {
         when(TDGHSQL.getAllVets()).thenReturn(oldDatastoreVets);
         when(TDGSQLite.getAllVets()).thenReturn(newDatastoreVets);
 
-        ConsistencyChecker cc = new ConsistencyChecker();
-        cc.vetCheckConsistency();
+        consistencyChecker.vetCheckConsistency();
 
-        assertEquals(1, cc.getNbOfVetInconsistencies());
+        assertEquals(1, consistencyChecker.getNbOfVetInconsistencies());
     }
 
     @Test
@@ -133,9 +133,8 @@ public class MigrationTests {
         when(TDGHSQL.getAllSpecialties()).thenReturn(oldDatastoreSpecialties);
         when(TDGSQLite.getAllSpecialties()).thenReturn(newDatastoreSpecialties);
 
-        ConsistencyChecker cc = new ConsistencyChecker();
-        cc.specialtiesCheckConsistency();
+        consistencyChecker.specialtiesCheckConsistency();
 
-        assertEquals(1, cc.getNbOfSpecialtiesInconsistencies());
+        assertEquals(1, consistencyChecker.getNbOfSpecialtiesInconsistencies());
     }
 }
