@@ -155,6 +155,31 @@ public class TDGSQLite {
     	}
     	return null;
     }
+
+    public static List<Vet> getAllVets() {
+        List<Vet> results = new ArrayList<>();
+        ResultSet rs = selectQuery("SELECT * FROM vets");
+        try {
+            while (rs.next()) {
+                results.add(createVetFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    private static Vet createVetFromResultSet(ResultSet rs) {
+        Vet vet = new Vet();
+        try {
+            vet.setId(rs.getInt("id"));
+            vet.setFirstName(rs.getString("first_name"));
+            vet.setLastName(rs.getString("last_name"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return vet;
+    }
     
     public static void updateVet(Integer id, String firstName, String lastName) {
         insertQuery("UPDATE vets SET first_name = '" + firstName + "', last_name = '" + lastName + "' WHERE id = " + String.valueOf(id) + ";");

@@ -14,6 +14,9 @@ import static org.junit.Assert.*;
 import static org.powermock.api.mockito.PowerMockito.when;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.samples.petclinic.owner.Owner;
+import org.springframework.samples.petclinic.owner.Pet;
+import org.springframework.samples.petclinic.owner.PetType;
+import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
 
 @RunWith(PowerMockRunner.class)
@@ -50,6 +53,32 @@ public class MigrationTests {
     }
 
     @Test
+    public void testConsistencyCheckerPets() {
+        PetType catType = new PetType();
+        catType.setId(1);
+        catType.setName("cat");
+
+        Owner petOwner = new Owner(1, "Sam", "Billy", "address", "city", "telephone");
+
+        Pet expectedPet = new Pet(1, "Bob", LocalDate.parse("2007-12-03"), catType, petOwner);
+        Pet actualPet = new Pet(1, "Jones", LocalDate.parse("2007-12-03"), catType, petOwner);
+
+        List<Pet> oldDatastorePets = new ArrayList<>();
+        oldDatastorePets.add(expectedPet);
+
+        List<Pet> newDatastorePets = new ArrayList<>();
+        newDatastorePets.add(actualPet);
+
+        when(TDGHSQL.getAllPets()).thenReturn(oldDatastorePets);
+        when(TDGSQLite.getAllPets()).thenReturn(newDatastorePets);
+
+        ConsistencyChecker cc = new ConsistencyChecker();
+        cc.petCheckConsistency();
+
+        assertEquals(1, cc.getNbOfPetInconsistencies());
+    }
+
+    @Test
     public void testConsistencyCheckerVisits() {
         Visit expectedVisit = new Visit(1, 2, "Expected Pet", LocalDate.parse("2007-12-03"));
         Visit actualVisit = new Visit(1, 2, "Actual Pet", LocalDate.parse("2007-12-03"));
@@ -67,5 +96,25 @@ public class MigrationTests {
         cc.visitCheckConsistency();
 
         assertEquals(1, cc.getNbOfVisitInconsistencies());
+    }
+
+    @Test
+    public void testConsistencyCheckerVets() {
+        Vet expectedVet = new Vet(1, "Billy", "Maze");
+        Vet actualVet = new Vet(1, "Billy", "Jones");
+
+        List<Vet> oldDatastoreVets = new ArrayList<>();
+        oldDatastoreVets.add(expectedVet);
+
+        List<Vet> newDatastoreVets = new ArrayList<>();
+        newDatastoreVets.add(actualVet);
+
+        when(TDGHSQL.getAllVets()).thenReturn(oldDatastoreVets);
+        when(TDGSQLite.getAllVets()).thenReturn(newDatastoreVets);
+
+        ConsistencyChecker cc = new ConsistencyChecker();
+        cc.vetCheckConsistency();
+
+        assertEquals(1, cc.getNbOfVetInconsistencies());
     }
 }
