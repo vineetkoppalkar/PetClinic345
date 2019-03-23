@@ -7,6 +7,7 @@ import org.springframework.samples.petclinic.visit.Visit;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,7 +82,14 @@ public class TDGHSQL {
     public static Owner getOwner(Integer id) {
         ResultSet rs = selectQuery("SELECT * FROM owners WHERE id=" + String.valueOf(id) + ";");
         if(rs != null) {
-            return createOwnerFromResultSet(rs);
+            try {
+                while (rs.next()) {
+                    return createOwnerFromResultSet(rs);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
         }
         return null;
     }
@@ -116,26 +124,42 @@ public class TDGHSQL {
         return owner;
     }
 
-    public static Pet getPet(int id, String name) {
+    public static Pet getPet(String name) {
         ResultSet rs = selectQuery("SELECT * FROM pets WHERE name= '" + name + "';");
         if(rs != null) {
-            try {
-                while(rs.next()) {
-                    Pet pet = new Pet();
-                    pet.setName(rs.getString("name"));
-                    pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
-                    PetType petType = getPetType(rs.getInt("type_id"));
-                    pet.setType(petType);
-                    pet.setOwnerTdg(getOwner(rs.getInt("owner_id")));
-                    pet.setVisitsTdg(getVisits(rs.getInt("id")));
-                    return pet;
-                }
+            return createPetFromResultSet(rs);
+        }
+        return null;
+    }
 
-            } catch (SQLException e) {
+    public static List<Pet> getAllPets() {
+        List<Pet> results = new ArrayList<>();
+        ResultSet rs = selectQuery("SELECT * FROM pets");
+        try {
+            while (rs.next()) {
+                results.add(createPetFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    private static Pet createPetFromResultSet(ResultSet rs) {
+        Pet pet = new Pet();
+        if(rs != null) {
+            try{
+                pet.setId(rs.getInt("id"));
+                pet.setName(rs.getString("name"));
+                pet.setBirthDate(LocalDate.parse(rs.getString("birth_date")));
+                pet.setType(getPetType(rs.getInt("type_id")));
+                pet.setOwnerTdg(getOwner(rs.getInt("owner_id")));
+                pet.setVisitsTdg(getVisits(rs.getInt("id")));
+            }catch(SQLException e){
                 e.printStackTrace();
             }
         }
-        return null;
+        return pet;
     }
 
     public static PetType getPetType(Integer id) {
@@ -191,7 +215,7 @@ public class TDGHSQL {
     }
 
     public static ResultSet selectQuery(String s) {
-        System.out.println(s);
+        //System.out.println(s);
         Statement stmt;
         ResultSet rs = null;
         try {
