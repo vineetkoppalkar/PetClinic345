@@ -91,13 +91,15 @@ public class TDGHSQL {
                     owner.setAddress(rs.getString("address"));
                     owner.setCity(rs.getString("city"));
                     owner.setTelephone(rs.getString("telephone"));
-                    Pet pet = new Pet();
-                    pet.setId(rs.getInt(7));
-                    pet.setName(rs.getString("name"));
-                    pet.setBirthDate(LocalDate.parse(rs.getString("birth_date")));
-                    pet.setType(getPetType(rs.getInt("type_id")));
-                    pet.setOwnerTdg(owner);
-                    owner.addPet(pet);
+                    if(rs.getString("name") != null) {
+                        Pet pet = new Pet();
+                        pet.setId(rs.getInt(7));
+                        pet.setName(rs.getString("name"));
+                        pet.setBirthDate(LocalDate.parse(rs.getString("birth_date")));
+                        pet.setType(getPetType(rs.getInt("type_id")));
+                        pet.setOwnerTdg(owner);
+                        owner.addPet(pet);
+                    }
                 }
                 return owner;
             }catch(SQLException e){
