@@ -96,7 +96,7 @@ public class ConsistencyChecker implements Runnable {
             }
         }
     }
-//
+
     public void visitCheckConsistency() {
         List<Visit> oldDatastoreVisits = TDGHSQL.getAllVisits();
         List<Visit> newDatastoreVisits = TDGSQLite.getAllVisits();
