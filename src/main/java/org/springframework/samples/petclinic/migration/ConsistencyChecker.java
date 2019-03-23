@@ -117,7 +117,7 @@ public class ConsistencyChecker implements Runnable {
 
     public static boolean shadowWritesAndReadsConsistencyCheckerOwner(Owner oldDatastoreOwner, Owner newDatastoreOwner) throws SQLException{
 
-        if(!oldDatastoreOwner.equalsA(newDatastoreOwner)) {
+        if(!oldDatastoreOwner.equals(newDatastoreOwner)) {
             System.out.println("Inconsistency detected for owner: ");
             System.out.println("[Actual]: " + newDatastoreOwner.toString());
             System.out.println("[Expected]: " + oldDatastoreOwner.toString());

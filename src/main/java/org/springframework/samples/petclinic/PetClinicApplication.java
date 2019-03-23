@@ -29,7 +29,7 @@ import org.springframework.samples.petclinic.migration.Forklift;
 @SpringBootApplication
 public class PetClinicApplication {
 
-    public static boolean shadowWrites = false;
+    public static boolean shadowWrites = true;
     public static boolean shadowReads = false;
 
     public static void main(String[] args) {
