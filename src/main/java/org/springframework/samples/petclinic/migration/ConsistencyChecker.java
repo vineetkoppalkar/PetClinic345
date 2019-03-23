@@ -287,7 +287,6 @@ public class ConsistencyChecker implements Runnable {
             System.out.println("[Actual]: " + newDatastoreVet.toString());
             System.out.println("[Expected]: " + oldDatastoreVet.toString());
 
-            //Cannot increment this, either make the whole thing static or everything dynamic
 //            nbOfOwnerInconsistencies++;
 
             TDGSQLite.updateVet(oldDatastoreVet.getId(), oldDatastoreVet.getFirstName(), oldDatastoreVet.getLastName());

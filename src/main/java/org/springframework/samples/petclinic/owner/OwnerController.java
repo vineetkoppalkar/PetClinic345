@@ -117,9 +117,9 @@ class OwnerController {
             model.put("selections", results);
             if(PetClinicApplication.shadowReads){
                 try {
-                    ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(results, TDGSQLite.getOwnersByLastName(owner.getLastName()));
+                    ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(results);
                 }
-                catch (SQLException e){
+                catch (Exception e){
                     e.printStackTrace();
                 }
             }

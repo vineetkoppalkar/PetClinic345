@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
+import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
 
 import java.sql.SQLException;
@@ -18,6 +19,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -36,7 +38,6 @@ public class MigrationTests {
 
     Owner owner1;
 
-
     Owner owner2;
 
     Owner owner3;
@@ -54,6 +55,16 @@ public class MigrationTests {
     Visit visit2;
 
     Visit visit3;
+
+
+    Vet vet1;
+
+    Vet vet2;
+
+    Vet vet3;
+
+    Collection<Owner> collection1 = new ArrayList<Owner>();
+
 
     @Before
     public void setup() {
@@ -95,6 +106,21 @@ public class MigrationTests {
         visit3.setPetId(10);
         visit3.setDate(LocalDate.of(1990, 9, 3));
         visit3.setId(9);
+
+        vet1 = new Vet();
+        vet1.setId(1);
+        vet1.setFirstName("Bob");
+        vet1.setLastName("Bubbly");
+
+        vet2 = new Vet();
+        vet2.setId(1);
+        vet2.setFirstName("Bob");
+        vet2.setLastName("Bubbly");
+
+        vet3 = new Vet();
+        vet3.setId(1);
+        vet3.setFirstName("Bob");
+        vet3.setLastName("Bobba");
 
         TDGHSQL hsqldb = new TDGHSQL("jdbc:hsqldb:test");
         TDGSQLite sqlite = new TDGSQLite("jdbc:sqlite:test");
@@ -160,6 +186,47 @@ public class MigrationTests {
     public void testShadowWriteAndReadConsistencyCheckerDifferentVisit(){
         try {
             assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVisit(visit1, visit3));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testShadowWriteAndReadConsistencyCheckerSameVet(){
+        try {
+            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vet1, vet2));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testShadowWriteAndReadConsistencyCheckerDifferentVet(){
+        try {
+            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vet1, vet3));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void testShadowWriteAndReadConsistencyCheckerConsistentCollection(){
+        try {
+            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(vet1, vet2));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testShadowWriteAndReadConsistencyCheckerInconsistentCollection(){
+        try {
+            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(vet1, vet3));
         }
         catch(SQLException e){
             e.printStackTrace();
