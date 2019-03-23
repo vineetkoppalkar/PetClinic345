@@ -16,6 +16,8 @@ import org.springframework.samples.petclinic.owner.PetType;
 import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
 
+import javax.xml.transform.Result;
+
 public class TDGSQLite {
 
     private static String root = "jdbc:sqlite:memory";
@@ -191,6 +193,36 @@ public class TDGSQLite {
     
     public static void addSpecialty(String specialty) {
         insertQuery("INSERT INTO specialties (id, name) VALUES (NULL, '" + specialty + "');");
+    }
+
+    public static void updatedSpecialty(int id, String specialty) {
+        insertQuery("UPDATE specialties SET name = '" + specialty + "' WHERE id = " + id + ";");
+    }
+
+    public static List<Specialty> getAllSpecialties() {
+        ResultSet rs = selectQuery("SELECT * FROM specialties");
+        List<Specialty> results = new ArrayList<>();
+        if(rs != null){
+            try{
+                while(rs.next()){
+                    results.add(createSpecialityFromResultSet(rs));
+                }
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return results;
+    }
+
+    private static Specialty createSpecialityFromResultSet(ResultSet rs) {
+        Specialty specialty = new Specialty();
+        try {
+            specialty.setId(rs.getInt("id"));
+            specialty.setName(rs.getString("name"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return specialty;
     }
     
     public static void addVetSpecialty(Integer vetId, Integer specialtyId) {

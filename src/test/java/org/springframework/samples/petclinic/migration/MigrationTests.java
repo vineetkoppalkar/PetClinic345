@@ -16,6 +16,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.owner.PetType;
+import org.springframework.samples.petclinic.vet.Specialty;
 import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
 
@@ -116,5 +117,25 @@ public class MigrationTests {
         cc.vetCheckConsistency();
 
         assertEquals(1, cc.getNbOfVetInconsistencies());
+    }
+
+    @Test
+    public void testConsistencyCheckerSpecialties() {
+        Specialty expectedSpecialty = new Specialty(1, "radiology");
+        Specialty actualSpecialty = new Specialty(1, "surgery");
+
+        List<Specialty> oldDatastoreSpecialties = new ArrayList<>();
+        oldDatastoreSpecialties.add(expectedSpecialty);
+
+        List<Specialty> newDatastoreSpecialties = new ArrayList<>();
+        newDatastoreSpecialties.add(actualSpecialty);
+
+        when(TDGHSQL.getAllSpecialties()).thenReturn(oldDatastoreSpecialties);
+        when(TDGSQLite.getAllSpecialties()).thenReturn(newDatastoreSpecialties);
+
+        ConsistencyChecker cc = new ConsistencyChecker();
+        cc.specialtiesCheckConsistency();
+
+        assertEquals(1, cc.getNbOfSpecialtiesInconsistencies());
     }
 }

@@ -3,6 +3,7 @@ package org.springframework.samples.petclinic.migration;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.owner.PetType;
+import org.springframework.samples.petclinic.vet.Specialty;
 import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
 
@@ -248,6 +249,32 @@ public class TDGHSQL {
             e.printStackTrace();
         }
         return vet;
+    }
+
+    public static List<Specialty> getAllSpecialties() {
+        ResultSet rs = selectQuery("SELECT * FROM specialties");
+        List<Specialty> results = new ArrayList<>();
+        if(rs != null){
+            try{
+                while(rs.next()){
+                    results.add(createSpecialityFromResultSet(rs));
+                }
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return results;
+    }
+
+    private static Specialty createSpecialityFromResultSet(ResultSet rs) {
+        Specialty specialty = new Specialty();
+        try {
+            specialty.setId(rs.getInt("id"));
+            specialty.setName(rs.getString("name"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return specialty;
     }
 
     public static ResultSet getRecords(String sql) {
