@@ -1,5 +1,6 @@
 package org.springframework.samples.petclinic.migration;
 
+import org.springframework.samples.petclinic.PetClinicApplication;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.owner.PetType;
@@ -31,29 +32,41 @@ public class ConsistencyChecker implements Runnable {
         System.out.println("Starting consistency checkers");
         resetInconsistencyCounters();
 
-        System.out.println("\nConsistency checker RUNNING for table: " + OWNER_TABLE_NAME);
-        ownerCheckConsistency();
-        System.out.println("Consistency checker COMPLETE for table: " + OWNER_TABLE_NAME);
+        if (PetClinicApplication.consistencyCheckerOwner) {
+            System.out.println("\nConsistency checker RUNNING for table: " + OWNER_TABLE_NAME);
+            ownerCheckConsistency();
+            System.out.println("Consistency checker COMPLETE for table: " + OWNER_TABLE_NAME);
+        }
 
-        System.out.println("\nConsistency checker RUNNING for table: " + PET_TABLE_NAME);
-        petCheckConsistency();
-        System.out.println("Consistency checker COMPLETE for table: " + PET_TABLE_NAME);
+        if (PetClinicApplication.consistencyCheckerPet) {
+            System.out.println("\nConsistency checker RUNNING for table: " + PET_TABLE_NAME);
+            petCheckConsistency();
+            System.out.println("Consistency checker COMPLETE for table: " + PET_TABLE_NAME);
+        }
 
-        System.out.println("\nConsistency checker RUNNING for table: " + VISIT_TABLE_NAME);
-        visitCheckConsistency();
-        System.out.println("Consistency checker COMPLETE for table: " + VISIT_TABLE_NAME);
+        if (PetClinicApplication.consistencyCheckerVisit) {
+            System.out.println("\nConsistency checker RUNNING for table: " + VISIT_TABLE_NAME);
+            visitCheckConsistency();
+            System.out.println("Consistency checker COMPLETE for table: " + VISIT_TABLE_NAME);
+        }
 
-        System.out.println("\nConsistency checker RUNNING for table: " + VET_TABLE_NAME);
-        vetCheckConsistency();
-        System.out.println("Consistency checker COMPLETE for table: " + VET_TABLE_NAME);
+        if (PetClinicApplication.consistencyCheckerVet) {
+            System.out.println("\nConsistency checker RUNNING for table: " + VET_TABLE_NAME);
+            vetCheckConsistency();
+            System.out.println("Consistency checker COMPLETE for table: " + VET_TABLE_NAME);
+        }
 
-        System.out.println("\nConsistency checker RUNNING for table: " + SPECIALITIES_TABLE_NAME);
-        specialtiesCheckConsistency();
-        System.out.println("Consistency checker COMPLETE for table: " + SPECIALITIES_TABLE_NAME);
+        if (PetClinicApplication.consistencyCheckerSpecialty) {
+            System.out.println("\nConsistency checker RUNNING for table: " + SPECIALITIES_TABLE_NAME);
+            specialtiesCheckConsistency();
+            System.out.println("Consistency checker COMPLETE for table: " + SPECIALITIES_TABLE_NAME);
+        }
 
-        System.out.println("\nConsistency checker RUNNING for table: " + TYPES_TABLE_NAME);
-        typesCheckConsistency();
-        System.out.println("Consistency checker COMPLETE for table: " + TYPES_TABLE_NAME);
+        if (PetClinicApplication.consistencyCheckerType) {
+            System.out.println("\nConsistency checker RUNNING for table: " + TYPES_TABLE_NAME);
+            typesCheckConsistency();
+            System.out.println("Consistency checker COMPLETE for table: " + TYPES_TABLE_NAME);
+        }
     }
 
 	public void ownerCheckConsistency() {

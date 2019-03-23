@@ -13,6 +13,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.powermock.api.mockito.PowerMockito.when;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.springframework.samples.petclinic.PetClinicApplication;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.owner.PetType;
@@ -39,6 +40,13 @@ public class MigrationTests {
 
     @Test
     public void testConsistencyCheckerOwners() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerOwner)
+            return;
+
         Owner expectedOwner = new Owner(1, "Bob", "Billy", "address", "city", "telephone");
         Owner actualOwner = new Owner(1, "Jones", "Billy", "address", "city", "telephone");
 
@@ -58,6 +66,13 @@ public class MigrationTests {
 
     @Test
     public void testConsistencyCheckerPets() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerPet)
+            return;
+
         PetType catType = new PetType();
         catType.setId(1);
         catType.setName("cat");
@@ -83,6 +98,13 @@ public class MigrationTests {
 
     @Test
     public void testConsistencyCheckerVisits() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerVisit)
+            return;
+
         Visit expectedVisit = new Visit(1, 2, "Expected Pet", LocalDate.parse("2007-12-03"));
         Visit actualVisit = new Visit(1, 2, "Actual Pet", LocalDate.parse("2007-12-03"));
 
@@ -102,6 +124,13 @@ public class MigrationTests {
 
     @Test
     public void testConsistencyCheckerVets() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerVet)
+            return;
+
         Vet expectedVet = new Vet(1, "Billy", "Maze");
         Vet actualVet = new Vet(1, "Billy", "Jones");
 
@@ -121,6 +150,13 @@ public class MigrationTests {
 
     @Test
     public void testConsistencyCheckerSpecialties() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerSpecialty)
+            return;
+
         Specialty expectedSpecialty = new Specialty(1, "radiology");
         Specialty actualSpecialty = new Specialty(1, "surgery");
 
@@ -140,6 +176,13 @@ public class MigrationTests {
 
     @Test
     public void testConsistencyCheckerTypes() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerType)
+            return;
+
         PetType expectedPetType = new PetType(1, "cat");
         PetType actualPetType = new PetType(1, "dog");
 

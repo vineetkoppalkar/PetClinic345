@@ -31,6 +31,15 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class PetClinicApplication {
 
+    // Consistency checker toggles
+    public static boolean consistencyChecker = true;
+    public static boolean consistencyCheckerOwner = true;
+    public static boolean consistencyCheckerPet = true;
+    public static boolean consistencyCheckerVisit = true;
+    public static boolean consistencyCheckerVet = true;
+    public static boolean consistencyCheckerSpecialty = true;
+    public static boolean consistencyCheckerType = true;
+
     public static void main(String[] args) {
         SpringApplication.run(PetClinicApplication.class, args);
     }
