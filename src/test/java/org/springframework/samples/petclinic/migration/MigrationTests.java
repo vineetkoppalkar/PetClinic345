@@ -1,16 +1,20 @@
 package org.springframework.samples.petclinic.migration;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.validateMockitoUsage;
 import static org.powermock.api.mockito.PowerMockito.when;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.samples.petclinic.PetClinicApplication;
@@ -26,16 +30,42 @@ import org.springframework.samples.petclinic.visit.Visit;
 public class MigrationTests {
 
     private ConsistencyChecker consistencyChecker;
+    private Forklift forklift;
+    private TDGHSQL hsqldb;
+    private TDGSQLite sqlite;
 
     @Before
     public void setup() {
+        hsqldb = new TDGHSQL("jdbc:hsqldb:test");
+        sqlite = new TDGSQLite("jdbc:sqlite:test");
+
         consistencyChecker = new ConsistencyChecker();
-
-        TDGHSQL hsqldb = new TDGHSQL("jdbc:hsqldb:test");
-        TDGSQLite sqlite = new TDGSQLite("jdbc:sqlite:test");
-
         PowerMockito.mockStatic(TDGHSQL.class);
         PowerMockito.mockStatic(TDGSQLite.class);
+    }
+
+    @Test
+    public void testForklift() {
+        // Get fake ResultSets from testing DB
+        ResultSet owners = sqlite.selectQuery("SELECT * FROM owners WHERE id = 1");
+        ResultSet pets = sqlite.selectQuery("SELECT * FROM pets WHERE id = 1");
+        ResultSet specialties = sqlite.selectQuery("SELECT * FROM specialties WHERE id = 1");
+        ResultSet types = sqlite.selectQuery("SELECT * FROM types WHERE id = 1");
+        ResultSet vetSpecialties = sqlite.selectQuery("SELECT * FROM types WHERE vet_id = 2 AND specialty_id = 1");
+        ResultSet vets = sqlite.selectQuery("SELECT * FROM vets WHERE id = 1");
+        ResultSet visits = sqlite.selectQuery("SELECT * FROM vets WHERE id = 1");
+        // Mock out the forklift calls with the fake ResultSets
+        when(TDGHSQL.forkliftAllOwners()).thenReturn(owners);
+        when(TDGHSQL.forkliftAllPets()).thenReturn(pets);
+        when(TDGHSQL.forkliftAllSpecialties()).thenReturn(specialties);
+        when(TDGHSQL.forkliftAllTypes()).thenReturn(types);
+        when(TDGHSQL.forkliftAllVetSpecialties()).thenReturn(vetSpecialties);
+        when(TDGHSQL.forkliftAllVets()).thenReturn(vets);
+        when(TDGHSQL.forkliftAllVisits()).thenReturn(visits);
+        // Call class under test
+        int counter = forklift.forkliftDatabase();
+        // Assert correct amount of tables have been forklifted
+        assertEquals(7, counter);
     }
 
     @Test
