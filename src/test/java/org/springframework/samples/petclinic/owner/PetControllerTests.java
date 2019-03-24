@@ -17,6 +17,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.samples.petclinic.PetClinicApplication;
+import org.springframework.samples.petclinic.PetclinicIntegrationTests;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.OwnerRepository;
 import org.springframework.samples.petclinic.owner.Pet;
@@ -63,6 +65,8 @@ public class PetControllerTests {
 
     @Before
     public void setup() {
+        PetClinicApplication.shadowWrites = false;
+
     	when(hamster.getId()).thenReturn(3);
     	when(hamster.getName()).thenReturn("hamster");
     	

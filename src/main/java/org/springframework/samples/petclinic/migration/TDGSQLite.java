@@ -71,9 +71,17 @@ public class TDGSQLite {
         }
     }
 
-    public static void addOwner(String firstName, String lastName, String address, String city, String telephone) {
-        insertQuery("INSERT INTO owners (id, first_name, last_name, address, city, telephone) VALUES (NULL, '" + firstName + "', '" + lastName + "', '" + address +
-            "', '" + city + "', '" + telephone + "');");
+    public static int addOwner(String firstName, String lastName, String address, String city, String telephone) {
+        Statement stmt;
+        try {
+            stmt = sqlite.createStatement();
+            stmt.execute("INSERT INTO owners (id, first_name, last_name, address, city, telephone) VALUES (NULL, '" + firstName + "', '" + lastName + "', '" + address +
+                "', '" + city + "', '" + telephone + "');");
+            return stmt.getGeneratedKeys().getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     public static Owner getOwner(Integer id) {
@@ -316,8 +324,8 @@ public class TDGSQLite {
         insertQuery("INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (NULL, '" + name + "', '" + birthDate + "', " + typeId + ", " + String.valueOf(ownerId) + ");");
     }
     
-    public static Pet getPet(String name) {
-    	ResultSet rs = selectQuery("SELECT * FROM pets WHERE name= '" + name + "';");
+    public static Pet getPet(Integer id) {
+    	ResultSet rs = selectQuery("SELECT * FROM pets WHERE id= '" + id + "';");
     	if(rs != null) {
     		try {
     			Pet pet = new Pet();
