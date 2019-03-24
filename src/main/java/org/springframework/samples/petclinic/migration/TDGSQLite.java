@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.springframework.samples.petclinic.owner.Owner;
@@ -147,120 +146,6 @@ public class TDGSQLite {
         insertQuery("DELETE FROM owners WHERE id=" + String.valueOf(id) + ";");
     }
 
-    public static Collection<Owner> getOwnersByLastName(String lastName){
-        Collection<Owner> owners = new ArrayList<Owner>();
-        if(lastName.equals("")){
-            ResultSet rs = selectQuery("SELECT * FROM owners;");
-            if(rs != null){
-                try {
-                    while (rs.next()) {
-                        Owner owner = new Owner();
-                        owner.setId(rs.getInt("id"));
-                        owner.setFirstName(rs.getString("first_name"));
-                        owner.setLastName(rs.getString("last_name"));
-                        owner.setAddress(rs.getString("address"));
-                        owner.setCity(rs.getString("city"));
-                        owner.setTelephone(rs.getString("telephone"));
-                        rs = selectQuery("SELECT name FROM pets WHERE owner_id = " + String.valueOf(rs.getInt("id")) + ";");
-                        ArrayList<String> petName = new ArrayList<String>();
-                        if(rs != null) {
-                            while(rs.next()) {
-                                petName.add(rs.getString("name"));
-                            }
-                            for(String ownerPetName: petName){
-                                owner.addPet(getPet(ownerPetName));
-                            }
-                        }
-                        owners.add(owner);
-                    }
-                }
-                catch (SQLException e){
-                    e.printStackTrace();
-                }
-                return owners;
-            }
-            return null;
-        }
-
-        ResultSet rs = selectQuery("SELECT * FROM owners WHERE last_name=" + lastName +";");
-        if(rs != null){
-            try {
-                while (rs.next()) {
-                    Owner owner = new Owner();
-                    owner.setId(rs.getInt("id"));
-                    owner.setFirstName(rs.getString("first_name"));
-                    owner.setLastName(rs.getString("last_name"));
-                    owner.setAddress(rs.getString("address"));
-                    owner.setCity(rs.getString("city"));
-                    owner.setTelephone(rs.getString("telephone"));
-                    rs = selectQuery("SELECT name FROM pets WHERE owner_id=" + String.valueOf(rs.getInt("id")) + ";");
-                    ArrayList<String> petId = new ArrayList<String>();
-                    if (rs != null) {
-                        while (rs.next()) {
-                            petId.add(rs.getString("name"));
-                        }
-                        for (String ownerPetId : petId) {
-                            owner.addPet(getPet(ownerPetId));
-                        }
-                    }
-                    owners.add(owner);
-                }
-            }
-            catch(SQLException e){
-                e.printStackTrace();
-            }
-            return owners;
-        }
-        return null;
-    }
-
-    public static List<Vet> getAllVets(){
-        ResultSet rs = selectQuery("SELECT * FROM vets;");
-        if(rs != null){
-            try{
-                List<Vet> vets = new ArrayList<Vet>();
-                while(rs.next()){
-                    Vet vet = new Vet();
-                    vet.setId(rs.getInt("id"));
-                    vet.setFirstName(rs.getString("first_name"));
-                    vet.setLastName(rs.getString("last_name"));
-                    //specialties
-                    List<Specialty> vetSpecialties = getVetSpecialties(rs.getInt("id"));
-                    if(vetSpecialties != null){
-                        for(Specialty specialty: vetSpecialties){
-                            vet.addSpecialty(specialty);
-                        }
-                    }
-
-                }
-                return vets;
-            }catch (SQLException e){
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    public static List<Specialty> getVetSpecialties(Integer vetId){
-        ResultSet rs = selectQuery("SELECT * FROM vet_specialties WHERE vet_id=" + String.valueOf(vetId) +";");
-        if(rs != null){
-            try{
-                List<Specialty> specialties = new ArrayList<Specialty>();
-                while(rs.next()){
-                    ResultSet bs = selectQuery("SELECT * FROM specialties WHERE id = " + String.valueOf(rs.getInt("id")) + ";");
-                    Specialty specialty = new Specialty();
-                    specialty.setName(bs.getString("name"));
-                    specialty.setId(bs.getInt("id"));
-                    specialties.add(specialty);
-                }
-                return specialties;
-            }
-            catch (SQLException e){
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
 
     public static void addVet(String firstName, String lastName) {
         insertQuery("INSERT INTO vets (id, first_name, last_name) VALUES (NULL, '" + firstName + "', '" + lastName + "');");
@@ -329,7 +214,7 @@ public class TDGSQLite {
         insertQuery("INSERT INTO specialties (id, name) VALUES (NULL, '" + specialty + "');");
     }
 
-    public static void updatedSpecialty(int id, String specialty) {
+    public static void updatedSpecialty(Integer id, String specialty) {
         insertQuery("UPDATE specialties SET name = '" + specialty + "' WHERE id = " + id + ";");
     }
 
@@ -527,7 +412,7 @@ public class TDGSQLite {
         insertQuery("INSERT INTO types (id, name) VALUES (NULL, '" + name + "');");
     }
 
-    public static void updatePetType(int id, String name) {
+    public static void updatePetType(Integer id, String name) {
         insertQuery("UPDATE types SET name = '" + name + "' WHERE id = " + id + ";");
     }
     

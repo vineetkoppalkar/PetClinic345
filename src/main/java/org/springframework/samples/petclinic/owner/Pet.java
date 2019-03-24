@@ -140,8 +140,7 @@ public class Pet extends NamedEntity {
         visit.setPetId(this.getId());
     }
 
-    @Override
-    public String toString() {
+    public String displayInfo() {
         return new ToStringCreator(this)
             .append("id", this.getId())
             .append("name", this.getName())

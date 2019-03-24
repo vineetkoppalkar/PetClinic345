@@ -110,8 +110,7 @@ public class Visit extends BaseEntity {
         return true;
     }
 
-    @Override
-    public String toString() {
+    public String displayInfo() {
         return new ToStringCreator(this)
             .append("id", this.getId())
             .append("petId", this.getPetId())

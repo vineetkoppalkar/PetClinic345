@@ -59,8 +59,7 @@ public class Specialty extends NamedEntity implements Serializable {
         return true;
     }
 
-    @Override
-    public String toString() {
+    public String displayInfo() {
         return new ToStringCreator(this)
             .append("id", this.getId())
             .append("name", this.getName()).toString();
