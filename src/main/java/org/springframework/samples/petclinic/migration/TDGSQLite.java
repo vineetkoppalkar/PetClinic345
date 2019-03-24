@@ -159,6 +159,7 @@ public class TDGSQLite {
         Collection<Owner> owners = new ArrayList<Owner>();
         if(lastName.equals("")){
             ResultSet rs = selectQuery("SELECT * FROM owners;");
+            ResultSet bs;
             if(rs != null){
                 try {
                     while (rs.next()) {
@@ -169,14 +170,17 @@ public class TDGSQLite {
                         owner.setAddress(rs.getString("address"));
                         owner.setCity(rs.getString("city"));
                         owner.setTelephone(rs.getString("telephone"));
-                        rs = selectQuery("SELECT name FROM pets WHERE owner_id = " + String.valueOf(rs.getInt("id")) + ";");
-                        ArrayList<String> petName = new ArrayList<String>();
-                        if(rs != null) {
-                            while(rs.next()) {
-                                petName.add(rs.getString("name"));
+                        bs = selectQuery("SELECT id FROM pets WHERE owner_id = " + String.valueOf(rs.getInt("id")) + ";");
+                        ArrayList<Integer> petId = new ArrayList<Integer>();
+                        if(bs != null) {
+                            while(bs.next()) {
+                                petId.add(bs.getInt("id"));
                             }
-                            for(String ownerPetName: petName){
-                                owner.addPet(getPet(ownerPetName));
+                            for(Integer ownerPetId: petId){
+                                Pet pet = getPet(ownerPetId);
+                                owner.addPet(pet);
+                                pet.setOwnerTdg(owner);
+
                             }
                         }
                         owners.add(owner);
@@ -191,9 +195,12 @@ public class TDGSQLite {
         }
 
         ResultSet rs = selectQuery("SELECT * FROM owners WHERE last_name='" + lastName +"';");
+
         if(rs != null){
+            ResultSet bs;
             try {
                 while (rs.next()) {
+                    System.out.println("There is an owner");
                     Owner owner = new Owner();
                     owner.setId(rs.getInt("id"));
                     owner.setFirstName(rs.getString("first_name"));
@@ -201,14 +208,16 @@ public class TDGSQLite {
                     owner.setAddress(rs.getString("address"));
                     owner.setCity(rs.getString("city"));
                     owner.setTelephone(rs.getString("telephone"));
-                    rs = selectQuery("SELECT name FROM pets WHERE owner_id=" + String.valueOf(rs.getInt("id")) + ";");
-                    ArrayList<String> petId = new ArrayList<String>();
-                    if (rs != null) {
-                        while (rs.next()) {
-                            petId.add(rs.getString("name"));
+                    bs = selectQuery("SELECT id FROM pets WHERE owner_id=" + String.valueOf(rs.getInt("id")) + ";");
+                    ArrayList<Integer> petId = new ArrayList<Integer>();
+                    if (bs != null) {
+                        while (bs.next()) {
+                            petId.add(bs.getInt("id"));
                         }
-                        for (String ownerPetId : petId) {
-                            owner.addPet(getPet(ownerPetId));
+                        for (Integer ownerPetId : petId) {
+                            Pet pet = getPet(ownerPetId);
+                            owner.addPet(pet);
+                            pet.setOwnerTdg(owner);
                         }
                     }
                     owners.add(owner);
@@ -388,8 +397,16 @@ public class TDGSQLite {
         insertQuery("DELETE FROM visits WHERE id=" + String.valueOf(id) + ";");
     }
     
-    public static void addPet(String name, Date birthDate, Integer typeId, Integer ownerId) {
-        insertQuery("INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (NULL, '" + name + "', '" + birthDate + "', " + typeId + ", " + String.valueOf(ownerId) + ");");
+    public static Integer addPet(String name, Date birthDate, Integer typeId, Integer ownerId) {
+        Statement stmt;
+        try {
+            stmt = sqlite.createStatement();
+            stmt.execute("INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (NULL, '" + name + "', '" + birthDate + "', " + typeId + ", " + String.valueOf(ownerId) + ");");
+            return stmt.getGeneratedKeys().getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
     
     public static Pet getPet(Integer id) {
