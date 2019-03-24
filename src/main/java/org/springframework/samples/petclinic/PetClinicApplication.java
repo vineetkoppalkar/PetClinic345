@@ -18,6 +18,8 @@ package org.springframework.samples.petclinic;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.samples.petclinic.migration.Forklift;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * PetClinic Spring Boot Application.
@@ -26,10 +28,21 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  */
 @SpringBootApplication
+@EnableScheduling
 public class PetClinicApplication {
+
+    // Consistency checker toggles
+    public static boolean consistencyChecker = true;
+    public static boolean consistencyCheckerOwner = true;
+    public static boolean consistencyCheckerPet = true;
+    public static boolean consistencyCheckerVisit = true;
+    public static boolean consistencyCheckerVet = true;
+    public static boolean consistencyCheckerSpecialty = true;
+    public static boolean consistencyCheckerType = true;
 
     public static void main(String[] args) {
         SpringApplication.run(PetClinicApplication.class, args);
     }
+
 
 }

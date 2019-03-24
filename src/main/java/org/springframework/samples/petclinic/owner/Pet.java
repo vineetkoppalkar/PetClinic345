@@ -34,6 +34,7 @@ import javax.persistence.Table;
 
 import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
+import org.springframework.core.style.ToStringCreator;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.samples.petclinic.model.NamedEntity;
 import org.springframework.samples.petclinic.visit.Visit;
@@ -74,6 +75,13 @@ public class Pet extends NamedEntity {
     	this.visits = visits;
     }
 
+    public Pet(int id, String name, LocalDate birthDate, PetType type, Owner owner) {
+        super(id, name);
+        this.birthDate = birthDate;
+        this.type = type;
+        this.owner = owner;
+    }
+
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
     }
@@ -98,6 +106,11 @@ public class Pet extends NamedEntity {
         this.owner = owner;
     }
 
+    //Code added for new db    
+    public void setOwnerTdg(Owner owner) {
+    	setOwner(owner);
+    }
+    
     protected Set<Visit> getVisitsInternal() {
         if (this.visits == null) {
             this.visits = new HashSet<>();
@@ -107,6 +120,12 @@ public class Pet extends NamedEntity {
 
     protected void setVisitsInternal(Set<Visit> visits) {
         this.visits = visits;
+    }
+    
+    //code added for new db
+    public void setVisitsTdg(List<Visit> visits) {
+    	Set<Visit> visitSet = new HashSet<Visit>(visits);
+    	setVisitsInternal(visitSet);
     }
 
     public List<Visit> getVisits() {
@@ -121,4 +140,40 @@ public class Pet extends NamedEntity {
         visit.setPetId(this.getId());
     }
 
+    public String displayInfo() {
+        return new ToStringCreator(this)
+            .append("id", this.getId())
+            .append("name", this.getName())
+            .append("birth_date", this.getBirthDate().toString())
+            .append("type_id", this.getType().getId())
+            .append("owner_id", this.getOwner().getId()).toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+
+        if(obj == null || obj.getClass()!= this.getClass())
+            return false;
+
+        Pet pet = (Pet) obj;
+
+        if (this.getId() == null || !this.getId().equals(pet.getId()))
+            return false;
+
+        if (this.getName() == null || !this.getName().equals(pet.getName()))
+            return false;
+
+        if (this.getBirthDate() == null || !this.getBirthDate().equals(pet.getBirthDate()))
+            return false;
+
+        if (this.getType() == null || !this.getType().getId().equals(pet.getType().getId()))
+            return false;
+
+        if (this.getOwner() == null || !this.getOwner().equals(pet.getOwner()))
+            return false;
+
+        return true;
+    }
 }
