@@ -272,17 +272,48 @@ public class MigrationTests {
         Owner expectedOwner = new Owner(1, "Bob", "Billy", "address", "city", "telephone");
         Owner actualOwner = new Owner(1, "Jones", "Billy", "address", "city", "telephone");
 
-            List<Owner> oldDatastoreOwners = new ArrayList<>();
-            oldDatastoreOwners.add(expectedOwner);
+        List<Owner> oldDatastoreOwners = new ArrayList<>();
+        oldDatastoreOwners.add(expectedOwner);
 
-            List<Owner> newDatastoreOwners = new ArrayList<>();
-            newDatastoreOwners.add(actualOwner);
+        List<Owner> newDatastoreOwners = new ArrayList<>();
+        newDatastoreOwners.add(actualOwner);
 
-            when(TDGHSQL.getAllOwners()).thenReturn(oldDatastoreOwners);
-            when(TDGSQLite.getAllOwners()).thenReturn(newDatastoreOwners);
+        when(TDGHSQL.getAllOwners()).thenReturn(oldDatastoreOwners);
+        when(TDGSQLite.getAllOwners()).thenReturn(newDatastoreOwners);
 
         consistencyChecker.ownerCheckConsistency();
 
+        assertEquals(1, consistencyChecker.getNbOfOwnerInconsistencies());
+    }
+
+    @Test
+    public void testOwnerHashConsistencyChecker() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerOwner)
+            return;
+
+        Owner expectedOwner = new Owner(1, "Bob", "Billy", "address", "city", "telephone");
+        Owner actualOwner = new Owner(1, "Jones", "Billy", "address", "city", "telephone");
+
+        List<Owner> oldDatastoreOwners = new ArrayList<>();
+        oldDatastoreOwners.add(expectedOwner);
+
+        List<Owner> newDatastoreOwners = new ArrayList<>();
+        newDatastoreOwners.add(actualOwner);
+
+        when(TDGHSQL.getAllOwners()).thenReturn(oldDatastoreOwners);
+        when(TDGSQLite.getAllOwners()).thenReturn(newDatastoreOwners);
+
+        String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
+        String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
+
+        when(TDGHSQL.getDatastoreHash()). thenReturn(oldDatastoreHash);
+        when(TDGSQLite.getDatastoreHash()). thenReturn(newDatastoreHash);
+
+        consistencyChecker.ownerHashCheckConsistency();
         assertEquals(1, consistencyChecker.getNbOfOwnerInconsistencies());
     }
 

@@ -1,6 +1,7 @@
 package org.springframework.samples.petclinic.migration;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.hash.Hashing;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.vet.Specialty;
 
@@ -118,6 +120,21 @@ public class TDGSQLite {
             e.printStackTrace();
         }
         return results;
+    }
+
+    public static String getDatastoreHash() {
+        String sha256hex = null;
+        ResultSet rs = selectQuery("SELECT * FROM owners");
+        try {
+            while (rs.next()) {
+                Owner owner = createOwnerFromResultSet(rs);
+                String chainedStr = owner.toString() + sha256hex; //TODO replace toString() with displayInfo()
+                sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sha256hex;
     }
 
     private static Owner createOwnerFromResultSet(ResultSet rs) {

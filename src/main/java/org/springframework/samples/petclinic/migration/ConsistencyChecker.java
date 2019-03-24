@@ -42,7 +42,7 @@ public class ConsistencyChecker implements Runnable {
 
         if (PetClinicApplication.consistencyCheckerOwner) {
             System.out.println("\nConsistency checker RUNNING for table: " + OWNER_TABLE_NAME);
-            ownerCheckConsistency();
+            ownerHashCheckConsistency();
             System.out.println("Consistency checker COMPLETE for table: " + OWNER_TABLE_NAME);
         }
 
@@ -107,6 +107,16 @@ public class ConsistencyChecker implements Runnable {
             }
         }
 	}
+
+    public void ownerHashCheckConsistency() {
+        String oldDatastoreHash = TDGHSQL.getDatastoreHash();
+        String newDatastoreHash = TDGSQLite.getDatastoreHash();
+
+        if (!oldDatastoreHash.equals(newDatastoreHash)) {
+            printViolation(OWNER_TABLE_NAME, newDatastoreHash, oldDatastoreHash);
+            ownerCheckConsistency();
+        }
+    }
 
     public void petCheckConsistency() {
         List<Pet> oldDatastorePets = TDGHSQL.getAllPets();
@@ -297,7 +307,7 @@ public class ConsistencyChecker implements Runnable {
         TDGSQLite.addPet(
             expected.getName(),
             Date.valueOf(expected.getBirthDate()),
-            expected.getId(),
+            expected.getType().getId(),
             expected.getOwner().getId()
         );
     }
