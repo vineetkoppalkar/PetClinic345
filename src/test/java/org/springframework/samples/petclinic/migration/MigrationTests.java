@@ -441,6 +441,37 @@ public class MigrationTests {
     }
 
     @Test
+    public void testVisitHashConsistencyChecker() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerVisit)
+            return;
+
+        Visit expectedVisit = new Visit(1, 2, "Expected Pet", LocalDate.parse("2007-12-03"));
+        Visit actualVisit = new Visit(1, 2, "Actual Pet", LocalDate.parse("2007-12-03"));
+
+        List<Visit> oldDatastoreVisits = new ArrayList<>();
+        oldDatastoreVisits.add(expectedVisit);
+
+        List<Visit> newDatastoreVisits = new ArrayList<>();
+        newDatastoreVisits.add(actualVisit);
+
+        when(TDGHSQL.getAllVisits()).thenReturn(oldDatastoreVisits);
+        when(TDGSQLite.getAllVisits()).thenReturn(newDatastoreVisits);
+
+        String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
+        String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
+
+        when(TDGHSQL.getVisitDatastoreHash()). thenReturn(oldDatastoreHash);
+        when(TDGSQLite.getVisitDatastoreHash()). thenReturn(newDatastoreHash);
+
+        consistencyChecker.visitsHashCheckConsistency();
+        assertEquals(1, consistencyChecker.getNbOfVisitInconsistencies());
+    }
+
+    @Test
     public void testConsistencyCheckerVets() {
 
         if (!PetClinicApplication.consistencyChecker)

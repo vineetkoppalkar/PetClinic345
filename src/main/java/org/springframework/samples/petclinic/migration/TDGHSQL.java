@@ -195,8 +195,7 @@ public class TDGHSQL {
                                     rs.getString("name") +
                                     rs.getString("birth_date") +
                                     rs.getInt("type_id") +
-                                    rs.getInt("owner_id") +
-                                    rs.getInt("id");
+                                    rs.getInt("owner_id");
                 sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
             }
         } catch (SQLException e) {
@@ -294,6 +293,24 @@ public class TDGHSQL {
             e.printStackTrace();
         }
         return results;
+    }
+
+    public static String getVisitDatastoreHash() {
+        String sha256hex = null;
+        ResultSet rs = selectQuery("SELECT * FROM visits");
+        try {
+            while (rs.next()) {
+                String chainedStr = sha256hex +
+                                    rs.getString("visit_date") +
+                                    rs.getInt("id") +
+                                    rs.getInt("pet_id") +
+                                    rs.getString("description");
+                sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sha256hex;
     }
 
     private static Visit createVisitFromResultSet(ResultSet rs) {
