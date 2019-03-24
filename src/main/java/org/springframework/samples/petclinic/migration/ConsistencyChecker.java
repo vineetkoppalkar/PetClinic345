@@ -196,7 +196,7 @@ public class ConsistencyChecker implements Runnable {
 
         if (!oldDatastoreHash.equals(newDatastoreHash)) {
             printViolation(VISIT_TABLE_NAME, newDatastoreHash, oldDatastoreHash);
-            visitsHashCheckConsistency();
+            visitCheckConsistency();
         }
     }
 

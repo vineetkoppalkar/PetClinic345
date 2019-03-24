@@ -338,8 +338,8 @@ public class MigrationTests {
         String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
         String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
 
-        when(TDGHSQL.getOwnerDatastoreHash()). thenReturn(oldDatastoreHash);
-        when(TDGSQLite.getOwnerDatastoreHash()). thenReturn(newDatastoreHash);
+        when(TDGHSQL.getOwnerDatastoreHash()).thenReturn(oldDatastoreHash);
+        when(TDGSQLite.getOwnerDatastoreHash()).thenReturn(newDatastoreHash);
 
         consistencyChecker.ownerHashCheckConsistency();
         assertEquals(1, consistencyChecker.getNbOfOwnerInconsistencies());
@@ -407,8 +407,8 @@ public class MigrationTests {
         String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
         String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
 
-        when(TDGHSQL.getPetDatastoreHash()). thenReturn(oldDatastoreHash);
-        when(TDGSQLite.getPetDatastoreHash()). thenReturn(newDatastoreHash);
+        when(TDGHSQL.getPetDatastoreHash()).thenReturn(oldDatastoreHash);
+        when(TDGSQLite.getPetDatastoreHash()).thenReturn(newDatastoreHash);
 
         consistencyChecker.petHashCheckConsistency();
         assertEquals(1, consistencyChecker.getNbOfPetInconsistencies());
@@ -464,8 +464,8 @@ public class MigrationTests {
         String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
         String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
 
-        when(TDGHSQL.getVisitDatastoreHash()). thenReturn(oldDatastoreHash);
-        when(TDGSQLite.getVisitDatastoreHash()). thenReturn(newDatastoreHash);
+        when(TDGHSQL.getVisitDatastoreHash()).thenReturn(oldDatastoreHash);
+        when(TDGSQLite.getVisitDatastoreHash()).thenReturn(newDatastoreHash);
 
         consistencyChecker.visitsHashCheckConsistency();
         assertEquals(1, consistencyChecker.getNbOfVisitInconsistencies());
@@ -521,8 +521,8 @@ public class MigrationTests {
         String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
         String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
 
-        when(TDGHSQL.getOwnerDatastoreHash()). thenReturn(oldDatastoreHash);
-        when(TDGSQLite.getOwnerDatastoreHash()). thenReturn(newDatastoreHash);
+        when(TDGHSQL.getVetDatastoreHash()).thenReturn(oldDatastoreHash);
+        when(TDGSQLite.getVetDatastoreHash()).thenReturn(newDatastoreHash);
         
         consistencyChecker.vetHashCheckConsistency();
 
@@ -579,8 +579,8 @@ public class MigrationTests {
         String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
         String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
 
-        when(TDGHSQL.getSpecialtyDatastoreHash()). thenReturn(oldDatastoreHash);
-        when(TDGSQLite.getSpecialtyDatastoreHash()). thenReturn(newDatastoreHash);
+        when(TDGHSQL.getSpecialtyDatastoreHash()).thenReturn(oldDatastoreHash);
+        when(TDGSQLite.getSpecialtyDatastoreHash()).thenReturn(newDatastoreHash);
 
         consistencyChecker.specialtiesHashCheckConsistency();
 
@@ -638,8 +638,8 @@ public class MigrationTests {
         String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
         String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
 
-        when(TDGHSQL.getTypesDatastoreHash()). thenReturn(oldDatastoreHash);
-        when(TDGSQLite.getTypesDatastoreHash()). thenReturn(newDatastoreHash);
+        when(TDGHSQL.getTypesDatastoreHash()).thenReturn(oldDatastoreHash);
+        when(TDGSQLite.getTypesDatastoreHash()).thenReturn(newDatastoreHash);
 
         consistencyChecker.typesHashCheckConsistency();
 
