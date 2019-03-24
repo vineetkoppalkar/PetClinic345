@@ -10,17 +10,19 @@ public class Forklift implements Runnable {
     public void run() {
         System.out.println("Forklift running");
         try {
-            constructDatabase("jdbc:sqlite:memory");
+            constructDatabase("jdbc:sqlite:memory", "sqlite");
             forkliftDatabase();
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Forklift has finished.");
+
     }
 
-    static void constructDatabase(String root) throws SQLException, IOException {
+    static void constructDatabase(String root, String dbName) throws SQLException, IOException {
         // create a connection to the database
         Connection c = DriverManager.getConnection(root);
-        FileReader fr = new FileReader(new File("src/main/resources/db/sqlite/schema.sql"));
+        FileReader fr = new FileReader(new File("src/main/resources/db/" + dbName + "/schema.sql"));
         BufferedReader br = new BufferedReader(fr);
         executeSQL(c, br);
     }
@@ -106,7 +108,6 @@ public class Forklift implements Runnable {
         for (String cmd : commandList) {
             if (!cmd.trim().equals("")) {
                 st.executeUpdate(cmd);
-                System.out.println(">>" + cmd);
             }
         }
     }

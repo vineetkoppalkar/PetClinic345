@@ -66,10 +66,18 @@ public class Owner extends Person {
     public Owner() {
     	this("", "");
     }
-    
+
     // New parameterized constructor
     public Owner(String firstName, String lastName) {
     	super(firstName, lastName);
+    }
+
+    // Used by the consistency checker
+    public Owner(int id, String first_name, String last_name, String address, String city, String telephone) {
+        super(id, first_name, last_name);
+        this.address = address;
+        this.city = city;
+        this.telephone = telephone;
     }
     
     public String getAddress() {
@@ -154,10 +162,43 @@ public class Owner extends Person {
     @Override
     public String toString() {
         return new ToStringCreator(this)
+            .append("id", this.getId())
+            .append("new", this.isNew())
+            .append("lastName", this.getLastName())
+            .append("firstName", this.getFirstName())
+            .append("address", this.address)
+            .append("city", this.city)
+            .append("telephone", this.telephone).toString();
+    }
 
-                .append("id", this.getId()).append("new", this.isNew())
-                .append("lastName", this.getLastName())
-                .append("firstName", this.getFirstName()).append("address", this.address)
-                .append("city", this.city).append("telephone", this.telephone).toString();
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+
+        if(obj == null || obj.getClass()!= this.getClass())
+            return false;
+
+        Owner owner = (Owner) obj;
+
+        if (this.getId() == null || !this.getId().equals(owner.getId()))
+            return false;
+
+        if (this.getFirstName() == null || !this.getFirstName().equals(owner.getFirstName()))
+            return false;
+
+        if (this.getLastName() == null || !this.getLastName().equals(owner.getLastName()))
+            return false;
+
+        if (this.getAddress() == null || !this.getAddress().equals(owner.getAddress()))
+            return false;
+
+        if (this.getCity() == null || !this.getCity().equals(owner.getCity()))
+            return false;
+
+        if (this.getTelephone() == null || !this.getTelephone().equals(owner.getTelephone()))
+            return false;
+
+        return true;
     }
 }

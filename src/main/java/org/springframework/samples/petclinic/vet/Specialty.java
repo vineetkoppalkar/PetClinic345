@@ -20,6 +20,7 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.springframework.core.style.ToStringCreator;
 import org.springframework.samples.petclinic.model.NamedEntity;
 
 /**
@@ -31,4 +32,37 @@ import org.springframework.samples.petclinic.model.NamedEntity;
 @Table(name = "specialties")
 public class Specialty extends NamedEntity implements Serializable {
 
+    public Specialty() {
+        /* Default constructor */
+    }
+
+    public Specialty(int id, String name) {
+        super(id, name);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+
+        Specialty specialty = (Specialty) obj;
+
+        if (this.getId() == null || !this.getId().equals(specialty.getId()))
+            return false;
+
+        if (this.getName() == null || !this.getName().equals(specialty.getName()))
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this)
+            .append("id", this.getId())
+            .append("name", this.getName()).toString();
+    }
 }
