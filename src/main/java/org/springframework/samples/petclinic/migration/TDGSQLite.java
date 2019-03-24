@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.samples.petclinic.owner.Owner;
@@ -71,9 +72,17 @@ public class TDGSQLite {
         }
     }
 
-    public static void addOwner(String firstName, String lastName, String address, String city, String telephone) {
-        insertQuery("INSERT INTO owners (id, first_name, last_name, address, city, telephone) VALUES (NULL, '" + firstName + "', '" + lastName + "', '" + address +
-            "', '" + city + "', '" + telephone + "');");
+    public static int addOwner(String firstName, String lastName, String address, String city, String telephone) {
+        Statement stmt;
+        try {
+            stmt = sqlite.createStatement();
+            stmt.execute("INSERT INTO owners (id, first_name, last_name, address, city, telephone) VALUES (NULL, '" + firstName + "', '" + lastName + "', '" + address +
+                "', '" + city + "', '" + telephone + "');");
+            return stmt.getGeneratedKeys().getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     public static Owner getOwner(Integer id) {
@@ -144,6 +153,73 @@ public class TDGSQLite {
 
     public static void deleteOwner(Integer id) {
         insertQuery("DELETE FROM owners WHERE id=" + String.valueOf(id) + ";");
+    }
+
+    public static Collection<Owner> getOwnersByLastName(String lastName){
+        Collection<Owner> owners = new ArrayList<Owner>();
+        if(lastName.equals("")){
+            ResultSet rs = selectQuery("SELECT * FROM owners;");
+            if(rs != null){
+                try {
+                    while (rs.next()) {
+                        Owner owner = new Owner();
+                        owner.setId(rs.getInt("id"));
+                        owner.setFirstName(rs.getString("first_name"));
+                        owner.setLastName(rs.getString("last_name"));
+                        owner.setAddress(rs.getString("address"));
+                        owner.setCity(rs.getString("city"));
+                        owner.setTelephone(rs.getString("telephone"));
+                        rs = selectQuery("SELECT name FROM pets WHERE owner_id = " + String.valueOf(rs.getInt("id")) + ";");
+                        ArrayList<String> petName = new ArrayList<String>();
+                        if(rs != null) {
+                            while(rs.next()) {
+                                petName.add(rs.getString("name"));
+                            }
+                            for(String ownerPetName: petName){
+                                owner.addPet(getPet(ownerPetName));
+                            }
+                        }
+                        owners.add(owner);
+                    }
+                }
+                catch (SQLException e){
+                    e.printStackTrace();
+                }
+                return owners;
+            }
+            return null;
+        }
+
+        ResultSet rs = selectQuery("SELECT * FROM owners WHERE last_name='" + lastName +"';");
+        if(rs != null){
+            try {
+                while (rs.next()) {
+                    Owner owner = new Owner();
+                    owner.setId(rs.getInt("id"));
+                    owner.setFirstName(rs.getString("first_name"));
+                    owner.setLastName(rs.getString("last_name"));
+                    owner.setAddress(rs.getString("address"));
+                    owner.setCity(rs.getString("city"));
+                    owner.setTelephone(rs.getString("telephone"));
+                    rs = selectQuery("SELECT name FROM pets WHERE owner_id=" + String.valueOf(rs.getInt("id")) + ";");
+                    ArrayList<String> petId = new ArrayList<String>();
+                    if (rs != null) {
+                        while (rs.next()) {
+                            petId.add(rs.getString("name"));
+                        }
+                        for (String ownerPetId : petId) {
+                            owner.addPet(getPet(ownerPetId));
+                        }
+                    }
+                    owners.add(owner);
+                }
+            }
+            catch(SQLException e){
+                e.printStackTrace();
+            }
+            return owners;
+        }
+        return null;
     }
 
 
