@@ -32,6 +32,15 @@ public class NamedEntity extends BaseEntity {
     @Column(name = "name")
     private String name;
 
+    public NamedEntity() {
+
+    }
+
+    public NamedEntity(int id, String name) {
+        super(id);
+        this.name = name;
+    }
+
     public String getName() {
         return this.name;
     }

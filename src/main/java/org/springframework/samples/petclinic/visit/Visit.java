@@ -22,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
+import org.springframework.core.style.ToStringCreator;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.samples.petclinic.model.BaseEntity;
 
@@ -53,6 +54,13 @@ public class Visit extends BaseEntity {
         this.date = LocalDate.now();
     }
 
+    public Visit(int id, Integer petId, String description, LocalDate date) {
+        super(id);
+        this.petId = petId;
+        this.description = description;
+        this.date = date;
+    }
+
     public LocalDate getDate() {
         return this.date;
     }
@@ -77,4 +85,37 @@ public class Visit extends BaseEntity {
         this.petId = petId;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+
+        if(obj == null || obj.getClass()!= this.getClass())
+            return false;
+
+        Visit owner = (Visit) obj;
+
+        if (this.getId() == null || !this.getId().equals(owner.getId()))
+            return false;
+
+        if (this.getDescription() == null || !this.getDescription().equals(owner.getDescription()))
+            return false;
+
+        if (this.getPetId() == null || !this.getPetId().equals(owner.getPetId()))
+            return false;
+
+        if (this.getDate() == null || !this.getDate().equals(owner.getDate()))
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this)
+            .append("id", this.getId())
+            .append("petId", this.getPetId())
+            .append("date", this.getDate())
+            .append("description", this.getDescription()).toString();
+    }
 }

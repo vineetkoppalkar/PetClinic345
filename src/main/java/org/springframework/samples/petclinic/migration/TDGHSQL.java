@@ -3,6 +3,8 @@ package org.springframework.samples.petclinic.migration;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.owner.PetType;
+import org.springframework.samples.petclinic.vet.Specialty;
+import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
 
 import java.io.IOException;
@@ -195,20 +197,40 @@ public class TDGHSQL {
         return null;
     }
 
+    public static List<PetType> getAllTypes() {
+        List<PetType> results = new ArrayList<>();
+        ResultSet rs = selectQuery("SELECT * FROM types");
+        try {
+            while (rs.next()) {
+                results.add(createPetTypeFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+    private static PetType createPetTypeFromResultSet(ResultSet rs) {
+        PetType petType = new PetType();
+        if(rs != null) {
+            try{
+                petType.setId(rs.getInt("id"));
+                petType.setName(rs.getString("name"));
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return petType;
+    }
+
     public static List<Visit> getVisits(Integer petId){
         ResultSet rs = selectQuery("SELECT * FROM visits where pet_id=" + String.valueOf(petId) + ";");
         if(rs != null){
             try{
                 List<Visit> visits = new ArrayList<Visit>();
                 while(rs.next()){
-                    Visit visit = new Visit();
-
-                    visit.setDate(rs.getDate("visit_date").toLocalDate());
-                    visit.setId(rs.getInt("id"));
-                    visit.setPetId(rs.getInt("pet_id"));
-                    visit.setDescription(rs.getString("description"));
-
-                    visits.add(visit);
+                    visits.add(createVisitFromResultSet(rs));
                 }
                 return visits;
             }catch (SQLException e){
@@ -216,6 +238,85 @@ public class TDGHSQL {
             }
         }
         return null;
+    }
+
+    public static List<Visit> getAllVisits() {
+        ResultSet rs = selectQuery("SELECT * FROM visits");
+        List<Visit> results = new ArrayList<>();
+        try {
+            while (rs.next()) {
+                results.add(createVisitFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    private static Visit createVisitFromResultSet(ResultSet rs) {
+        Visit visit = new Visit();
+        if(rs != null) {
+            try{
+                visit.setId(rs.getInt("id"));
+                visit.setPetId(rs.getInt("pet_id"));
+                visit.setDate(LocalDate.parse(rs.getString("visit_date")));
+                visit.setDescription(rs.getString("description"));
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return visit;
+    }
+
+    public static List<Vet> getAllVets() {
+        List<Vet> results = new ArrayList<>();
+        ResultSet rs = selectQuery("SELECT * FROM vets");
+        try {
+            while (rs.next()) {
+                results.add(createVetFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    private static Vet createVetFromResultSet(ResultSet rs) {
+        Vet vet = new Vet();
+        try {
+            vet.setId(rs.getInt("id"));
+            vet.setFirstName(rs.getString("first_name"));
+            vet.setLastName(rs.getString("last_name"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return vet;
+    }
+
+    public static List<Specialty> getAllSpecialties() {
+        ResultSet rs = selectQuery("SELECT * FROM specialties");
+        List<Specialty> results = new ArrayList<>();
+        if(rs != null){
+            try{
+                while(rs.next()){
+                    results.add(createSpecialityFromResultSet(rs));
+                }
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return results;
+    }
+
+    private static Specialty createSpecialityFromResultSet(ResultSet rs) {
+        Specialty specialty = new Specialty();
+        try {
+            specialty.setId(rs.getInt("id"));
+            specialty.setName(rs.getString("name"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return specialty;
     }
 
     public static ResultSet getRecords(String sql) {
@@ -230,7 +331,6 @@ public class TDGHSQL {
     }
 
     public static ResultSet selectQuery(String s) {
-        //System.out.println(s);
         Statement stmt;
         ResultSet rs = null;
         try {

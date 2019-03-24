@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
+import org.springframework.core.style.ToStringCreator;
 import org.springframework.samples.petclinic.model.Person;
 
 /**
@@ -49,6 +50,12 @@ public class Vet extends Person {
     @JoinTable(name = "vet_specialties", joinColumns = @JoinColumn(name = "vet_id"), inverseJoinColumns = @JoinColumn(name = "specialty_id"))
     private Set<Specialty> specialties;
 
+    public Vet() { /* Default Constructor */ }
+
+    public Vet(int id, String firstName, String lastName) {
+        super(id, firstName, lastName);
+    }
+
     protected Set<Specialty> getSpecialtiesInternal() {
         if (this.specialties == null) {
             this.specialties = new HashSet<>();
@@ -64,7 +71,7 @@ public class Vet extends Person {
     public List<Specialty> getSpecialties() {
         List<Specialty> sortedSpecs = new ArrayList<>(getSpecialtiesInternal());
         PropertyComparator.sort(sortedSpecs,
-                new MutableSortDefinition("name", true, true));
+            new MutableSortDefinition("name", true, true));
         return Collections.unmodifiableList(sortedSpecs);
     }
 
@@ -74,6 +81,36 @@ public class Vet extends Person {
 
     public void addSpecialty(Specialty specialty) {
         getSpecialtiesInternal().add(specialty);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+
+        Vet vet = (Vet) obj;
+
+        if (this.getId() == null || !this.getId().equals(vet.getId()))
+            return false;
+
+        if (this.getFirstName() == null || !this.getFirstName().equals(vet.getFirstName()))
+            return false;
+
+        if (this.getLastName() == null || !this.getLastName().equals(vet.getLastName()))
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringCreator(this)
+            .append("id", this.getId())
+            .append("first_name", this.getFirstName())
+            .append("last_name", this.getLastName()).toString();
     }
 
 }
