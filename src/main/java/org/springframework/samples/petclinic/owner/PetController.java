@@ -90,7 +90,7 @@ class PetController {
             if(PetClinicApplication.shadowWrites) {
                 TDGSQLite.addPet(pet.getName(), Date.valueOf(pet.getBirthDate()), pet.getType().getId(), pet.getOwner().getId());
                 try {
-                    ConsistencyChecker.shadowWritesConsistencyCheckerPet(pet, TDGSQLite.getPet(pet.getName()));
+                    ConsistencyChecker.shadowWritesConsistencyCheckerPet(pet, TDGSQLite.getPet(pet.getId()));
                 }catch(SQLException e){
                     e.printStackTrace();
                 }
@@ -126,7 +126,7 @@ class PetController {
             if(PetClinicApplication.shadowWrites) {
                 TDGSQLite.updatePet(pet.getId(), pet.getName(), Date.valueOf(pet.getBirthDate()), pet.getType().getId(), pet.getOwner().getId());
                 try {
-                    ConsistencyChecker.shadowWritesConsistencyCheckerPet(pet, TDGSQLite.getPet(pet.getName()));
+                    ConsistencyChecker.shadowWritesConsistencyCheckerPet(pet, TDGSQLite.getPet(pet.getId()));
                 }catch(SQLException e){
                     e.printStackTrace();
                 }

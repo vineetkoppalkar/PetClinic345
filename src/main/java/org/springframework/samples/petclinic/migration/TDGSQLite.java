@@ -392,8 +392,8 @@ public class TDGSQLite {
         insertQuery("INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (NULL, '" + name + "', '" + birthDate + "', " + typeId + ", " + String.valueOf(ownerId) + ");");
     }
     
-    public static Pet getPet(String name) {
-    	ResultSet rs = selectQuery("SELECT * FROM pets WHERE name= '" + name + "';");
+    public static Pet getPet(Integer id) {
+    	ResultSet rs = selectQuery("SELECT * FROM pets WHERE id= '" + id + "';");
     	if(rs != null) {
     		try {
     			Pet pet = new Pet();
