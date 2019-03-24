@@ -40,7 +40,6 @@ public class TDGSQLite {
     }
 
     public static ResultSet selectQuery(String s) {
-        System.out.println(s);
         Statement stmt;
         ResultSet rs = null;
         try {
@@ -53,7 +52,6 @@ public class TDGSQLite {
     }
 
     public static ResultSet insertQuery(String s) {
-        System.out.println(s);
         Statement stmt;
         ResultSet rs = null;
         try {
@@ -293,6 +291,31 @@ public class TDGSQLite {
     	}
     	return null;
     }
+
+    public static List<Vet> getAllVetsConsistencyChecker() {
+        List<Vet> results = new ArrayList<>();
+        ResultSet rs = selectQuery("SELECT * FROM vets");
+        try {
+            while (rs.next()) {
+                results.add(createVetFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    private static Vet createVetFromResultSet(ResultSet rs) {
+        Vet vet = new Vet();
+        try {
+            vet.setId(rs.getInt("id"));
+            vet.setFirstName(rs.getString("first_name"));
+            vet.setLastName(rs.getString("last_name"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return vet;
+    }
     
     public static void updateVet(Integer id, String firstName, String lastName) {
         insertQuery("UPDATE vets SET first_name = '" + firstName + "', last_name = '" + lastName + "' WHERE id = " + String.valueOf(id) + ";");
@@ -304,6 +327,36 @@ public class TDGSQLite {
     
     public static void addSpecialty(String specialty) {
         insertQuery("INSERT INTO specialties (id, name) VALUES (NULL, '" + specialty + "');");
+    }
+
+    public static void updatedSpecialty(int id, String specialty) {
+        insertQuery("UPDATE specialties SET name = '" + specialty + "' WHERE id = " + id + ";");
+    }
+
+    public static List<Specialty> getAllSpecialties() {
+        ResultSet rs = selectQuery("SELECT * FROM specialties");
+        List<Specialty> results = new ArrayList<>();
+        if(rs != null){
+            try{
+                while(rs.next()){
+                    results.add(createSpecialityFromResultSet(rs));
+                }
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return results;
+    }
+
+    private static Specialty createSpecialityFromResultSet(ResultSet rs) {
+        Specialty specialty = new Specialty();
+        try {
+            specialty.setId(rs.getInt("id"));
+            specialty.setName(rs.getString("name"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return specialty;
     }
     
     public static void addVetSpecialty(Integer vetId, Integer specialtyId) {
@@ -443,8 +496,39 @@ public class TDGSQLite {
     	return null;
     }
 
+    public static List<PetType> getAllTypes() {
+        List<PetType> results = new ArrayList<>();
+        ResultSet rs = selectQuery("SELECT * FROM types");
+        try {
+            while (rs.next()) {
+                results.add(createPetTypeFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+    private static PetType createPetTypeFromResultSet(ResultSet rs) {
+        PetType petType = new PetType();
+        if(rs != null) {
+            try{
+                petType.setId(rs.getInt("id"));
+                petType.setName(rs.getString("name"));
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return petType;
+    }
+
     public static void addPetType(String name) {
         insertQuery("INSERT INTO types (id, name) VALUES (NULL, '" + name + "');");
+    }
+
+    public static void updatePetType(int id, String name) {
+        insertQuery("UPDATE types SET name = '" + name + "' WHERE id = " + id + ";");
     }
     
     public static void updatePet(Integer id, String name, Date birthDate, Integer typeId, Integer ownerId) {

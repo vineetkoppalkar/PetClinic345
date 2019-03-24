@@ -18,6 +18,7 @@ package org.springframework.samples.petclinic.owner;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.springframework.core.style.ToStringCreator;
 import org.springframework.samples.petclinic.model.NamedEntity;
 
 /**
@@ -28,4 +29,36 @@ import org.springframework.samples.petclinic.model.NamedEntity;
 @Table(name = "types")
 public class PetType extends NamedEntity {
 
+    public PetType() {
+        /* Default constructor */
+    }
+
+    public PetType(int id, String name) {
+        super(id, name);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+
+        PetType petType = (PetType) obj;
+
+        if (this.getId() == null || !this.getId().equals(petType.getId()))
+            return false;
+
+        if (this.getName() == null || !this.getName().equals(petType.getName()))
+            return false;
+
+        return true;
+    }
+
+    public String displayInfo() {
+        return new ToStringCreator(this)
+            .append("id", this.getId())
+            .append("name", this.getName()).toString();
+    }
 }

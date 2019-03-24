@@ -23,8 +23,13 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.powermock.api.mockito.PowerMockito.when;
+import static org.springframework.samples.petclinic.migration.ConsistencyChecker.resetInconsistencyCounters;
+
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.springframework.samples.petclinic.PetClinicApplication;
 import org.springframework.samples.petclinic.owner.PetType;
+import org.springframework.samples.petclinic.vet.Specialty;
+import org.springframework.samples.petclinic.vet.Vet;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({TDGHSQL.class, TDGSQLite.class})
@@ -61,6 +66,7 @@ public class MigrationTests {
 
     Collection<Owner> collection1 = new ArrayList<Owner>();
 
+    private ConsistencyChecker consistencyChecker;
 
     @Before
     public void setup() {
@@ -74,16 +80,20 @@ public class MigrationTests {
         pet1.setOwnerTdg(owner1);
         pet1.setId(1);
         pet1.setName("Smith");
+        PetType type = new PetType(1, "cat");
+        pet1.setType(type);
 
         pet2 = new Pet();
         pet2.setBirthDate(LocalDate.of(1990, 9, 3));
         pet2.setOwnerTdg(owner1);
         pet2.setId(1);
         pet2.setName("Smith");
+        pet2.setType(type);
 
         pet3 = new Pet();
         pet3.setBirthDate(LocalDate.of(1990, 9, 3));
         pet3.setOwnerTdg(owner2);
+        pet3.setType(type);
 
         visit1 = new Visit();
         visit1.setDescription("First visit");
@@ -117,6 +127,10 @@ public class MigrationTests {
         vet3.setId(1);
         vet3.setFirstName("Bob");
         vet3.setLastName("Bobba");
+
+        consistencyChecker = new ConsistencyChecker();
+
+        consistencyChecker.resetInconsistencyCounters();
 
         TDGHSQL hsqldb = new TDGHSQL("jdbc:hsqldb:test");
         TDGSQLite sqlite = new TDGSQLite("jdbc:sqlite:test");
@@ -191,7 +205,7 @@ public class MigrationTests {
     @Test
     public void testShadowWriteAndReadConsistencyCheckerSameVet(){
         try {
-            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vet1, vet2));
+            assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vet1, vet2));
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -208,7 +222,6 @@ public class MigrationTests {
         }
     }
 
-
     @Test
     public void testShadowWriteAndReadConsistencyCheckerConsistentCollection(){
         Owner expectedOwner = owner1;
@@ -216,14 +229,8 @@ public class MigrationTests {
 
         List<Owner> oldDatastoreOwners = new ArrayList<>();
         oldDatastoreOwners.add(expectedOwner);
-        oldDatastoreOwners.add(actualOwner);
 
-        List<Owner> newDatastoreOwners = new ArrayList<>();
-        newDatastoreOwners.add(expectedOwner);
-        newDatastoreOwners.add(actualOwner);
-
-        when(TDGHSQL.getAllOwners()).thenReturn(oldDatastoreOwners);
-        when(TDGSQLite.getAllOwners()).thenReturn(newDatastoreOwners);
+        when(TDGSQLite.getOwner(expectedOwner.getId())).thenReturn(actualOwner);
 
         assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(oldDatastoreOwners));
     }
@@ -231,25 +238,27 @@ public class MigrationTests {
     @Test
     public void testShadowWriteAndReadConsistencyCheckerInconsistentCollection(){
         Owner expectedOwner = owner1;
-        Owner actualOwner = owner2;
+        Owner actualOwner = owner3;
 
         List<Owner> oldDatastoreOwners = new ArrayList<>();
         oldDatastoreOwners.add(expectedOwner);
-        oldDatastoreOwners.add(actualOwner);
 
-        List<Owner> newDatastoreOwners = new ArrayList<>();
-        newDatastoreOwners.add(expectedOwner);
-
-        when(TDGHSQL.getAllOwners()).thenReturn(oldDatastoreOwners);
-        when(TDGSQLite.getAllOwners()).thenReturn(newDatastoreOwners);
+        when(TDGSQLite.getOwner(actualOwner.getId())).thenReturn(actualOwner);
 
         assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(oldDatastoreOwners));
     }
 
-        @Test
-        public void testConsistencyCheckerOwners () {
-            Owner expectedOwner = new Owner(1, "Bob", "Billy", "address", "city", "telephone");
-            Owner actualOwner = new Owner(1, "Jones", "Billy", "address", "city", "telephone");
+    @Test
+    public void testConsistencyCheckerOwners() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerOwner)
+            return;
+
+        Owner expectedOwner = new Owner(1, "Bob", "Billy", "address", "city", "telephone");
+        Owner actualOwner = new Owner(1, "Jones", "Billy", "address", "city", "telephone");
 
             List<Owner> oldDatastoreOwners = new ArrayList<>();
             oldDatastoreOwners.add(expectedOwner);
@@ -260,56 +269,145 @@ public class MigrationTests {
             when(TDGHSQL.getAllOwners()).thenReturn(oldDatastoreOwners);
             when(TDGSQLite.getAllOwners()).thenReturn(newDatastoreOwners);
 
-            ConsistencyChecker cc = new ConsistencyChecker();
-            cc.ownerCheckConsistency();
+        consistencyChecker.ownerCheckConsistency();
 
-            assertEquals(1, cc.getNbOfOwnerInconsistencies());
-        }
+        assertEquals(1, consistencyChecker.getNbOfOwnerInconsistencies());
+    }
 
-        @Test
-        public void testConsistencyCheckerPets () {
-            PetType catType = new PetType();
-            catType.setId(1);
-            catType.setName("cat");
+    @Test
+    public void testConsistencyCheckerPets() {
 
-            Owner petOwner = new Owner(1, "Sam", "Billy", "address", "city", "telephone");
+        if (!PetClinicApplication.consistencyChecker)
+            return;
 
-            Pet expectedPet = new Pet(1, "Bob", LocalDate.parse("2007-12-03"), catType, petOwner);
-            Pet actualPet = new Pet(1, "Jones", LocalDate.parse("2007-12-03"), catType, petOwner);
+        if(!PetClinicApplication.consistencyCheckerPet)
+            return;
 
-            List<Pet> oldDatastorePets = new ArrayList<>();
-            oldDatastorePets.add(expectedPet);
+        PetType catType = new PetType();
+        catType.setId(1);
+        catType.setName("cat");
 
-            List<Pet> newDatastorePets = new ArrayList<>();
-            newDatastorePets.add(actualPet);
+        Owner petOwner = new Owner(1, "Sam", "Billy", "address", "city", "telephone");
 
-            when(TDGHSQL.getAllPets()).thenReturn(oldDatastorePets);
-            when(TDGSQLite.getAllPets()).thenReturn(newDatastorePets);
+        Pet expectedPet = new Pet(1, "Bob", LocalDate.parse("2007-12-03"), catType, petOwner);
+        Pet actualPet = new Pet(1, "Jones", LocalDate.parse("2007-12-03"), catType, petOwner);
 
-            ConsistencyChecker cc = new ConsistencyChecker();
-            cc.petCheckConsistency();
+        List<Pet> oldDatastorePets = new ArrayList<>();
+        oldDatastorePets.add(expectedPet);
 
-            assertEquals(1, cc.getNbOfPetInconsistencies());
-        }
+        List<Pet> newDatastorePets = new ArrayList<>();
+        newDatastorePets.add(actualPet);
 
-        @Test
-        public void testConsistencyCheckerVisits () {
-            Visit expectedVisit = new Visit(1, 2, "Expected Pet", LocalDate.parse("2007-12-03"));
-            Visit actualVisit = new Visit(1, 2, "Actual Pet", LocalDate.parse("2007-12-03"));
+        when(TDGHSQL.getAllPets()).thenReturn(oldDatastorePets);
+        when(TDGSQLite.getAllPets()).thenReturn(newDatastorePets);
 
-            List<Visit> oldDatastoreVisits = new ArrayList<>();
-            oldDatastoreVisits.add(expectedVisit);
+        consistencyChecker.petCheckConsistency();
 
-            List<Visit> newDatastoreVisits = new ArrayList<>();
-            newDatastoreVisits.add(actualVisit);
+        assertEquals(1, consistencyChecker.getNbOfPetInconsistencies());
+    }
 
-            when(TDGHSQL.getAllVisits()).thenReturn(oldDatastoreVisits);
-            when(TDGSQLite.getAllVisits()).thenReturn(newDatastoreVisits);
+    @Test
+    public void testConsistencyCheckerVisits() {
 
-            ConsistencyChecker cc = new ConsistencyChecker();
-            cc.visitCheckConsistency();
+        if (!PetClinicApplication.consistencyChecker)
+            return;
 
-            assertEquals(1, cc.getNbOfVisitInconsistencies());
-        }
+        if(!PetClinicApplication.consistencyCheckerVisit)
+            return;
+
+        Visit expectedVisit = new Visit(1, 2, "Expected Pet", LocalDate.parse("2007-12-03"));
+        Visit actualVisit = new Visit(1, 2, "Actual Pet", LocalDate.parse("2007-12-03"));
+
+        List<Visit> oldDatastoreVisits = new ArrayList<>();
+        oldDatastoreVisits.add(expectedVisit);
+
+        List<Visit> newDatastoreVisits = new ArrayList<>();
+        newDatastoreVisits.add(actualVisit);
+
+        when(TDGHSQL.getAllVisits()).thenReturn(oldDatastoreVisits);
+        when(TDGSQLite.getAllVisits()).thenReturn(newDatastoreVisits);
+
+        consistencyChecker.visitCheckConsistency();
+
+        assertEquals(1, consistencyChecker.getNbOfVisitInconsistencies());
+    }
+
+    @Test
+    public void testConsistencyCheckerVets() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerVet)
+            return;
+
+        Vet expectedVet = new Vet(1, "Billy", "Maze");
+        Vet actualVet = new Vet(1, "Billy", "Jones");
+
+        List<Vet> oldDatastoreVets = new ArrayList<>();
+        oldDatastoreVets.add(expectedVet);
+
+        List<Vet> newDatastoreVets = new ArrayList<>();
+        newDatastoreVets.add(actualVet);
+
+        when(TDGHSQL.getAllVets()).thenReturn(oldDatastoreVets);
+        when(TDGSQLite.getAllVetsConsistencyChecker()).thenReturn(newDatastoreVets);
+
+        consistencyChecker.vetCheckConsistency();
+
+        assertEquals(1, consistencyChecker.getNbOfVetInconsistencies());
+    }
+
+    @Test
+    public void testConsistencyCheckerSpecialties() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerSpecialty)
+            return;
+
+        Specialty expectedSpecialty = new Specialty(1, "radiology");
+        Specialty actualSpecialty = new Specialty(1, "surgery");
+
+        List<Specialty> oldDatastoreSpecialties = new ArrayList<>();
+        oldDatastoreSpecialties.add(expectedSpecialty);
+
+        List<Specialty> newDatastoreSpecialties = new ArrayList<>();
+        newDatastoreSpecialties.add(actualSpecialty);
+
+        when(TDGHSQL.getAllSpecialties()).thenReturn(oldDatastoreSpecialties);
+        when(TDGSQLite.getAllSpecialties()).thenReturn(newDatastoreSpecialties);
+
+        consistencyChecker.specialtiesCheckConsistency();
+
+        assertEquals(1, consistencyChecker.getNbOfSpecialtiesInconsistencies());
+    }
+
+    @Test
+    public void testConsistencyCheckerTypes() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerType)
+            return;
+
+        PetType expectedPetType = new PetType(1, "cat");
+        PetType actualPetType = new PetType(1, "dog");
+
+        List<PetType> oldDatastorePetTypes = new ArrayList<>();
+        oldDatastorePetTypes.add(expectedPetType);
+
+        List<PetType> newDatastorePetTypes = new ArrayList<>();
+        newDatastorePetTypes.add(actualPetType);
+
+        when(TDGHSQL.getAllTypes()).thenReturn(oldDatastorePetTypes);
+        when(TDGSQLite.getAllTypes()).thenReturn(newDatastorePetTypes);
+
+        consistencyChecker.typesCheckConsistency();
+
+        assertEquals(1, consistencyChecker.getNbOfTypeInconsistencies());
+    }
 
 }
