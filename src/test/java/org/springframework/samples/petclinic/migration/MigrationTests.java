@@ -60,7 +60,7 @@ public class MigrationTests {
     Visit visit2;
 
     Visit visit3;
-
+    
     private ConsistencyChecker consistencyChecker;
     private Forklift forklift;
     private TDGHSQL hsqldb = new TDGHSQL("jdbc:hsqldb:test");
@@ -110,11 +110,53 @@ public class MigrationTests {
         visit3.setPetId(10);
         visit3.setDate(LocalDate.of(1990, 9, 3));
         visit3.setId(9);
-
+        
         consistencyChecker = new ConsistencyChecker();
         PowerMockito.mockStatic(TDGHSQL.class);
         PowerMockito.mockStatic(TDGSQLite.class);
     }
+    @Test
+    public void testShadowReadsConsistencyCheckerSameOwner(){
+        try {
+            assertTrue(ConsistencyChecker.shadowReadsConsistencyCheckerOwner(owner1, owner2));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void testShadowReadsConsistencyCheckerDifferentOwner(){
+        try {
+            assertFalse(ConsistencyChecker.shadowReadsConsistencyCheckerOwner(owner1, owner3));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testShadowReadsConsistencyCheckerSamePet(){
+        try {
+            assertTrue(ConsistencyChecker.shadowReadsConsistencyCheckerPet(pet1, pet2));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void testShadowReadsConsistencyCheckerDifferentPet(){
+        try {
+            assertFalse(ConsistencyChecker.shadowReadsConsistencyCheckerPet(pet1, pet3));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+    
     @Test
     public void testShadowWritesConsistencyCheckerSameOwner(){
         try {
