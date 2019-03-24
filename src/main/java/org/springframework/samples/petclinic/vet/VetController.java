@@ -45,14 +45,17 @@ class VetController {
         Vets vets = new Vets();
         vets.getVetList().addAll(this.vets.findAll());
         model.put("vets", vets);
-        if(PetClinicApplication.shadowReads){
-        	try{
-        		ConsistencyChecker.shadowReadsConsistencyCheckerVets(vets);
-        	}
-        	catch (Exception e){
-        		e.printStackTrace();
-        	}
-        	
+        if(PetClinicApplication.shadowReads) {
+            Thread readCheck = new Thread(() -> {
+                try{
+                    ConsistencyChecker.shadowReadsConsistencyCheckerVets(vets);
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+            readCheck.setPriority(Thread.MIN_PRIORITY);
+            readCheck.start();
         }
         return "vets/vetList";
     }
@@ -64,12 +67,17 @@ class VetController {
         Vets vets = new Vets();
         vets.getVetList().addAll(this.vets.findAll());
         if(PetClinicApplication.shadowReads){
-        	try{
-        		ConsistencyChecker.shadowReadsConsistencyCheckerVets(vets);
-        	}
-        	catch (Exception e){
-        		e.printStackTrace();
-        	}
+            Thread readCheck = new Thread(() -> {
+                try{
+                    ConsistencyChecker.shadowReadsConsistencyCheckerVets(vets);
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+            readCheck.setPriority(Thread.MIN_PRIORITY);
+            readCheck.start();
+
         }
         return vets;
     }
