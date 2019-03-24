@@ -126,8 +126,13 @@ public class TDGSQLite {
         ResultSet rs = selectQuery("SELECT * FROM owners");
         try {
             while (rs.next()) {
-                Owner owner = createOwnerFromResultSet(rs);
-                String chainedStr = owner.displayInfo() + sha256hex;
+                String chainedStr = sha256hex +
+                                    rs.getInt("id") +
+                                    rs.getString("first_name") +
+                                    rs.getString("last_name") +
+                                    rs.getString("address") +
+                                    rs.getString("city") +
+                                    rs.getString("telephone");
                 sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
             }
         } catch (SQLException e) {
@@ -364,6 +369,26 @@ public class TDGSQLite {
             e.printStackTrace();
         }
         return results;
+    }
+
+    public static String getPetDatastoreHash() {
+        String sha256hex = null;
+        ResultSet rs = selectQuery("SELECT * FROM pets");
+        try {
+            while (rs.next()) {
+                String chainedStr = sha256hex +
+                                    rs.getInt("id") +
+                                    rs.getString("name") +
+                                    rs.getString("birth_date") +
+                                    rs.getInt("type_id") +
+                                    rs.getInt("owner_id") +
+                                    rs.getInt("id");
+                sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sha256hex;
     }
 
     private static Pet createPetFromResultSet(ResultSet rs) {

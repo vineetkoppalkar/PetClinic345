@@ -378,6 +378,43 @@ public class MigrationTests {
     }
 
     @Test
+    public void testPetHashConsistencyChecker() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerPet)
+            return;
+
+        PetType catType = new PetType();
+        catType.setId(1);
+        catType.setName("cat");
+
+        Owner petOwner = new Owner(1, "Sam", "Billy", "address", "city", "telephone");
+
+        Pet expectedPet = new Pet(1, "Bob", LocalDate.parse("2007-12-03"), catType, petOwner);
+        Pet actualPet = new Pet(1, "Jones", LocalDate.parse("2007-12-03"), catType, petOwner);
+
+        List<Pet> oldDatastorePets = new ArrayList<>();
+        oldDatastorePets.add(expectedPet);
+
+        List<Pet> newDatastorePets = new ArrayList<>();
+        newDatastorePets.add(actualPet);
+
+        when(TDGHSQL.getAllPets()).thenReturn(oldDatastorePets);
+        when(TDGSQLite.getAllPets()).thenReturn(newDatastorePets);
+
+        String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
+        String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
+
+        when(TDGHSQL.getPetDatastoreHash()). thenReturn(oldDatastoreHash);
+        when(TDGSQLite.getPetDatastoreHash()). thenReturn(newDatastoreHash);
+
+        consistencyChecker.petHashCheckConsistency();
+        assertEquals(1, consistencyChecker.getNbOfPetInconsistencies());
+    }
+
+    @Test
     public void testConsistencyCheckerVisits() {
 
         if (!PetClinicApplication.consistencyChecker)
