@@ -31,14 +31,11 @@ public class MigrationTests {
 
     private ConsistencyChecker consistencyChecker;
     private Forklift forklift;
-    private TDGHSQL hsqldb;
-    private TDGSQLite sqlite;
+    private TDGHSQL hsqldb = new TDGHSQL("jdbc:hsqldb:test");
+    private TDGSQLite sqlite = new TDGSQLite("jdbc:sqlite:test");
 
     @Before
     public void setup() {
-        hsqldb = new TDGHSQL("jdbc:hsqldb:test");
-        sqlite = new TDGSQLite("jdbc:sqlite:test");
-
         consistencyChecker = new ConsistencyChecker();
         PowerMockito.mockStatic(TDGHSQL.class);
         PowerMockito.mockStatic(TDGSQLite.class);

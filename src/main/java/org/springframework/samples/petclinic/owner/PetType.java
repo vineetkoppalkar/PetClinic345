@@ -56,8 +56,7 @@ public class PetType extends NamedEntity {
         return true;
     }
 
-    @Override
-    public String toString() {
+    public String displayInfo() {
         return new ToStringCreator(this)
             .append("id", this.getId())
             .append("name", this.getName()).toString();

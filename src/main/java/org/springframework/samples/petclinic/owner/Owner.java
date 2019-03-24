@@ -159,8 +159,7 @@ public class Owner extends Person {
         return null;
     }
 
-    @Override
-    public String toString() {
+    public String displayInfo() {
         return new ToStringCreator(this)
             .append("id", this.getId())
             .append("new", this.isNew())

@@ -105,8 +105,7 @@ public class Vet extends Person {
         return true;
     }
 
-    @Override
-    public String toString() {
+    public String displayInfo() {
         return new ToStringCreator(this)
             .append("id", this.getId())
             .append("first_name", this.getFirstName())
