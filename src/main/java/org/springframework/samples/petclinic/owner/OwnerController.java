@@ -71,7 +71,7 @@ class OwnerController {
             if(PetClinicApplication.shadowWrites) {
                 try {
                     TDGSQLite.addOwner(owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(), owner.getTelephone());
-                    ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
+                    ConsistencyChecker.shadowWritesConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -128,7 +128,7 @@ class OwnerController {
             if(PetClinicApplication.shadowWrites) {
                 try {
                     TDGSQLite.updateOwner(owner.getId(), owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(), owner.getTelephone());
-                    ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
+                    ConsistencyChecker.shadowWritesConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }

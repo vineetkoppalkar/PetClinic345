@@ -110,9 +110,9 @@ public class MigrationTests {
         PowerMockito.mockStatic(TDGSQLite.class);
     }
     @Test
-    public void testShadowWriteAndReadConsistencyCheckerSameOwner(){
+    public void testShadowWritesConsistencyCheckerSameOwner(){
         try {
-            assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner1, owner2));
+            assertTrue(ConsistencyChecker.shadowWritesConsistencyCheckerOwner(owner1, owner2));
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -121,9 +121,9 @@ public class MigrationTests {
     }
 
     @Test
-    public void testShadowWriteAndReadConsistencyCheckerDifferentOwner(){
+    public void testShadowWritesConsistencyCheckerDifferentOwner(){
         try {
-            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner1, owner3));
+            assertFalse(ConsistencyChecker.shadowWritesConsistencyCheckerOwner(owner1, owner3));
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -131,30 +131,9 @@ public class MigrationTests {
     }
 
     @Test
-    public void testShadowWriteAndReadConsistencyCheckerSamePet(){
+    public void testShadowWritesConsistencyCheckerSamePet(){
         try {
-            assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerPet(pet1, pet2));
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-        }
-
-    }
-
-    @Test
-    public void testShadowWriteAndReadConsistencyCheckerDifferentPet(){
-        try {
-            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerPet(pet1, pet3));
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void testShadowWriteAndReadConsistencyCheckerSameVisit(){
-        try {
-            assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVisit(visit1, visit2));
+            assertTrue(ConsistencyChecker.shadowWritesConsistencyCheckerPet(pet1, pet2));
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -163,9 +142,30 @@ public class MigrationTests {
     }
 
     @Test
-    public void testShadowWriteAndReadConsistencyCheckerDifferentVisit(){
+    public void testShadowWritesConsistencyCheckerDifferentPet(){
         try {
-            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVisit(visit1, visit3));
+            assertFalse(ConsistencyChecker.shadowWritesConsistencyCheckerPet(pet1, pet3));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testShadowWritesConsistencyCheckerSameVisit(){
+        try {
+            assertTrue(ConsistencyChecker.shadowWritesConsistencyCheckerVisit(visit1, visit2));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void testShadowWritesConsistencyCheckerDifferentVisit(){
+        try {
+            assertFalse(ConsistencyChecker.shadowWritesConsistencyCheckerVisit(visit1, visit3));
         }
         catch(SQLException e){
             e.printStackTrace();

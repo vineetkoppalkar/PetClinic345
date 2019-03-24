@@ -32,6 +32,15 @@ public class ConsistencyChecker implements Runnable {
     private static int nbOfVetInconsistencies;
     private static int nbOfSpecialtiesInconsistencies;
     private static int nbOfTypeInconsistencies;
+    
+    private static int nbOfOwnerNewWrites = 0;
+    private static int nbOfOwnerNewWritesInconsistencies = 0;
+    private static int nbOfPetNewWrites = 0;
+    private static int nbOfPetNewWritesInconsistencies = 0;
+    private static int nbOfVisitNewWrites = 0;
+    private static int nbOfVisitNewWritesInconsistencies = 0;
+    
+    
 
     @Override
     public void run() {
@@ -386,6 +395,16 @@ public class ConsistencyChecker implements Runnable {
         nbOfSpecialtiesInconsistencies = 0;
         nbOfTypeInconsistencies = 0;
     }
+    
+    private static void resetNewWritesCounters(){
+    	nbOfOwnerNewWrites = 0;
+    	nbOfOwnerNewWritesInconsistencies = 0;
+    	nbOfPetNewWrites = 0;
+        nbOfPetNewWritesInconsistencies = 0;
+        nbOfVisitNewWrites = 0;
+        nbOfVisitNewWritesInconsistencies = 0;
+    	
+    }
 
     public static int getNbOfInconcistencies() {
         return nbOfOwnerInconsistencies +
@@ -421,14 +440,15 @@ public class ConsistencyChecker implements Runnable {
     }
 
 
-    public static boolean shadowWritesAndReadsConsistencyCheckerOwner(Owner oldDatastoreOwner, Owner newDatastoreOwner) throws SQLException{
+    public static boolean shadowWritesConsistencyCheckerOwner(Owner oldDatastoreOwner, Owner newDatastoreOwner) throws SQLException{
 
+    	nbOfOwnerNewWrites++;
         if(!oldDatastoreOwner.equals(newDatastoreOwner)) {
             System.out.println("Inconsistency detected for owner: ");
             System.out.println("[Actual]: " + newDatastoreOwner.toString());
             System.out.println("[Expected]: " + oldDatastoreOwner.toString());
 
-//            nbOfOwnerInconsistencies++;
+            nbOfOwnerNewWritesInconsistencies++;
 
             TDGSQLite.updateOwner(oldDatastoreOwner.getId(), oldDatastoreOwner.getFirstName(), oldDatastoreOwner.getLastName(),
                 oldDatastoreOwner.getAddress(), oldDatastoreOwner.getCity(), oldDatastoreOwner.getTelephone());
@@ -439,15 +459,17 @@ public class ConsistencyChecker implements Runnable {
         return true;
     }
 
-    public static boolean shadowWritesAndReadsConsistencyCheckerPet(Pet oldDatastorePet, Pet newDatastorePet) throws SQLException{
+    public static boolean shadowWritesConsistencyCheckerPet(Pet oldDatastorePet, Pet newDatastorePet) throws SQLException{
 
+    	nbOfPetNewWrites++;
+        
         if(!oldDatastorePet.equals(newDatastorePet)) {
             System.out.println("Inconsistency detected for pet: ");
             System.out.println("[Actual]: " + newDatastorePet.toString());
             System.out.println("[Expected]: " + oldDatastorePet.toString());
 
-//            nbOfOwnerInconsistencies++;
-
+            nbOfPetNewWritesInconsistencies++;
+            
             TDGSQLite.updatePet(oldDatastorePet.getId(), oldDatastorePet.getName(), Date.valueOf(oldDatastorePet.getBirthDate()),
                 oldDatastorePet.getType().getId(), oldDatastorePet.getOwner().getId());
             return false;
@@ -455,14 +477,16 @@ public class ConsistencyChecker implements Runnable {
         return true;
     }
 
-    public static boolean shadowWritesAndReadsConsistencyCheckerVisit(Visit oldDatastoreVisit, Visit newDatastoreVisit) throws SQLException{
+    public static boolean shadowWritesConsistencyCheckerVisit(Visit oldDatastoreVisit, Visit newDatastoreVisit) throws SQLException{
 
+    	nbOfVisitNewWrites++;
+        
         if(!oldDatastoreVisit.equals(newDatastoreVisit)) {
             System.out.println("Inconsistency detected for visit: ");
             System.out.println("[Actual]: " + newDatastoreVisit.toString());
             System.out.println("[Expected]: " + oldDatastoreVisit.toString());
 
-//            nbOfOwnerInconsistencies++;
+            nbOfVisitNewWritesInconsistencies++;
 
             TDGSQLite.updateVisit(oldDatastoreVisit.getId(), oldDatastoreVisit.getPetId(), Date.valueOf(oldDatastoreVisit.getDate()),
                 oldDatastoreVisit.getDescription());
