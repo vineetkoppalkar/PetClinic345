@@ -473,6 +473,22 @@ public class TDGSQLite {
     	return null;
     }
 
+    public static String getTypesDatastoreHash() {
+        String sha256hex = null;
+        ResultSet rs = selectQuery("SELECT * FROM types");
+        try {
+            while (rs.next()) {
+                String chainedStr = sha256hex +
+                                    rs.getInt("id") +
+                                    rs.getString("name");
+                sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sha256hex;
+    }
+    
     public static List<PetType> getAllTypes() {
         List<PetType> results = new ArrayList<>();
         ResultSet rs = selectQuery("SELECT * FROM types");

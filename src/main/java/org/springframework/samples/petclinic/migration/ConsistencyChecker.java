@@ -25,7 +25,7 @@ public class ConsistencyChecker implements Runnable {
     private static final String PET_TABLE_NAME = "pets";
     private static final String VISIT_TABLE_NAME = "visits";
     private static final String VET_TABLE_NAME = "vets";
-    private static final String SPECIALITIES_TABLE_NAME = "specialties";
+    private static final String SPECIALTIES_TABLE_NAME = "specialties";
     private static final String TYPES_TABLE_NAME = "types";
 
     private static int nbOfOwnerInconsistencies;
@@ -65,14 +65,14 @@ public class ConsistencyChecker implements Runnable {
         }
 
         if (PetClinicApplication.consistencyCheckerSpecialty) {
-            System.out.println("\nConsistency checker RUNNING for table: " + SPECIALITIES_TABLE_NAME);
+            System.out.println("\nConsistency checker RUNNING for table: " + SPECIALTIES_TABLE_NAME);
             specialtiesHashCheckConsistency();
-            System.out.println("Consistency checker COMPLETE for table: " + SPECIALITIES_TABLE_NAME);
+            System.out.println("Consistency checker COMPLETE for table: " + SPECIALTIES_TABLE_NAME);
         }
 
         if (PetClinicApplication.consistencyCheckerType) {
             System.out.println("\nConsistency checker RUNNING for table: " + TYPES_TABLE_NAME);
-            typesCheckConsistency();
+            typesHashCheckConsistency();
             System.out.println("Consistency checker COMPLETE for table: " + TYPES_TABLE_NAME);
         }
     }
@@ -252,7 +252,7 @@ public class ConsistencyChecker implements Runnable {
                 actual = newDatastoreSpecialties.get(i);
             } catch (IndexOutOfBoundsException e) {
                 // New data was added since the forklift
-                printViolation(SPECIALITIES_TABLE_NAME, "null", expected.displayInfo());
+                printViolation(SPECIALTIES_TABLE_NAME, "null", expected.displayInfo());
                 nbOfSpecialtiesInconsistencies++;
 
                 insertNewSpecialtyIntoSQLite(expected);
@@ -263,7 +263,7 @@ public class ConsistencyChecker implements Runnable {
 
             if (actual != null && !actual.equals(expected)) {
                 // Inconsistency for a specific row between new and old datastores
-                printViolation(SPECIALITIES_TABLE_NAME, actual.displayInfo(), expected.displayInfo());
+                printViolation(SPECIALTIES_TABLE_NAME, actual.displayInfo(), expected.displayInfo());
                 nbOfSpecialtiesInconsistencies++;
 
                 fixInconsistencyInSpecialties(actual.getId(), expected);
@@ -277,7 +277,7 @@ public class ConsistencyChecker implements Runnable {
         String newDatastoreHash = TDGSQLite.getSpecialtyDatastoreHash();
 
         if (!oldDatastoreHash.equals(newDatastoreHash)) {
-            printViolation(SPECIALITIES_TABLE_NAME, newDatastoreHash, oldDatastoreHash);
+            printViolation(SPECIALTIES_TABLE_NAME, newDatastoreHash, oldDatastoreHash);
             specialtiesCheckConsistency();
         }
     }
@@ -310,6 +310,16 @@ public class ConsistencyChecker implements Runnable {
                 fixInconsistencyInTypes(actual.getId(), expected);
                 newDatastoreTypes.set(i, expected);
             }
+        }
+    }
+    
+    public void typesHashCheckConsistency() {
+    	String oldDatastoreHash = TDGHSQL.getTypesDatastoreHash();
+        String newDatastoreHash = TDGSQLite.getTypesDatastoreHash();
+
+        if (!oldDatastoreHash.equals(newDatastoreHash)) {
+            printViolation(TYPES_TABLE_NAME, newDatastoreHash, oldDatastoreHash);
+            typesCheckConsistency();
         }
     }
 
@@ -401,14 +411,14 @@ public class ConsistencyChecker implements Runnable {
     }
 
     private static void insertNewSpecialtyIntoSQLite(Specialty expected) {
-        System.out.println("<SQLite> Inserting new visit in table: " + SPECIALITIES_TABLE_NAME);
+        System.out.println("<SQLite> Inserting new visit in table: " + SPECIALTIES_TABLE_NAME);
         TDGSQLite.addSpecialty(
             expected.getName()
         );
     }
 
     private static void fixInconsistencyInSpecialties(int id, Specialty expected) {
-        System.out.println("<SQLite> Updating visit in table: " + SPECIALITIES_TABLE_NAME);
+        System.out.println("<SQLite> Updating visit in table: " + SPECIALTIES_TABLE_NAME);
         TDGSQLite.updatedSpecialty(
             id,
             expected.getName()
