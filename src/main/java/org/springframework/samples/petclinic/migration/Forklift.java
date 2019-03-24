@@ -19,7 +19,7 @@ public class Forklift implements Runnable {
 
     }
 
-    static void constructDatabase(String root, String dbName) throws SQLException, IOException {
+    public static void constructDatabase(String root, String dbName) throws SQLException, IOException {
         // create a connection to the database
         Connection c = DriverManager.getConnection(root);
         FileReader fr = new FileReader(new File("src/main/resources/db/" + dbName + "/schema.sql"));
@@ -27,7 +27,7 @@ public class Forklift implements Runnable {
         executeSQL(c, br);
     }
 
-    static void fakeData(String root) throws SQLException, IOException {
+    public static void fakeData(String root) throws SQLException, IOException {
         // create a connection to the database
         Connection c = DriverManager.getConnection(root);
         FileReader fr = new FileReader(new File("src/main/resources/db/hsqldb/data.sql"));
@@ -35,7 +35,7 @@ public class Forklift implements Runnable {
         executeSQL(c, br);
     }
 
-    static void forkliftDatabase() {
+    public static int forkliftDatabase() {
         ResultSet owners = TDGHSQL.forkliftAllOwners();
         ResultSet types = TDGHSQL.forkliftAllTypes();
         ResultSet pets = TDGHSQL.forkliftAllPets();
@@ -43,9 +43,10 @@ public class Forklift implements Runnable {
         ResultSet vets = TDGHSQL.forkliftAllVets();
         ResultSet vetSpecialties = TDGHSQL.forkliftAllVetSpecialties();
         ResultSet visits = TDGHSQL.forkliftAllVisits();
+        Integer forkliftCounter = 0; // Keep track of tables that are forklifted
 
         try {
-            while (owners.next()) {
+            while (owners != null && owners.next()) {
                 Integer id = owners.getInt("id");
                 String firstName = owners.getString("first_name");
                 String lastName = owners.getString("last_name");
@@ -54,12 +55,16 @@ public class Forklift implements Runnable {
                 String telephone = owners.getString("telephone");
                 TDGSQLite.addOwner(firstName, lastName, address, city, telephone);
             }
-            while (types.next()) {
+            // owners forklifted
+            forkliftCounter++;
+            while (types != null && types.next()) {
                 Integer id = types.getInt("id");
                 String name = types.getString("name");
                 TDGSQLite.addPetType(name);
             }
-            while(pets.next()) {
+            // types forklifted
+            forkliftCounter++;
+            while(pets != null && pets.next()) {
                 Integer id = pets.getInt("id");
                 String name = pets.getString("name");
                 Date birthDate = pets.getDate("birth_date");
@@ -67,32 +72,43 @@ public class Forklift implements Runnable {
                 Integer ownerId = pets.getInt("owner_id");
                 TDGSQLite.addPet(name, birthDate, typeId, ownerId);
             }
-            while(specialties.next()) {
+            //pets forklifted
+            forkliftCounter++;
+            while(specialties != null && specialties.next()) {
                 Integer id = specialties.getInt("id");
                 String name = specialties.getString("name");
                 TDGSQLite.addSpecialty(name);
             }
-            while(vets.next()) {
+            //specialties forklifted
+            forkliftCounter++;
+            while(vets != null && vets.next()) {
                 Integer id = vets.getInt("id");
                 String firstName = vets.getString("first_name");
                 String lastName = vets.getString("last_name");
                 TDGSQLite.addVet(firstName, lastName);
             }
-            while(vetSpecialties.next()) {
+            //vets forklifted
+            forkliftCounter++;
+            while(vetSpecialties != null && vetSpecialties.next()) {
                 Integer vetId = vetSpecialties.getInt("vet_id");
                 Integer specialtyId = vetSpecialties.getInt("specialty_id");
                 TDGSQLite.addVetSpecialty(vetId, specialtyId);
             }
-            while(visits.next()) {
+            //vet specialties forklifted
+            forkliftCounter++;
+            while(visits != null && visits.next()) {
                 Integer id = visits.getInt("id");
                 Integer petId = visits.getInt("pet_id");
                 Date visitDate = visits.getDate("visit_date");
                 String description = visits.getString("description");
                 TDGSQLite.addVisit(id, petId, visitDate, description);
             }
+            //visits forklifted
+            forkliftCounter++;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return forkliftCounter;
     }
 
     private static void executeSQL(Connection c, BufferedReader br) throws IOException, SQLException {

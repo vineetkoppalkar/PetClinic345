@@ -88,7 +88,7 @@ public class ConsistencyChecker implements Runnable {
                 actual = newDatastoreOwners.get(i);
             } catch (IndexOutOfBoundsException e) {
                 // New data was added since the forklift
-                printViolation(OWNER_TABLE_NAME, "null", expected.toString());
+                printViolation(OWNER_TABLE_NAME, "null", expected.displayInfo());
                 nbOfOwnerInconsistencies++;
 
                 insertNewOwnerIntoSQLite(expected);
@@ -99,7 +99,7 @@ public class ConsistencyChecker implements Runnable {
 
             if (actual != null && !actual.equals(expected)) {
                 // Inconsistency for a specific row between new and old datastores
-                printViolation(OWNER_TABLE_NAME, actual.toString(), expected.toString());
+                printViolation(OWNER_TABLE_NAME, actual.displayInfo(), expected.displayInfo());
                 nbOfOwnerInconsistencies++;
 
                 fixInconsistencyInOwners(actual.getId(), expected);
@@ -109,8 +109,8 @@ public class ConsistencyChecker implements Runnable {
 	}
 
     public void ownerHashCheckConsistency() {
-        String oldDatastoreHash = TDGHSQL.getDatastoreHash();
-        String newDatastoreHash = TDGSQLite.getDatastoreHash();
+        String oldDatastoreHash = TDGHSQL.getOwnerDatastoreHash();
+        String newDatastoreHash = TDGSQLite.getOwnerDatastoreHash();
 
         if (!oldDatastoreHash.equals(newDatastoreHash)) {
             printViolation(OWNER_TABLE_NAME, newDatastoreHash, oldDatastoreHash);
@@ -129,7 +129,7 @@ public class ConsistencyChecker implements Runnable {
                 actual = newDatastorePets.get(i);
             } catch (IndexOutOfBoundsException e) {
                 // New data was added since the forklift
-                printViolation(PET_TABLE_NAME, "null", expected.toString());
+                printViolation(PET_TABLE_NAME, "null", expected.displayInfo());
                 nbOfPetInconsistencies++;
 
                 insertNewPetIntoSQLite(expected);
@@ -140,7 +140,7 @@ public class ConsistencyChecker implements Runnable {
 
             if (actual != null && !actual.equals(expected)) {
                 // Inconsistency for a specific row between new and old datastores
-                printViolation(PET_TABLE_NAME, actual.toString(), expected.toString());
+                printViolation(PET_TABLE_NAME, actual.displayInfo(), expected.displayInfo());
                 nbOfPetInconsistencies++;
 
                 fixInconsistencyInPets(actual.getId(), expected);
@@ -160,7 +160,7 @@ public class ConsistencyChecker implements Runnable {
                 actual = newDatastoreVisits.get(i);
             } catch (IndexOutOfBoundsException e) {
                 // New data was added since the forklift
-                printViolation(VISIT_TABLE_NAME, "null", expected.toString());
+                printViolation(VISIT_TABLE_NAME, "null", expected.displayInfo());
                 nbOfVisitInconsistencies++;
 
                 insertNewVisitIntoSQLite(expected);
@@ -171,7 +171,7 @@ public class ConsistencyChecker implements Runnable {
 
             if (actual != null && !actual.equals(expected)) {
                 // Inconsistency for a specific row between new and old datastores
-                printViolation(VISIT_TABLE_NAME, actual.toString(), expected.toString());
+                printViolation(VISIT_TABLE_NAME, actual.displayInfo(), expected.displayInfo());
                 nbOfVisitInconsistencies++;
 
                 fixInconsistencyInVisits(actual.getId(), expected);
@@ -191,7 +191,7 @@ public class ConsistencyChecker implements Runnable {
                 actual = newDatastoreVets.get(i);
             } catch (IndexOutOfBoundsException e) {
                 // New data was added since the forklift
-                printViolation(VET_TABLE_NAME, "null", expected.toString());
+                printViolation(VET_TABLE_NAME, "null", expected.displayInfo());
                 nbOfVetInconsistencies++;
 
                 insertNewVetIntoSQLite(expected);
@@ -202,7 +202,7 @@ public class ConsistencyChecker implements Runnable {
 
             if (actual != null && !actual.equals(expected)) {
                 // Inconsistency for a specific row between new and old datastores
-                printViolation(VET_TABLE_NAME, actual.toString(), expected.toString());
+                printViolation(VET_TABLE_NAME, actual.displayInfo(), expected.displayInfo());
                 nbOfVetInconsistencies++;
 
                 fixInconsistencyInVets(actual.getId(), expected);
@@ -222,7 +222,7 @@ public class ConsistencyChecker implements Runnable {
                 actual = newDatastoreSpecialties.get(i);
             } catch (IndexOutOfBoundsException e) {
                 // New data was added since the forklift
-                printViolation(SPECIALITIES_TABLE_NAME, "null", expected.toString());
+                printViolation(SPECIALITIES_TABLE_NAME, "null", expected.displayInfo());
                 nbOfSpecialtiesInconsistencies++;
 
                 insertNewSpecialtyIntoSQLite(expected);
@@ -233,7 +233,7 @@ public class ConsistencyChecker implements Runnable {
 
             if (actual != null && !actual.equals(expected)) {
                 // Inconsistency for a specific row between new and old datastores
-                printViolation(SPECIALITIES_TABLE_NAME, actual.toString(), expected.toString());
+                printViolation(SPECIALITIES_TABLE_NAME, actual.displayInfo(), expected.displayInfo());
                 nbOfSpecialtiesInconsistencies++;
 
                 fixInconsistencyInSpecialties(actual.getId(), expected);
@@ -399,7 +399,7 @@ public class ConsistencyChecker implements Runnable {
         nbOfTypeInconsistencies = 0;
     }
 
-    public static int getNbOfInconcistencies() {
+    public static int getNbOfInconsistencies() {
         return nbOfOwnerInconsistencies +
                nbOfPetInconsistencies +
                nbOfVisitInconsistencies +

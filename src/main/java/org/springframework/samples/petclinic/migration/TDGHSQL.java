@@ -127,7 +127,7 @@ public class TDGHSQL {
         return results;
     }
 
-    public static String getDatastoreHash() {
+    public static String getOwnerDatastoreHash() {
         String sha256hex = null;
         ResultSet rs = selectQuery("SELECT * FROM owners");
         try {
