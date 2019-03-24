@@ -525,6 +525,39 @@ public class MigrationTests {
     }
 
     @Test
+    public void testHashSpecialtiesConsistencyChecker() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerSpecialty)
+            return;
+
+        Specialty expectedSpecialty = new Specialty(1, "radiology");
+        Specialty actualSpecialty = new Specialty(1, "surgery");
+
+        List<Specialty> oldDatastoreSpecialties = new ArrayList<>();
+        oldDatastoreSpecialties.add(expectedSpecialty);
+
+        List<Specialty> newDatastoreSpecialties = new ArrayList<>();
+        newDatastoreSpecialties.add(actualSpecialty);
+
+        when(TDGHSQL.getAllSpecialties()).thenReturn(oldDatastoreSpecialties);
+        when(TDGSQLite.getAllSpecialties()).thenReturn(newDatastoreSpecialties);
+        
+        String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
+        String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
+
+        when(TDGHSQL.getSpecialtyDatastoreHash()). thenReturn(oldDatastoreHash);
+        when(TDGSQLite.getSpecialtyDatastoreHash()). thenReturn(newDatastoreHash);
+
+        consistencyChecker.specialtiesHashCheckConsistency();
+
+        assertEquals(1, consistencyChecker.getNbOfSpecialtiesInconsistencies());
+    }
+
+    
+    @Test
     public void testConsistencyCheckerTypes() {
 
         if (!PetClinicApplication.consistencyChecker)

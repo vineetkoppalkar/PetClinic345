@@ -283,6 +283,22 @@ public class TDGSQLite {
         return specialty;
     }
     
+    public static String getSpecialtyDatastoreHash() {
+    	String sha256hex = null;
+        ResultSet rs = selectQuery("SELECT * FROM specialties");
+        try {
+            while (rs.next()) {
+                String chainedStr = sha256hex +
+                                    rs.getInt("id") +
+                                    rs.getString("name");
+                sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sha256hex;
+    }
+    
     public static void addVetSpecialty(Integer vetId, Integer specialtyId) {
         insertQuery("INSERT INTO vet_specialties (vet_id, specialty_id) VALUES ("+ String.valueOf(vetId) + ", "+ String.valueOf(specialtyId) + ");");
     }

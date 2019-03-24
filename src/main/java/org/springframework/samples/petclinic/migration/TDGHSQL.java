@@ -367,6 +367,22 @@ public class TDGHSQL {
         }
         return results;
     }
+    
+    public static String getSpecialtyDatastoreHash() {
+    	String sha256hex = null;
+        ResultSet rs = selectQuery("SELECT * FROM specialties");
+        try {
+            while (rs.next()) {
+                String chainedStr = sha256hex +
+                                    rs.getInt("id") +
+                                    rs.getString("name");
+                sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sha256hex;
+    }
 
     private static Specialty createSpecialityFromResultSet(ResultSet rs) {
         Specialty specialty = new Specialty();
