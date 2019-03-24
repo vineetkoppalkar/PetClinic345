@@ -289,7 +289,7 @@ public class ConsistencyChecker implements Runnable {
         TDGSQLite.addPet(
             expected.getName(),
             Date.valueOf(expected.getBirthDate()),
-            expected.getId(),
+            expected.getType().getId(),
             expected.getOwner().getId()
         );
     }
@@ -381,7 +381,7 @@ public class ConsistencyChecker implements Runnable {
         nbOfTypeInconsistencies = 0;
     }
 
-    public static int getNbOfInconcistencies() {
+    public static int getNbOfInconsistencies() {
         return nbOfOwnerInconsistencies +
                nbOfPetInconsistencies +
                nbOfVisitInconsistencies +

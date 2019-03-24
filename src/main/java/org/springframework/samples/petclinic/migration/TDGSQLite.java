@@ -195,7 +195,7 @@ public class TDGSQLite {
         insertQuery("INSERT INTO specialties (id, name) VALUES (NULL, '" + specialty + "');");
     }
 
-    public static void updatedSpecialty(int id, String specialty) {
+    public static void updatedSpecialty(Integer id, String specialty) {
         insertQuery("UPDATE specialties SET name = '" + specialty + "' WHERE id = " + id + ";");
     }
 
@@ -381,7 +381,7 @@ public class TDGSQLite {
         insertQuery("INSERT INTO types (id, name) VALUES (NULL, '" + name + "');");
     }
 
-    public static void updatePetType(int id, String name) {
+    public static void updatePetType(Integer id, String name) {
         insertQuery("UPDATE types SET name = '" + name + "' WHERE id = " + id + ";");
     }
     
