@@ -49,12 +49,13 @@ class VetController {
         vets.getVetList().addAll(this.vets.findAll());
         model.put("vets", vets);
         if(PetClinicApplication.shadowReads){
-//            try{
-//                ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vets, TDGSQLite.getAllVets());
-//            }
-//            catch (SQLException e){
-//                e.printStackTrace();
-//            }
+            try{
+//                Vets newVets = TDGSQLite.getAllVets();
+                ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vets);
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
         }
         return "vets/vetList";
     }
@@ -65,14 +66,14 @@ class VetController {
         // objects so it is simpler for JSon/Object mapping
         Vets vets = new Vets();
         vets.getVetList().addAll(this.vets.findAll());
-//        if(PetClinicApplication.shadowReads){
-//            try{
-//                ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vets, TDGSQLite.getAllVets());
-//            }
-//            catch (SQLException e){
-//                e.printStackTrace();
-//            }
-//        }
+        if(PetClinicApplication.shadowReads){
+            try{
+                ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vets);
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        }
         return vets;
     }
 

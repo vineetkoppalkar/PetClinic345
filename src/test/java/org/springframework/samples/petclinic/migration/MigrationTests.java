@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.vet.Vet;
+import org.springframework.samples.petclinic.vet.Vets;
 import org.springframework.samples.petclinic.visit.Visit;
 
 import java.sql.SQLException;
@@ -22,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static org.springframework.samples.petclinic.migration.ConsistencyChecker.resetInconsistencyCounters;
 
@@ -67,6 +69,8 @@ public class MigrationTests {
     Collection<Owner> collection1 = new ArrayList<Owner>();
 
     private ConsistencyChecker consistencyChecker;
+
+    Vets listOfVets = mock(Vets.class);
 
     @Before
     public void setup() {
@@ -204,22 +208,30 @@ public class MigrationTests {
 
     @Test
     public void testShadowWriteAndReadConsistencyCheckerSameVet(){
-        try {
-            assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vet1, vet2));
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-        }
+        Vet expectedVet = vet1;
+        Vet actualVet = vet2;
+
+        List<Vet> oldDatastoreVets = new ArrayList<>();
+        oldDatastoreVets.add(expectedVet);
+
+        when(listOfVets.getVetList()).thenReturn(oldDatastoreVets);
+        when(TDGSQLite.getVet(expectedVet.getId())).thenReturn(actualVet);
+
+        assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(listOfVets));
     }
 
     @Test
     public void testShadowWriteAndReadConsistencyCheckerDifferentVet(){
-        try {
-            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vet1, vet3));
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-        }
+        Vet expectedVet = vet1;
+        Vet actualVet = vet3;
+
+        List<Vet> oldDatastoreVets = new ArrayList<>();
+        oldDatastoreVets.add(expectedVet);
+
+        when(listOfVets.getVetList()).thenReturn(oldDatastoreVets);
+        when(TDGSQLite.getVet(actualVet.getId())).thenReturn(actualVet);
+
+        assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(listOfVets));
     }
 
     @Test

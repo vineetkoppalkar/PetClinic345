@@ -4,6 +4,7 @@ import org.springframework.samples.petclinic.PetClinicApplication;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.vet.Vet;
+import org.springframework.samples.petclinic.vet.Vets;
 import org.springframework.samples.petclinic.visit.Visit;
 import org.springframework.samples.petclinic.owner.PetType;
 import org.springframework.samples.petclinic.vet.Specialty;
@@ -472,19 +473,36 @@ public class ConsistencyChecker implements Runnable {
 
     }
 
-    public static boolean shadowWritesAndReadsConsistencyCheckerVet(Vet oldDatastoreVet, Vet newDatastoreVet) throws SQLException {
+    public static boolean shadowWritesAndReadsConsistencyCheckerVet(Vets oldDatastoreVet) {
 
-        if(!oldDatastoreVet.equals(newDatastoreVet)) {
-            System.out.println("Inconsistency detected for vet: ");
-            System.out.println("[Actual]: " + newDatastoreVet.toString());
-            System.out.println("[Expected]: " + oldDatastoreVet.toString());
+        List<Vet> oldVets = oldDatastoreVet.getVetList();
+        int countInconsistencies = 0;
 
-//            nbOfOwnerInconsistencies++;
+        for (Vet vet: oldVets){
+            Vet actual;
+            try{
+                actual = TDGSQLite.getVet(vet.getId());
 
-            TDGSQLite.updateVet(oldDatastoreVet.getId(), oldDatastoreVet.getFirstName(), oldDatastoreVet.getLastName());
+                if(actual != null){
+                    if(!vet.equals(actual)){
+                        printViolation(OWNER_TABLE_NAME, actual.toString(), vet.toString());
 
+                        //            nbOfOwnerInconsistencies++;
+
+                        fixInconsistencyInVets(vet.getId(), vet);
+                        countInconsistencies++;
+                    }
+                }
+            }
+            catch(IndexOutOfBoundsException e){
+                insertNewVetIntoSQLite(vet);
+            }
+        }
+
+        if(countInconsistencies > 0){
             return false;
         }
+
         return true;
     }
 
