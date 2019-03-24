@@ -60,7 +60,7 @@ public class ConsistencyChecker implements Runnable {
 
         if (PetClinicApplication.consistencyCheckerVet) {
             System.out.println("\nConsistency checker RUNNING for table: " + VET_TABLE_NAME);
-            vetCheckConsistency();
+            vetHashCheckConsistency();
             System.out.println("Consistency checker COMPLETE for table: " + VET_TABLE_NAME);
         }
 
@@ -218,6 +218,16 @@ public class ConsistencyChecker implements Runnable {
                 fixInconsistencyInVets(actual.getId(), expected);
                 newDatastoreVets.set(i, expected);
             }
+        }
+    }
+    
+    public void vetHashCheckConsistency() {
+        String oldDatastoreHash = TDGHSQL.getVetDatastoreHash();
+        String newDatastoreHash = TDGSQLite.getVetDatastoreHash();
+
+        if (!oldDatastoreHash.equals(newDatastoreHash)) {
+            printViolation(VET_TABLE_NAME, newDatastoreHash, oldDatastoreHash);
+            vetCheckConsistency();
         }
     }
 

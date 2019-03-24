@@ -465,6 +465,38 @@ public class MigrationTests {
 
         assertEquals(1, consistencyChecker.getNbOfVetInconsistencies());
     }
+    
+    @Test
+    public void testVetHashConsistencyChecker() {
+
+        if (!PetClinicApplication.consistencyChecker)
+            return;
+
+        if(!PetClinicApplication.consistencyCheckerVet)
+            return;
+
+        Vet expectedVet = new Vet(1, "Billy", "Maze");
+        Vet actualVet = new Vet(1, "Billy", "Jones");
+
+        List<Vet> oldDatastoreVets = new ArrayList<>();
+        oldDatastoreVets.add(expectedVet);
+
+        List<Vet> newDatastoreVets = new ArrayList<>();
+        newDatastoreVets.add(actualVet);
+
+        when(TDGHSQL.getAllVets()).thenReturn(oldDatastoreVets);
+        when(TDGSQLite.getAllVetsConsistencyChecker()).thenReturn(newDatastoreVets);
+        
+        String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
+        String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
+
+        when(TDGHSQL.getOwnerDatastoreHash()). thenReturn(oldDatastoreHash);
+        when(TDGSQLite.getOwnerDatastoreHash()). thenReturn(newDatastoreHash);
+        
+        consistencyChecker.vetHashCheckConsistency();
+
+        assertEquals(1, consistencyChecker.getNbOfVetInconsistencies());
+    }
 
     @Test
     public void testConsistencyCheckerSpecialties() {

@@ -212,6 +212,23 @@ public class TDGSQLite {
         return results;
     }
 
+    public static String getVetDatastoreHash() {
+    	String sha256hex = null;
+    	ResultSet rs = selectQuery("SELECT * FROM vets");
+    	try {
+    		while (rs.next()) {
+    			String chainedStr = sha256hex +
+    								rs.getInt("id") +
+    								rs.getString("first_name") +
+    								rs.getString("last_name");
+    			sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
+    		}
+    	}catch (SQLException e) {
+    		e.printStackTrace();
+    	}
+    	return sha256hex;
+    }
+    
     private static Vet createVetFromResultSet(ResultSet rs) {
         Vet vet = new Vet();
         try {
