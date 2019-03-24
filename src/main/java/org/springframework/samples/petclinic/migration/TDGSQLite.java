@@ -40,7 +40,6 @@ public class TDGSQLite {
     }
 
     public static ResultSet selectQuery(String s) {
-        System.out.println(s);
         Statement stmt;
         ResultSet rs = null;
         try {
@@ -53,7 +52,6 @@ public class TDGSQLite {
     }
 
     public static ResultSet insertQuery(String s) {
-        System.out.println(s);
         Statement stmt;
         ResultSet rs = null;
         try {
@@ -293,6 +291,31 @@ public class TDGSQLite {
     	}
     	return null;
     }
+
+    public static List<Vet> getAllVetsConsistencyChecker() {
+        List<Vet> results = new ArrayList<>();
+        ResultSet rs = selectQuery("SELECT * FROM vets");
+        try {
+            while (rs.next()) {
+                results.add(createVetFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    private static Vet createVetFromResultSet(ResultSet rs) {
+        Vet vet = new Vet();
+        try {
+            vet.setId(rs.getInt("id"));
+            vet.setFirstName(rs.getString("first_name"));
+            vet.setLastName(rs.getString("last_name"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return vet;
+    }
     
     public static void updateVet(Integer id, String firstName, String lastName) {
         insertQuery("UPDATE vets SET first_name = '" + firstName + "', last_name = '" + lastName + "' WHERE id = " + String.valueOf(id) + ";");
@@ -305,13 +328,43 @@ public class TDGSQLite {
     public static void addSpecialty(String specialty) {
         insertQuery("INSERT INTO specialties (id, name) VALUES (NULL, '" + specialty + "');");
     }
+
+    public static void updatedSpecialty(int id, String specialty) {
+        insertQuery("UPDATE specialties SET name = '" + specialty + "' WHERE id = " + id + ";");
+    }
+
+    public static List<Specialty> getAllSpecialties() {
+        ResultSet rs = selectQuery("SELECT * FROM specialties");
+        List<Specialty> results = new ArrayList<>();
+        if(rs != null){
+            try{
+                while(rs.next()){
+                    results.add(createSpecialityFromResultSet(rs));
+                }
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return results;
+    }
+
+    private static Specialty createSpecialityFromResultSet(ResultSet rs) {
+        Specialty specialty = new Specialty();
+        try {
+            specialty.setId(rs.getInt("id"));
+            specialty.setName(rs.getString("name"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return specialty;
+    }
     
     public static void addVetSpecialty(Integer vetId, Integer specialtyId) {
         insertQuery("INSERT INTO vet_specialties (vet_id, specialty_id) VALUES ("+ String.valueOf(vetId) + ", "+ String.valueOf(specialtyId) + ");");
     }
     
     public static void addVisit(Integer id, Integer petId, Date visitDate, String description){
-        insertQuery("INSERT INTO visits (id, pet_id, visit_date, description) VALUES (" + String.valueOf(id) + ", " + String.valueOf(petId) +", " + String.valueOf(visitDate) + ", '" + description + "');");
+        insertQuery("INSERT INTO visits (id, pet_id, visit_date, description) VALUES (" + String.valueOf(id) + ", " + String.valueOf(petId) +", DATE('" + visitDate + "'), '" + description + "');");
     }
     
     public static List<Visit> getVisits(Integer petId){
@@ -320,14 +373,7 @@ public class TDGSQLite {
     		try{
     		List<Visit> visits = new ArrayList<Visit>();
     		while(rs.next()){
-    			Visit visit = new Visit();
-    			
-    			visit.setDate(rs.getDate("visit_date").toLocalDate());
-    			visit.setId(rs.getInt("id"));
-    			visit.setPetId(rs.getInt("pet_id"));
-    			visit.setDescription(rs.getString("description"));
-    			
-    			visits.add(visit);
+                visits.add(createVisitFromResultSet(rs));
     		}
     		return visits;
     		}catch (SQLException e){
@@ -340,22 +386,39 @@ public class TDGSQLite {
     public static Visit getVisit(Integer visitId){
         ResultSet rs = selectQuery("SELECT * FROM visits where id=" + String.valueOf(visitId) + ";");
         if(rs != null){
-            try{
-                Visit visit = new Visit();
-
-                visit.setDate(rs.getDate("visit_date").toLocalDate());
-    			visit.setId(rs.getInt("id"));
-    			visit.setPetId(rs.getInt("pet_id"));
-    			visit.setDescription(rs.getString("description"));
-
-                return visit;
-            }catch (SQLException e){
-    			e.printStackTrace();
-    		}
+            return createVisitFromResultSet(rs);
         }
         return null;
     }
-    
+
+    public static List<Visit> getAllVisits(){
+        ResultSet rs = selectQuery("SELECT * FROM visits");
+        List<Visit> visits = new ArrayList<>();
+        if(rs != null){
+            try{
+                while(rs.next()){
+                    visits.add(createVisitFromResultSet(rs));
+                }
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return visits;
+    }
+
+    private static Visit createVisitFromResultSet(ResultSet rs){
+        Visit visit = new Visit();
+        try {
+            visit.setDate(LocalDate.parse(rs.getString("visit_date")));
+            visit.setId(rs.getInt("id"));
+            visit.setPetId(rs.getInt("pet_id"));
+            visit.setDescription(rs.getString("description"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return visit;
+    }
+
     public static void updateVisit(Integer id, Integer petId, Date visitDate, String description){
         insertQuery("UPDATE visits SET pet_id = " + String.valueOf(petId) + ", visit_date = '" + String.valueOf(visitDate) + "', description = '" + description + "' WHERE id = " + String.valueOf(id) + ";");
     }
@@ -433,8 +496,39 @@ public class TDGSQLite {
     	return null;
     }
 
+    public static List<PetType> getAllTypes() {
+        List<PetType> results = new ArrayList<>();
+        ResultSet rs = selectQuery("SELECT * FROM types");
+        try {
+            while (rs.next()) {
+                results.add(createPetTypeFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+    private static PetType createPetTypeFromResultSet(ResultSet rs) {
+        PetType petType = new PetType();
+        if(rs != null) {
+            try{
+                petType.setId(rs.getInt("id"));
+                petType.setName(rs.getString("name"));
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
+        }
+        return petType;
+    }
+
     public static void addPetType(String name) {
         insertQuery("INSERT INTO types (id, name) VALUES (NULL, '" + name + "');");
+    }
+
+    public static void updatePetType(int id, String name) {
+        insertQuery("UPDATE types SET name = '" + name + "' WHERE id = " + id + ";");
     }
     
     public static void updatePet(Integer id, String name, Date birthDate, Integer typeId, Integer ownerId) {
