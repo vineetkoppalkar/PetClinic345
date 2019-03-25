@@ -40,9 +40,6 @@ public class PetClinicApplication {
     public static boolean consistencyCheckerSpecialty = true;
     public static boolean consistencyCheckerType = true;
 
-    public static boolean shadowWrites = true;
-    public static boolean shadowReads = true;
-
     public static void main(String[] args) {
         SpringApplication.run(PetClinicApplication.class, args);
     }
