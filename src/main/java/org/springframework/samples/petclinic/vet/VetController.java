@@ -15,6 +15,8 @@
  */
 package org.springframework.samples.petclinic.vet;
 
+import org.springframework.samples.petclinic.PetClinicApplication;
+import org.springframework.samples.petclinic.migration.ConsistencyChecker;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -43,6 +45,18 @@ class VetController {
         Vets vets = new Vets();
         vets.getVetList().addAll(this.vets.findAll());
         model.put("vets", vets);
+        if(PetClinicApplication.shadowReads) {
+            Thread readCheck = new Thread(() -> {
+                try{
+                    ConsistencyChecker.shadowReadsConsistencyCheckerVets(vets);
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+            readCheck.setPriority(Thread.MIN_PRIORITY);
+            readCheck.start();
+        }
         return "vets/vetList";
     }
 
@@ -52,6 +66,19 @@ class VetController {
         // objects so it is simpler for JSon/Object mapping
         Vets vets = new Vets();
         vets.getVetList().addAll(this.vets.findAll());
+        if(PetClinicApplication.shadowReads){
+            Thread readCheck = new Thread(() -> {
+                try{
+                    ConsistencyChecker.shadowReadsConsistencyCheckerVets(vets);
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+            readCheck.setPriority(Thread.MIN_PRIORITY);
+            readCheck.start();
+
+        }
         return vets;
     }
 

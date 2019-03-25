@@ -4,6 +4,7 @@ import org.springframework.samples.petclinic.PetClinicApplication;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.vet.Vet;
+import org.springframework.samples.petclinic.vet.Vets;
 import org.springframework.samples.petclinic.visit.Visit;
 import org.springframework.samples.petclinic.owner.PetType;
 import org.springframework.samples.petclinic.vet.Specialty;
@@ -15,6 +16,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class ConsistencyChecker implements Runnable {
@@ -39,6 +41,13 @@ public class ConsistencyChecker implements Runnable {
     private static int nbOfPetNewWritesInconsistencies = 0;
     private static int nbOfVisitNewWrites = 0;
     private static int nbOfVisitNewWritesInconsistencies = 0;
+    
+    private static int nbOfOwnerNewReads = 0;
+    private static int nbOfOwnerNewReadsInconsistencies = 0;
+    private static int nbOfPetNewReads = 0;
+    private static int nbOfPetNewReadsInconsistencies = 0;
+    private static int nbOfVetNewReads = 0;
+    private static int nbOfVetNewReadsInconsistencies = 0;
     
     
 
@@ -405,6 +414,15 @@ public class ConsistencyChecker implements Runnable {
         nbOfVisitNewWritesInconsistencies = 0;
     	
     }
+    
+    private static void resetNewReadsCounters(){
+    	nbOfOwnerNewReads = 0;
+        nbOfOwnerNewReadsInconsistencies = 0;
+        nbOfPetNewReads = 0;
+        nbOfPetNewReadsInconsistencies = 0;
+        nbOfVetNewReads = 0;
+        nbOfVetNewReadsInconsistencies = 0;
+    }
 
     public static int getNbOfInconsistencies() {
         return nbOfOwnerInconsistencies +
@@ -458,6 +476,56 @@ public class ConsistencyChecker implements Runnable {
 
         return true;
     }
+    
+    public static boolean shadowReadsConsistencyCheckerOwner(Owner oldDatastoreOwner, Owner newDatastoreOwner) throws SQLException{
+    	nbOfOwnerNewReads++;
+        if(!oldDatastoreOwner.equals(newDatastoreOwner)) {
+            System.out.println("Inconsistency detected for owner: ");
+            System.out.println("[Actual]: " + newDatastoreOwner.toString());
+            System.out.println("[Expected]: " + oldDatastoreOwner.toString());
+
+            nbOfOwnerNewReadsInconsistencies++;
+
+            TDGSQLite.updateOwner(oldDatastoreOwner.getId(), oldDatastoreOwner.getFirstName(), oldDatastoreOwner.getLastName(),
+                oldDatastoreOwner.getAddress(), oldDatastoreOwner.getCity(), oldDatastoreOwner.getTelephone());
+
+            return false;
+        }
+
+        return true;
+    }
+    
+    public static boolean shadowReadsConsistencyCheckerOwners(Collection<Owner> oldDatastoreOwners) {
+        int countInconsistencies = 0;
+
+        for (Owner owner: oldDatastoreOwners){
+            Owner actual;
+            try{
+                actual = TDGSQLite.getOwner(owner.getId());
+                nbOfOwnerNewReads++;
+
+                if(actual != null){
+                    if(!owner.equals(actual)){
+                        printViolation(OWNER_TABLE_NAME, actual.toString(), owner.toString());
+
+                        nbOfOwnerNewReadsInconsistencies++;
+
+                        fixInconsistencyInOwners(owner.getId(), owner);
+                        countInconsistencies++;
+                    }
+                }
+            }
+            catch(IndexOutOfBoundsException e){
+                insertNewOwnerIntoSQLite(owner);
+            }
+        }
+
+        if(countInconsistencies > 0){
+            return false;
+        }
+
+        return true;
+    }
 
     public static boolean shadowWritesConsistencyCheckerPet(Pet oldDatastorePet, Pet newDatastorePet) throws SQLException{
 
@@ -469,6 +537,23 @@ public class ConsistencyChecker implements Runnable {
             System.out.println("[Expected]: " + oldDatastorePet.toString());
 
             nbOfPetNewWritesInconsistencies++;
+            
+            TDGSQLite.updatePet(oldDatastorePet.getId(), oldDatastorePet.getName(), Date.valueOf(oldDatastorePet.getBirthDate()),
+                oldDatastorePet.getType().getId(), oldDatastorePet.getOwner().getId());
+            return false;
+        }
+        return true;
+    }
+    
+    public static boolean shadowReadsConsistencyCheckerPet(Pet oldDatastorePet, Pet newDatastorePet) throws SQLException{
+    	nbOfPetNewReads++;
+        
+        if(!oldDatastorePet.equals(newDatastorePet)) {
+            System.out.println("Inconsistency detected for pet: ");
+            System.out.println("[Actual]: " + newDatastorePet.toString());
+            System.out.println("[Expected]: " + oldDatastorePet.toString());
+
+            nbOfPetNewReadsInconsistencies++;
             
             TDGSQLite.updatePet(oldDatastorePet.getId(), oldDatastorePet.getName(), Date.valueOf(oldDatastorePet.getBirthDate()),
                 oldDatastorePet.getType().getId(), oldDatastorePet.getOwner().getId());
@@ -494,6 +579,39 @@ public class ConsistencyChecker implements Runnable {
         }
         return true;
 
+    }
+    
+    public static boolean shadowReadsConsistencyCheckerVets(Vets oldDatastoreVet){
+    	List<Vet> oldVets = oldDatastoreVet.getVetList();
+        int countInconsistencies = 0;
+
+        for (Vet vet: oldVets){
+        	
+            Vet actual;
+            try{
+                actual = TDGSQLite.getVet(vet.getId());
+                nbOfVetNewReads++;
+
+                if(actual != null){
+                    if(!vet.equals(actual)){
+                        printViolation(VET_TABLE_NAME, actual.toString(), vet.toString());
+
+                        fixInconsistencyInVets(vet.getId(), vet);
+                        countInconsistencies++;
+                        nbOfVetNewReadsInconsistencies++;
+                    }
+                }
+            }
+            catch(IndexOutOfBoundsException e){
+                insertNewVetIntoSQLite(vet);
+            }
+        }
+
+        if(countInconsistencies > 0){
+            return false;
+        }
+
+        return true;
     }
 
 }

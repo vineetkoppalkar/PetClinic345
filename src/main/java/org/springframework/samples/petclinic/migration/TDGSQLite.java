@@ -161,20 +161,30 @@ public class TDGSQLite {
     
     public static Vet getVet(Integer id) {
     	ResultSet rs = selectQuery("SELECT * FROM vets WHERE id=" + String.valueOf(id) + ";");
+        Vet vet = null;
     	if(rs != null) {
     		try{
-    		Vet vet = new Vet();
-    		vet.setId(rs.getInt("id"));
-    		vet.setFirstName(rs.getString("first_name"));
-    		vet.setLastName(rs.getString("last_name"));
+    		    while(rs.next()) {
+                    vet = new Vet();
+                    vet.setId(rs.getInt("id"));
+                    vet.setFirstName(rs.getString("first_name"));
+                    vet.setLastName(rs.getString("last_name"));
+                }
     		rs = selectQuery("SELECT specialty_id FROM vet_specialties WHERE vet_id=" + String.valueOf(id) + ";");
     		if(rs != null) {
-    			ResultSet specialty = selectQuery("SELECT name FROM specialties WHERE id=" + String.valueOf(rs.getInt("specialty_id")) +";");
+                ResultSet specialty = null;
+                String vetSpecialtyId = null;
+    		    while(rs.next()) {
+                    vetSpecialtyId = String.valueOf(rs.getInt("specialty_id"));
+                }
+                specialty = selectQuery("SELECT name FROM specialties WHERE id=" + vetSpecialtyId + ";");
     			if(specialty != null) {
-    				Specialty vetSpecialty = new Specialty();
-    				vetSpecialty.setId(rs.getInt("specialty_id"));
-    				vetSpecialty.setName(specialty.getString("name"));
-    				vet.addSpecialty(vetSpecialty);
+    			    while(specialty.next()) {
+                        Specialty vetSpecialty = new Specialty();
+                        vetSpecialty.setId(Integer.parseInt(vetSpecialtyId));
+                        vetSpecialty.setName(specialty.getString("name"));
+                        vet.addSpecialty(vetSpecialty);
+                    }
     			}
     		}		
     		return vet;
