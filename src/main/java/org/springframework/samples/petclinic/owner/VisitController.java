@@ -67,7 +67,7 @@ class VisitController {
      */
     @ModelAttribute("visit")
     public Visit loadPetWithVisit(@PathVariable("petId") int petId, Map<String, Object> model) {
-        Pet pet = this.pets.findById(petId);
+        Pet pet = TDGSQLite.getPet(petId);
         model.put("pet", pet);
         Visit visit = new Visit();
         pet.addVisit(visit);
@@ -77,6 +77,8 @@ class VisitController {
     // Spring MVC calls method loadPetWithVisit(...) before initNewVisitForm is called
     @GetMapping("/owners/*/pets/{petId}/visits/new")
     public String initNewVisitForm(@PathVariable("petId") int petId, Map<String, Object> model) {
+        Pet pet = TDGSQLite.getPet(petId);
+        model.put("pet", pet);
         return "pets/createOrUpdateVisitForm";
     }
 
@@ -86,7 +88,6 @@ class VisitController {
         if (result.hasErrors()) {
             return "pets/createOrUpdateVisitForm";
         } else {
-//            this.visits.save(visit);
                 Integer id = TDGSQLite.addVisit(visit.getId(), visit.getPetId(), Date.valueOf(visit.getDate()), visit.getDescription());
                 visit.setId(id);
             return "redirect:/owners/{ownerId}";

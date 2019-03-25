@@ -110,7 +110,7 @@ public class Pet extends NamedEntity {
     public void setOwnerTdg(Owner owner) {
     	setOwner(owner);
     }
-    
+
     protected Set<Visit> getVisitsInternal() {
         if (this.visits == null) {
             this.visits = new HashSet<>();

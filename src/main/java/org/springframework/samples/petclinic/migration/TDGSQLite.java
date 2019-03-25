@@ -276,7 +276,7 @@ public class TDGSQLite {
         ResultSet rs = selectQuery("SELECT * FROM vets");
         try {
             while (rs.next()) {
-                results.add(createVetFromResultSet(rs));
+                results.add(getVet(rs.getInt("id")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -343,7 +343,6 @@ public class TDGSQLite {
     }
     
     public static Integer addVisit(Integer id, Integer petId, Date visitDate, String description){
-//        insertQuery("INSERT INTO visits (id, pet_id, visit_date, description) VALUES (" + String.valueOf(id) + ", " + String.valueOf(petId) +", DATE('" + visitDate + "'), '" + description + "');");
         Statement stmt;
         try {
             stmt = sqlite.createStatement();
@@ -439,6 +438,10 @@ public class TDGSQLite {
 				pet.setType(petType);
 				pet.setOwnerTdg(getOwner(rs.getInt("owner_id")));
 				pet.setVisitsTdg(getVisits(rs.getInt("id")));
+//                List<Visit> visit = getVisits(rs.getInt("id"));
+//                for (Visit v: visit){
+//                    pet.addVisit(v);
+//                }
 				return pet;
 			} catch (SQLException e) {
 					e.printStackTrace();
