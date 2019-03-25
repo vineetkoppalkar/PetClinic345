@@ -439,10 +439,6 @@ public class TDGSQLite {
 				pet.setType(petType);
 				pet.setOwnerTdg(getOwner(rs.getInt("owner_id")));
 				pet.setVisitsTdg(getVisits(rs.getInt("id")));
-//                List<Visit> visit = getVisits(rs.getInt("id"));
-//                for (Visit v: visit){
-//                    pet.addVisit(v);
-//                }
 				return pet;
 			} catch (SQLException e) {
 					e.printStackTrace();
