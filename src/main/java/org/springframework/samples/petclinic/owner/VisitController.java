@@ -15,14 +15,20 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import org.springframework.samples.petclinic.PetClinicApplication;
+import org.springframework.samples.petclinic.migration.ConsistencyChecker;
 import org.springframework.samples.petclinic.visit.Visit;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.samples.petclinic.migration.TDGSQLite;
 
 import javax.validation.Valid;
+
+import java.sql.SQLException;
+import java.sql.Date;
 import java.util.Map;
 
 /**
@@ -81,6 +87,15 @@ class VisitController {
             return "pets/createOrUpdateVisitForm";
         } else {
             this.visits.save(visit);
+            if(PetClinicApplication.shadowWrites){
+                TDGSQLite.addVisit(visit.getId(), visit.getPetId(), Date.valueOf(visit.getDate()), visit.getDescription());
+                try{
+                    ConsistencyChecker.shadowWritesConsistencyCheckerVisit(visit, TDGSQLite.getVisit((Integer)visit.getId()));
+                }
+                catch(SQLException e){
+                    e.printStackTrace();
+                }
+            }
             return "redirect:/owners/{ownerId}";
         }
     }

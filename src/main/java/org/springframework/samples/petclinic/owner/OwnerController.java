@@ -15,6 +15,8 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import org.springframework.samples.petclinic.PetClinicApplication;
+import org.springframework.samples.petclinic.migration.ConsistencyChecker;
 import org.springframework.samples.petclinic.migration.TDGSQLite;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,7 +29,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
@@ -67,6 +68,14 @@ class OwnerController {
             return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
         } else {
             this.owners.save(owner);
+            if(PetClinicApplication.shadowWrites) {
+                try {
+                    TDGSQLite.addOwner(owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(), owner.getTelephone());
+                    ConsistencyChecker.shadowWritesConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
             return "redirect:/owners/" + owner.getId();
         }
     }
@@ -116,6 +125,14 @@ class OwnerController {
         } else {
             owner.setId(ownerId);
             this.owners.save(owner);
+            if(PetClinicApplication.shadowWrites) {
+                try {
+                    TDGSQLite.updateOwner(owner.getId(), owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(), owner.getTelephone());
+                    ConsistencyChecker.shadowWritesConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
             return "redirect:/owners/{ownerId}";
         }
     }

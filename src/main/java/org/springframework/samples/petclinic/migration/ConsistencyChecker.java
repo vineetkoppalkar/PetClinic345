@@ -3,12 +3,18 @@ package org.springframework.samples.petclinic.migration;
 import org.springframework.samples.petclinic.PetClinicApplication;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
-import org.springframework.samples.petclinic.owner.PetType;
-import org.springframework.samples.petclinic.vet.Specialty;
 import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.visit.Visit;
+import org.springframework.samples.petclinic.owner.PetType;
+import org.springframework.samples.petclinic.vet.Specialty;
+
 
 import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConsistencyChecker implements Runnable {
@@ -26,6 +32,15 @@ public class ConsistencyChecker implements Runnable {
     private static int nbOfVetInconsistencies;
     private static int nbOfSpecialtiesInconsistencies;
     private static int nbOfTypeInconsistencies;
+    
+    private static int nbOfOwnerNewWrites = 0;
+    private static int nbOfOwnerNewWritesInconsistencies = 0;
+    private static int nbOfPetNewWrites = 0;
+    private static int nbOfPetNewWritesInconsistencies = 0;
+    private static int nbOfVisitNewWrites = 0;
+    private static int nbOfVisitNewWritesInconsistencies = 0;
+    
+    
 
     @Override
     public void run() {
@@ -164,7 +179,7 @@ public class ConsistencyChecker implements Runnable {
 
     public void vetCheckConsistency() {
         List<Vet> oldDatastoreVets = TDGHSQL.getAllVets();
-        List<Vet> newDatastoreVets = TDGSQLite.getAllVets();
+        List<Vet> newDatastoreVets = TDGSQLite.getAllVetsConsistencyChecker();
 
         for (int i = 0; i < oldDatastoreVets.size(); i++) {
             Vet expected = oldDatastoreVets.get(i);
@@ -380,6 +395,16 @@ public class ConsistencyChecker implements Runnable {
         nbOfSpecialtiesInconsistencies = 0;
         nbOfTypeInconsistencies = 0;
     }
+    
+    private static void resetNewWritesCounters(){
+    	nbOfOwnerNewWrites = 0;
+    	nbOfOwnerNewWritesInconsistencies = 0;
+    	nbOfPetNewWrites = 0;
+        nbOfPetNewWritesInconsistencies = 0;
+        nbOfVisitNewWrites = 0;
+        nbOfVisitNewWritesInconsistencies = 0;
+    	
+    }
 
     public static int getNbOfInconsistencies() {
         return nbOfOwnerInconsistencies +
@@ -413,4 +438,62 @@ public class ConsistencyChecker implements Runnable {
     public static int getNbOfTypeInconsistencies() {
         return nbOfTypeInconsistencies;
     }
+
+
+    public static boolean shadowWritesConsistencyCheckerOwner(Owner oldDatastoreOwner, Owner newDatastoreOwner) throws SQLException{
+
+    	nbOfOwnerNewWrites++;
+        if(!oldDatastoreOwner.equals(newDatastoreOwner)) {
+            System.out.println("Inconsistency detected for owner: ");
+            System.out.println("[Actual]: " + newDatastoreOwner.toString());
+            System.out.println("[Expected]: " + oldDatastoreOwner.toString());
+
+            nbOfOwnerNewWritesInconsistencies++;
+
+            TDGSQLite.updateOwner(oldDatastoreOwner.getId(), oldDatastoreOwner.getFirstName(), oldDatastoreOwner.getLastName(),
+                oldDatastoreOwner.getAddress(), oldDatastoreOwner.getCity(), oldDatastoreOwner.getTelephone());
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean shadowWritesConsistencyCheckerPet(Pet oldDatastorePet, Pet newDatastorePet) throws SQLException{
+
+    	nbOfPetNewWrites++;
+        
+        if(!oldDatastorePet.equals(newDatastorePet)) {
+            System.out.println("Inconsistency detected for pet: ");
+            System.out.println("[Actual]: " + newDatastorePet.toString());
+            System.out.println("[Expected]: " + oldDatastorePet.toString());
+
+            nbOfPetNewWritesInconsistencies++;
+            
+            TDGSQLite.updatePet(oldDatastorePet.getId(), oldDatastorePet.getName(), Date.valueOf(oldDatastorePet.getBirthDate()),
+                oldDatastorePet.getType().getId(), oldDatastorePet.getOwner().getId());
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean shadowWritesConsistencyCheckerVisit(Visit oldDatastoreVisit, Visit newDatastoreVisit) throws SQLException{
+
+    	nbOfVisitNewWrites++;
+        
+        if(!oldDatastoreVisit.equals(newDatastoreVisit)) {
+            System.out.println("Inconsistency detected for visit: ");
+            System.out.println("[Actual]: " + newDatastoreVisit.toString());
+            System.out.println("[Expected]: " + oldDatastoreVisit.toString());
+
+            nbOfVisitNewWritesInconsistencies++;
+
+            TDGSQLite.updateVisit(oldDatastoreVisit.getId(), oldDatastoreVisit.getPetId(), Date.valueOf(oldDatastoreVisit.getDate()),
+                oldDatastoreVisit.getDescription());
+            return false;
+        }
+        return true;
+
+    }
+
 }

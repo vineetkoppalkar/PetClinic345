@@ -170,7 +170,8 @@ public class Owner extends Person {
             .append("telephone", this.telephone).toString();
     }
 
-    @Override
+
+@Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;

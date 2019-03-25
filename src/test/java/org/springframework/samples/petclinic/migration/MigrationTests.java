@@ -3,13 +3,25 @@ package org.springframework.samples.petclinic.migration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.samples.petclinic.owner.Owner;
+import org.springframework.samples.petclinic.owner.Pet;
+import org.springframework.samples.petclinic.visit.Visit;
+
+import java.sql.SQLException;
+import java.time.LocalDate;
+
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
+
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+
 import java.sql.ResultSet;
 import java.time.LocalDate;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,16 +30,36 @@ import static org.mockito.Mockito.validateMockitoUsage;
 import static org.powermock.api.mockito.PowerMockito.when;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.samples.petclinic.PetClinicApplication;
-import org.springframework.samples.petclinic.owner.Owner;
-import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.samples.petclinic.owner.PetType;
 import org.springframework.samples.petclinic.vet.Specialty;
 import org.springframework.samples.petclinic.vet.Vet;
-import org.springframework.samples.petclinic.visit.Visit;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({TDGHSQL.class, TDGSQLite.class})
 public class MigrationTests {
+    // Put your testing code for migration, consistency checking, etc below this comment:
+
+
+    Owner owner1;
+
+
+    Owner owner2;
+
+    Owner owner3;
+
+
+    Pet pet1;
+
+    Pet pet2;
+
+    Pet pet3;
+
+
+    Visit visit1;
+
+    Visit visit2;
+
+    Visit visit3;
 
     private ConsistencyChecker consistencyChecker;
     private Forklift forklift;
@@ -36,9 +68,114 @@ public class MigrationTests {
 
     @Before
     public void setup() {
+
+        owner1 = new Owner(1, "George", "Franklin", "110 W. Liberty St.", "Madison", "6085551023");
+        owner2 = new Owner(1, "George", "Franklin", "110 W. Liberty St.", "Madison", "6085551023");
+        owner3 = new Owner(1, "Peter", "Franklin", "110 W. Liberty St.", "Madison", "6085551023");
+
+        pet1 = new Pet();
+        pet1.setBirthDate(LocalDate.of(1990, 9, 3));
+        pet1.setOwnerTdg(owner1);
+        pet1.setId(1);
+        pet1.setName("Smith");
+        PetType type = new PetType(1, "cat");
+        pet1.setType(type);
+
+        pet2 = new Pet();
+        pet2.setBirthDate(LocalDate.of(1990, 9, 3));
+        pet2.setOwnerTdg(owner1);
+        pet2.setId(1);
+        pet2.setName("Smith");
+        pet2.setType(type);
+
+        pet3 = new Pet();
+        pet3.setBirthDate(LocalDate.of(1990, 9, 3));
+        pet3.setOwnerTdg(owner2);
+        pet3.setType(type);
+
+        visit1 = new Visit();
+        visit1.setDescription("First visit");
+        visit1.setPetId(10);
+        visit1.setDate(LocalDate.of(1990, 9, 3));
+        visit1.setId(9);
+
+        visit2 = new Visit();
+        visit2.setDescription("First visit");
+        visit2.setPetId(10);
+        visit2.setDate(LocalDate.of(1990, 9, 3));
+        visit2.setId(9);
+
+        visit3 = new Visit();
+        visit3.setDescription("Third visit");
+        visit3.setPetId(10);
+        visit3.setDate(LocalDate.of(1990, 9, 3));
+        visit3.setId(9);
+
         consistencyChecker = new ConsistencyChecker();
         PowerMockito.mockStatic(TDGHSQL.class);
         PowerMockito.mockStatic(TDGSQLite.class);
+    }
+    @Test
+    public void testShadowWritesConsistencyCheckerSameOwner(){
+        try {
+            assertTrue(ConsistencyChecker.shadowWritesConsistencyCheckerOwner(owner1, owner2));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void testShadowWritesConsistencyCheckerDifferentOwner(){
+        try {
+            assertFalse(ConsistencyChecker.shadowWritesConsistencyCheckerOwner(owner1, owner3));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testShadowWritesConsistencyCheckerSamePet(){
+        try {
+            assertTrue(ConsistencyChecker.shadowWritesConsistencyCheckerPet(pet1, pet2));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void testShadowWritesConsistencyCheckerDifferentPet(){
+        try {
+            assertFalse(ConsistencyChecker.shadowWritesConsistencyCheckerPet(pet1, pet3));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testShadowWritesConsistencyCheckerSameVisit(){
+        try {
+            assertTrue(ConsistencyChecker.shadowWritesConsistencyCheckerVisit(visit1, visit2));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void testShadowWritesConsistencyCheckerDifferentVisit(){
+        try {
+            assertFalse(ConsistencyChecker.shadowWritesConsistencyCheckerVisit(visit1, visit3));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -168,7 +305,7 @@ public class MigrationTests {
         newDatastoreVets.add(actualVet);
 
         when(TDGHSQL.getAllVets()).thenReturn(oldDatastoreVets);
-        when(TDGSQLite.getAllVets()).thenReturn(newDatastoreVets);
+        when(TDGSQLite.getAllVetsConsistencyChecker()).thenReturn(newDatastoreVets);
 
         consistencyChecker.vetCheckConsistency();
 
@@ -226,4 +363,5 @@ public class MigrationTests {
 
         assertEquals(1, consistencyChecker.getNbOfTypeInconsistencies());
     }
+
 }

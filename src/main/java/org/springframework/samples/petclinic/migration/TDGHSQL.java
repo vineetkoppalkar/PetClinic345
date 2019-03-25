@@ -82,16 +82,31 @@ public class TDGHSQL {
     }
 
     public static Owner getOwner(Integer id) {
-        ResultSet rs = selectQuery("SELECT * FROM owners WHERE id=" + String.valueOf(id) + ";");
+        ResultSet rs = selectQuery("SELECT * FROM owners o LEFT JOIN pets p ON o.id = p.owner_id WHERE o.id =" + id + ";");
         if(rs != null) {
-            try {
-                while (rs.next()) {
-                    return createOwnerFromResultSet(rs);
+            Owner owner = new Owner();
+            try{
+                while(rs.next()) {
+                    owner.setId(rs.getInt("id"));
+                    owner.setFirstName(rs.getString("first_name"));
+                    owner.setLastName(rs.getString("last_name"));
+                    owner.setAddress(rs.getString("address"));
+                    owner.setCity(rs.getString("city"));
+                    owner.setTelephone(rs.getString("telephone"));
+                    if(rs.getString("name") != null) {
+                        Pet pet = new Pet();
+                        pet.setId(rs.getInt(7));
+                        pet.setName(rs.getString("name"));
+                        pet.setBirthDate(LocalDate.parse(rs.getString("birth_date")));
+                        pet.setType(getPetType(rs.getInt("type_id")));
+                        pet.setOwnerTdg(owner);
+                        owner.addPet(pet);
+                    }
                 }
-            } catch (SQLException e) {
+                return owner;
+            }catch(SQLException e){
                 e.printStackTrace();
             }
-
         }
         return null;
     }
@@ -316,7 +331,6 @@ public class TDGHSQL {
     }
 
     public static ResultSet selectQuery(String s) {
-        //System.out.println(s);
         Statement stmt;
         ResultSet rs = null;
         try {
