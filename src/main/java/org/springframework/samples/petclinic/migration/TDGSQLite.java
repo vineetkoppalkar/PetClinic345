@@ -104,6 +104,7 @@ public class TDGSQLite {
                         pet.setBirthDate(LocalDate.parse(rs.getString("birth_date")));
                         pet.setType(getPetType(rs.getInt("type_id")));
                         pet.setOwnerTdg(owner);
+                        pet.setVisitsTdg(getVisits(rs.getInt(7)));
                         owner.addPet(pet);
                     }
                 }
