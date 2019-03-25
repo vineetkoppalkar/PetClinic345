@@ -1,6 +1,5 @@
 package org.springframework.samples.petclinic.migration;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.samples.petclinic.owner.Owner;
@@ -14,19 +13,16 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 
 import java.sql.ResultSet;
-import java.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.validateMockitoUsage;
 import static org.powermock.api.mockito.PowerMockito.when;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.samples.petclinic.PetClinicApplication;
@@ -347,7 +343,7 @@ public class MigrationTests {
         newDatastoreVets.add(actualVet);
 
         when(TDGHSQL.getAllVets()).thenReturn(oldDatastoreVets);
-        when(TDGSQLite.getAllVetsConsistencyChecker()).thenReturn(newDatastoreVets);
+        when(TDGSQLite.getAllVets()).thenReturn(newDatastoreVets);
 
         consistencyChecker.vetCheckConsistency();
 

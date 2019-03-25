@@ -67,16 +67,9 @@ class OwnerController {
         if (result.hasErrors()) {
             return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
         } else {
-            this.owners.save(owner);
-            if(PetClinicApplication.shadowWrites) {
-                try {
-                    TDGSQLite.addOwner(owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(), owner.getTelephone());
-                    ConsistencyChecker.shadowWritesConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            return "redirect:/owners/" + owner.getId();
+            int id = TDGSQLite.addOwner(owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(), owner.getTelephone());
+            return "redirect:/owners/" + id;
+//            return "redirect:/owners/" + owner.getId();
         }
     }
 
@@ -95,7 +88,7 @@ class OwnerController {
         }
 
         // find owners by last name
-        Collection<Owner> results = this.owners.findByLastName(owner.getLastName());
+        Collection<Owner> results = TDGSQLite.getOwnersByLastName(owner.getLastName());
         if (results.isEmpty()) {
             // no owners found
             result.rejectValue("lastName", "notFound", "not found");
@@ -103,52 +96,18 @@ class OwnerController {
         } else if (results.size() == 1) {
             // 1 owner found
             owner = results.iterator().next();
-            if(PetClinicApplication.shadowReads) {
-                final Owner ownerRef = owner;
-                Thread readCheck = new Thread(() -> {
-                    try {
-                        ConsistencyChecker.shadowReadsConsistencyCheckerOwner(ownerRef, TDGSQLite.getOwner(ownerRef.getId()));
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                });
-                readCheck.setPriority(Thread.MIN_PRIORITY);
-                readCheck.start();
-            }
             return "redirect:/owners/" + owner.getId();
         } else {
             // multiple owners found
             model.put("selections", results);
-            if(PetClinicApplication.shadowReads) {
-                Thread readCheck = new Thread(() -> {
-                    try {
-                        ConsistencyChecker.shadowReadsConsistencyCheckerOwners(results);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-                readCheck.setPriority(Thread.MIN_PRIORITY);
-                readCheck.start();
-            }
             return "owners/ownersList";
         }
     }
 
     @GetMapping("/owners/{ownerId}/edit")
     public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) {
-        Owner owner = this.owners.findById(ownerId);
+        Owner owner = TDGSQLite.getOwner(ownerId);
         model.addAttribute(owner);
-        if(PetClinicApplication.shadowReads) {
-            Thread readCheck = new Thread(() -> {
-                try {
-                    ConsistencyChecker.shadowReadsConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            });
-            readCheck.setPriority(Thread.MIN_PRIORITY);
-            readCheck.start();
-        }
         return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
     }
 
@@ -158,15 +117,7 @@ class OwnerController {
             return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
         } else {
             owner.setId(ownerId);
-            this.owners.save(owner);
-            if(PetClinicApplication.shadowWrites) {
-                try {
-                    TDGSQLite.updateOwner(owner.getId(), owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(), owner.getTelephone());
-                    ConsistencyChecker.shadowWritesConsistencyCheckerOwner(owner, TDGSQLite.getOwner(owner.getId()));
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            TDGSQLite.updateOwner(owner.getId(), owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(), owner.getTelephone());
             return "redirect:/owners/{ownerId}";
         }
     }
@@ -177,22 +128,10 @@ class OwnerController {
      * @param ownerId the ID of the owner to display
      * @return a ModelMap with the model attributes for the view
      */
-
     @GetMapping("/owners/{ownerId}")
     public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
         ModelAndView mav = new ModelAndView("owners/ownerDetails");
-        mav.addObject(this.owners.findById(ownerId));
-        if(PetClinicApplication.shadowReads) {
-            Thread readCheck = new Thread(() -> {
-                try {
-                    ConsistencyChecker.shadowReadsConsistencyCheckerOwner(this.owners.findById(ownerId), TDGSQLite.getOwner(ownerId));
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            });
-            readCheck.setPriority(Thread.MIN_PRIORITY);
-            readCheck.start();
-        }
+        mav.addObject(TDGSQLite.getOwner(ownerId));
         return mav;
     }
 
