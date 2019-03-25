@@ -46,17 +46,8 @@ class VetController {
         // Here we are returning an object of type 'Vets' rather than a collection of Vet
         // objects so it is simpler for Object-Xml mapping
         Vets vets = new Vets();
-        vets.getVetList().addAll(this.vets.findAll());
+        vets.getVetList().addAll(TDGSQLite.getAllVetsConsistencyChecker());
         model.put("vets", vets);
-        if(PetClinicApplication.shadowReads){
-            try{
-//                Vets newVets = TDGSQLite.getAllVets();
-                ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vets);
-            }
-            catch (Exception e){
-                e.printStackTrace();
-            }
-        }
         return "vets/vetList";
     }
 
@@ -65,15 +56,7 @@ class VetController {
         // Here we are returning an object of type 'Vets' rather than a collection of Vet
         // objects so it is simpler for JSon/Object mapping
         Vets vets = new Vets();
-        vets.getVetList().addAll(this.vets.findAll());
-        if(PetClinicApplication.shadowReads){
-            try{
-                ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(vets);
-            }
-            catch (Exception e){
-                e.printStackTrace();
-            }
-        }
+        vets.getVetList().addAll(TDGSQLite.getAllVetsConsistencyChecker());
         return vets;
     }
 

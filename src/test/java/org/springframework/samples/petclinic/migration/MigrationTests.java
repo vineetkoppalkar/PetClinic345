@@ -16,11 +16,12 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+
 import java.sql.ResultSet;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,32 +44,20 @@ import org.springframework.samples.petclinic.vet.Vet;
 public class MigrationTests {
     // Put your testing code for migration, consistency checking, etc below this comment:
 
-
     Owner owner1;
-
     Owner owner2;
-
     Owner owner3;
 
-
     Pet pet1;
-
     Pet pet2;
-
     Pet pet3;
 
-
     Visit visit1;
-
     Visit visit2;
-
     Visit visit3;
 
-
     Vet vet1;
-
     Vet vet2;
-
     Vet vet3;
 
     Collection<Owner> collection1 = new ArrayList<Owner>();
@@ -170,11 +159,10 @@ public class MigrationTests {
         // Assert correct amount of tables have been forklifted
         assertEquals(7, counter);
     }
-
     @Test
-    public void testShadowWriteAndReadConsistencyCheckerSameOwner(){
+    public void testShadowReadsConsistencyCheckerSameOwner(){
         try {
-            assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner1, owner2));
+            assertTrue(ConsistencyChecker.shadowReadsConsistencyCheckerOwner(owner1, owner2));
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -183,9 +171,9 @@ public class MigrationTests {
     }
 
     @Test
-    public void testShadowWriteAndReadConsistencyCheckerDifferentOwner(){
+    public void testShadowReadsConsistencyCheckerDifferentOwner(){
         try {
-            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwner(owner1, owner3));
+            assertFalse(ConsistencyChecker.shadowReadsConsistencyCheckerOwner(owner1, owner3));
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -193,30 +181,9 @@ public class MigrationTests {
     }
 
     @Test
-    public void testShadowWriteAndReadConsistencyCheckerSamePet(){
+    public void testShadowReadsConsistencyCheckerSamePet(){
         try {
-            assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerPet(pet1, pet2));
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-        }
-
-    }
-
-    @Test
-    public void testShadowWriteAndReadConsistencyCheckerDifferentPet(){
-        try {
-            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerPet(pet1, pet3));
-        }
-        catch(SQLException e){
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void testShadowWriteAndReadConsistencyCheckerSameVisit(){
-        try {
-            assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVisit(visit1, visit2));
+            assertTrue(ConsistencyChecker.shadowReadsConsistencyCheckerPet(pet1, pet2));
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -225,9 +192,9 @@ public class MigrationTests {
     }
 
     @Test
-    public void testShadowWriteAndReadConsistencyCheckerDifferentVisit(){
+    public void testShadowReadsConsistencyCheckerDifferentPet(){
         try {
-            assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVisit(visit1, visit3));
+            assertFalse(ConsistencyChecker.shadowReadsConsistencyCheckerPet(pet1, pet3));
         }
         catch(SQLException e){
             e.printStackTrace();
@@ -235,57 +202,45 @@ public class MigrationTests {
     }
 
     @Test
-    public void testShadowWriteAndReadConsistencyCheckerSameVet(){
-        Vet expectedVet = vet1;
-        Vet actualVet = vet2;
+    public void testShadowWritesConsistencyCheckerSameOwner(){
+        try {
+            assertTrue(ConsistencyChecker.shadowWritesConsistencyCheckerOwner(owner1, owner2));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
 
-        List<Vet> oldDatastoreVets = new ArrayList<>();
-        oldDatastoreVets.add(expectedVet);
-
-        when(listOfVets.getVetList()).thenReturn(oldDatastoreVets);
-        when(TDGSQLite.getVet(expectedVet.getId())).thenReturn(actualVet);
-
-        assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(listOfVets));
     }
 
     @Test
-    public void testShadowWriteAndReadConsistencyCheckerDifferentVet(){
-        Vet expectedVet = vet1;
-        Vet actualVet = vet3;
-
-        List<Vet> oldDatastoreVets = new ArrayList<>();
-        oldDatastoreVets.add(expectedVet);
-
-        when(listOfVets.getVetList()).thenReturn(oldDatastoreVets);
-        when(TDGSQLite.getVet(actualVet.getId())).thenReturn(actualVet);
-
-        assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerVet(listOfVets));
+    public void testShadowWritesConsistencyCheckerDifferentOwner(){
+        try {
+            assertFalse(ConsistencyChecker.shadowWritesConsistencyCheckerOwner(owner1, owner3));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
     }
 
     @Test
-    public void testShadowWriteAndReadConsistencyCheckerConsistentCollection(){
-        Owner expectedOwner = owner1;
-        Owner actualOwner = owner2;
+    public void testShadowWritesConsistencyCheckerSameVisit(){
+        try {
+            assertTrue(ConsistencyChecker.shadowWritesConsistencyCheckerVisit(visit1, visit2));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
 
-        List<Owner> oldDatastoreOwners = new ArrayList<>();
-        oldDatastoreOwners.add(expectedOwner);
-
-        when(TDGSQLite.getOwner(expectedOwner.getId())).thenReturn(actualOwner);
-
-        assertTrue(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(oldDatastoreOwners));
     }
 
     @Test
-    public void testShadowWriteAndReadConsistencyCheckerInconsistentCollection(){
-        Owner expectedOwner = owner1;
-        Owner actualOwner = owner3;
-
-        List<Owner> oldDatastoreOwners = new ArrayList<>();
-        oldDatastoreOwners.add(expectedOwner);
-
-        when(TDGSQLite.getOwner(actualOwner.getId())).thenReturn(actualOwner);
-
-        assertFalse(ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerOwners(oldDatastoreOwners));
+    public void testShadowWritesConsistencyCheckerDifferentVisit(){
+        try {
+            assertFalse(ConsistencyChecker.shadowWritesConsistencyCheckerVisit(visit1, visit3));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -496,7 +451,7 @@ public class MigrationTests {
 
         assertEquals(1, consistencyChecker.getNbOfVetInconsistencies());
     }
-    
+
     @Test
     public void testVetHashConsistencyChecker() {
 
@@ -517,13 +472,13 @@ public class MigrationTests {
 
         when(TDGHSQL.getAllVets()).thenReturn(oldDatastoreVets);
         when(TDGSQLite.getAllVetsConsistencyChecker()).thenReturn(newDatastoreVets);
-        
+
         String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
         String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
 
         when(TDGHSQL.getVetDatastoreHash()).thenReturn(oldDatastoreHash);
         when(TDGSQLite.getVetDatastoreHash()).thenReturn(newDatastoreHash);
-        
+
         consistencyChecker.vetHashCheckConsistency();
 
         assertEquals(1, consistencyChecker.getNbOfVetInconsistencies());
@@ -575,7 +530,7 @@ public class MigrationTests {
 
         when(TDGHSQL.getAllSpecialties()).thenReturn(oldDatastoreSpecialties);
         when(TDGSQLite.getAllSpecialties()).thenReturn(newDatastoreSpecialties);
-        
+
         String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
         String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
 
@@ -587,7 +542,7 @@ public class MigrationTests {
         assertEquals(1, consistencyChecker.getNbOfSpecialtiesInconsistencies());
     }
 
-    
+
     @Test
     public void testConsistencyCheckerTypes() {
 
@@ -634,7 +589,7 @@ public class MigrationTests {
 
         when(TDGHSQL.getAllTypes()).thenReturn(oldDatastorePetTypes);
         when(TDGSQLite.getAllTypes()).thenReturn(newDatastorePetTypes);
-        
+
         String oldDatastoreHash = "d6c3176eca0f906df4497d64c9d27d311d50f8fd7e99dd6ae952e8ec4f3a9940";
         String newDatastoreHash = "43d8cfc8fe676b6e1b7c1a94d04b99c055cc97c7e376f138a9713616e8664bf8";
 

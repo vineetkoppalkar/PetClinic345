@@ -86,14 +86,9 @@ class PetController {
             model.put("pet", pet);
             return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
         } else {
-            this.pets.save(pet);
-            if(PetClinicApplication.shadowWrites) {
-                TDGSQLite.addPet(pet.getName(), Date.valueOf(pet.getBirthDate()), pet.getType().getId(), pet.getOwner().getId());
-                try {
-                    ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerPet(pet, TDGSQLite.getPet(pet.getName()));
-                }catch(SQLException e){
-                    e.printStackTrace();
-                }
+            if (PetClinicApplication.consistencyChecker) {
+                Integer id = TDGSQLite.addPet(pet.getName(), Date.valueOf(pet.getBirthDate()), pet.getType().getId(), pet.getOwner().getId());
+                pet.setId(id);
             }
             return "redirect:/owners/{ownerId}";
         }
@@ -101,16 +96,8 @@ class PetController {
 
     @GetMapping("/pets/{petId}/edit")
     public String initUpdateForm(@PathVariable("petId") int petId, ModelMap model) {
-        Pet pet = this.pets.findById(petId);
+        Pet pet = TDGSQLite.getPet(petId);
         model.put("pet", pet);
-        if(PetClinicApplication.shadowReads){
-            try {
-                ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerPet(pet, TDGSQLite.getPet(pet.getName()));
-            }
-            catch (SQLException e){
-                e.printStackTrace();
-            }
-        }
         return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
     }
 
@@ -121,15 +108,9 @@ class PetController {
             model.put("pet", pet);
             return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
         } else {
-            owner.addPet(pet);
-            this.pets.save(pet);
-            if(PetClinicApplication.shadowWrites) {
+            if (PetClinicApplication.consistencyChecker) {
+                owner.addPet(pet);
                 TDGSQLite.updatePet(pet.getId(), pet.getName(), Date.valueOf(pet.getBirthDate()), pet.getType().getId(), pet.getOwner().getId());
-                try {
-                    ConsistencyChecker.shadowWritesAndReadsConsistencyCheckerPet(pet, TDGSQLite.getPet(pet.getName()));
-                }catch(SQLException e){
-                    e.printStackTrace();
-                }
             }
             return "redirect:/owners/{ownerId}";
         }
