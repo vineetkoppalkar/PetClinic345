@@ -1,6 +1,7 @@
 package org.springframework.samples.petclinic.migration;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.hash.Hashing;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.vet.Specialty;
 
@@ -127,6 +129,26 @@ public class TDGSQLite {
             e.printStackTrace();
         }
         return results;
+    }
+
+    public static String getOwnerDatastoreHash() {
+        String sha256hex = null;
+        ResultSet rs = selectQuery("SELECT * FROM owners");
+        try {
+            while (rs.next()) {
+                String chainedStr = sha256hex +
+                                    rs.getInt("id") +
+                                    rs.getString("first_name") +
+                                    rs.getString("last_name") +
+                                    rs.getString("address") +
+                                    rs.getString("city") +
+                                    rs.getString("telephone");
+                sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sha256hex;
     }
 
     private static Owner createOwnerFromResultSet(ResultSet rs) {
@@ -272,7 +294,7 @@ public class TDGSQLite {
     	return null;
     }
 
-    public static List<Vet> getAllVets() {
+    public static List<Vet> getAllVetsConsistencyChecker() {
         List<Vet> results = new ArrayList<>();
         ResultSet rs = selectQuery("SELECT * FROM vets");
         try {
@@ -285,6 +307,23 @@ public class TDGSQLite {
         return results;
     }
 
+    public static String getVetDatastoreHash() {
+    	String sha256hex = null;
+    	ResultSet rs = selectQuery("SELECT * FROM vets");
+    	try {
+    		while (rs.next()) {
+    			String chainedStr = sha256hex +
+    								rs.getInt("id") +
+    								rs.getString("first_name") +
+    								rs.getString("last_name");
+    			sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
+    		}
+    	}catch (SQLException e) {
+    		e.printStackTrace();
+    	}
+    	return sha256hex;
+    }
+    
     private static Vet createVetFromResultSet(ResultSet rs) {
         Vet vet = new Vet();
         try {
@@ -337,6 +376,22 @@ public class TDGSQLite {
             e.printStackTrace();
         }
         return specialty;
+    }
+    
+    public static String getSpecialtyDatastoreHash() {
+    	String sha256hex = null;
+        ResultSet rs = selectQuery("SELECT * FROM specialties");
+        try {
+            while (rs.next()) {
+                String chainedStr = sha256hex +
+                                    rs.getInt("id") +
+                                    rs.getString("name");
+                sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sha256hex;
     }
     
     public static void addVetSpecialty(Integer vetId, Integer specialtyId) {
@@ -392,6 +447,24 @@ public class TDGSQLite {
             }
         }
         return visits;
+    }
+
+    public static String getVisitDatastoreHash() {
+        String sha256hex = null;
+        ResultSet rs = selectQuery("SELECT * FROM visits");
+        try {
+            while (rs.next()) {
+                String chainedStr = sha256hex +
+                                    rs.getString("visit_date") +
+                                    rs.getInt("id") +
+                                    rs.getInt("pet_id") +
+                                    rs.getString("description");
+                sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sha256hex;
     }
 
     private static Visit createVisitFromResultSet(ResultSet rs){
@@ -460,6 +533,25 @@ public class TDGSQLite {
         return results;
     }
 
+    public static String getPetDatastoreHash() {
+        String sha256hex = null;
+        ResultSet rs = selectQuery("SELECT * FROM pets");
+        try {
+            while (rs.next()) {
+                String chainedStr = sha256hex +
+                                    rs.getInt("id") +
+                                    rs.getString("name") +
+                                    rs.getString("birth_date") +
+                                    rs.getInt("type_id") +
+                                    rs.getInt("owner_id");
+                sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sha256hex;
+    }
+
     private static Pet createPetFromResultSet(ResultSet rs) {
         Pet pet = new Pet();
         if(rs != null) {
@@ -492,6 +584,22 @@ public class TDGSQLite {
     	return null;
     }
 
+    public static String getTypesDatastoreHash() {
+        String sha256hex = null;
+        ResultSet rs = selectQuery("SELECT * FROM types");
+        try {
+            while (rs.next()) {
+                String chainedStr = sha256hex +
+                                    rs.getInt("id") +
+                                    rs.getString("name");
+                sha256hex = Hashing.sha256().hashString(chainedStr, StandardCharsets.UTF_8).toString();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sha256hex;
+    }
+    
     public static List<PetType> getAllTypes() {
         List<PetType> results = new ArrayList<>();
         ResultSet rs = selectQuery("SELECT * FROM types");

@@ -86,8 +86,10 @@ class PetController {
             model.put("pet", pet);
             return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
         } else {
-            Integer id = TDGSQLite.addPet(pet.getName(), Date.valueOf(pet.getBirthDate()), pet.getType().getId(), pet.getOwner().getId());
-            pet.setId(id);
+            if (PetClinicApplication.consistencyChecker) {
+                Integer id = TDGSQLite.addPet(pet.getName(), Date.valueOf(pet.getBirthDate()), pet.getType().getId(), pet.getOwner().getId());
+                pet.setId(id);
+            }
             return "redirect:/owners/{ownerId}";
         }
     }
@@ -106,9 +108,10 @@ class PetController {
             model.put("pet", pet);
             return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
         } else {
-            owner.addPet(pet);
-            TDGSQLite.updatePet(pet.getId(), pet.getName(), Date.valueOf(pet.getBirthDate()), pet.getType().getId(), pet.getOwner().getId());
-
+            if (PetClinicApplication.consistencyChecker) {
+                owner.addPet(pet);
+                TDGSQLite.updatePet(pet.getId(), pet.getName(), Date.valueOf(pet.getBirthDate()), pet.getType().getId(), pet.getOwner().getId());
+            }
             return "redirect:/owners/{ownerId}";
         }
     }

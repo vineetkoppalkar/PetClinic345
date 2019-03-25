@@ -65,7 +65,6 @@ public class PetControllerTests {
 
     @Before
     public void setup() {
-
     	when(hamster.getId()).thenReturn(3);
     	when(hamster.getName()).thenReturn("hamster");
     	
@@ -73,6 +72,7 @@ public class PetControllerTests {
         given(this.owners.findById(TEST_OWNER_ID)).willReturn(Bob);
         given(this.pets.findById(TEST_PET_ID)).willReturn(Alice);
 
+        PetClinicApplication.consistencyChecker = false;
     }
 
     @Test

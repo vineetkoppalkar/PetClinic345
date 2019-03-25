@@ -3,15 +3,16 @@ package org.springframework.samples.petclinic.migration;
 import org.springframework.samples.petclinic.PetClinicApplication;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.Pet;
+import org.springframework.samples.petclinic.owner.PetType;
+import org.springframework.samples.petclinic.vet.Specialty;
 import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.vet.Vets;
 import org.springframework.samples.petclinic.visit.Visit;
-import org.springframework.samples.petclinic.owner.PetType;
-import org.springframework.samples.petclinic.vet.Specialty;
 
 
 import java.sql.SQLException;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class ConsistencyChecker implements Runnable {
     private static final String PET_TABLE_NAME = "pets";
     private static final String VISIT_TABLE_NAME = "visits";
     private static final String VET_TABLE_NAME = "vets";
-    private static final String SPECIALITIES_TABLE_NAME = "specialties";
+    private static final String SPECIALTIES_TABLE_NAME = "specialties";
     private static final String TYPES_TABLE_NAME = "types";
 
     private static int nbOfOwnerInconsistencies;
@@ -30,22 +31,22 @@ public class ConsistencyChecker implements Runnable {
     private static int nbOfVetInconsistencies;
     private static int nbOfSpecialtiesInconsistencies;
     private static int nbOfTypeInconsistencies;
-    
+
     private static int nbOfOwnerNewWrites = 0;
     private static int nbOfOwnerNewWritesInconsistencies = 0;
     private static int nbOfPetNewWrites = 0;
     private static int nbOfPetNewWritesInconsistencies = 0;
     private static int nbOfVisitNewWrites = 0;
     private static int nbOfVisitNewWritesInconsistencies = 0;
-    
+
     private static int nbOfOwnerNewReads = 0;
     private static int nbOfOwnerNewReadsInconsistencies = 0;
     private static int nbOfPetNewReads = 0;
     private static int nbOfPetNewReadsInconsistencies = 0;
     private static int nbOfVetNewReads = 0;
     private static int nbOfVetNewReadsInconsistencies = 0;
-    
-    
+
+
 
     @Override
     public void run() {
@@ -54,37 +55,37 @@ public class ConsistencyChecker implements Runnable {
 
         if (PetClinicApplication.consistencyCheckerOwner) {
             System.out.println("\nConsistency checker RUNNING for table: " + OWNER_TABLE_NAME);
-            ownerCheckConsistency();
+            ownerHashCheckConsistency();
             System.out.println("Consistency checker COMPLETE for table: " + OWNER_TABLE_NAME);
         }
 
         if (PetClinicApplication.consistencyCheckerPet) {
             System.out.println("\nConsistency checker RUNNING for table: " + PET_TABLE_NAME);
-            petCheckConsistency();
+            petHashCheckConsistency();
             System.out.println("Consistency checker COMPLETE for table: " + PET_TABLE_NAME);
         }
 
         if (PetClinicApplication.consistencyCheckerVisit) {
             System.out.println("\nConsistency checker RUNNING for table: " + VISIT_TABLE_NAME);
-            visitCheckConsistency();
+            visitsHashCheckConsistency();
             System.out.println("Consistency checker COMPLETE for table: " + VISIT_TABLE_NAME);
         }
 
         if (PetClinicApplication.consistencyCheckerVet) {
             System.out.println("\nConsistency checker RUNNING for table: " + VET_TABLE_NAME);
-            vetCheckConsistency();
+            vetHashCheckConsistency();
             System.out.println("Consistency checker COMPLETE for table: " + VET_TABLE_NAME);
         }
 
         if (PetClinicApplication.consistencyCheckerSpecialty) {
-            System.out.println("\nConsistency checker RUNNING for table: " + SPECIALITIES_TABLE_NAME);
-            specialtiesCheckConsistency();
-            System.out.println("Consistency checker COMPLETE for table: " + SPECIALITIES_TABLE_NAME);
+            System.out.println("\nConsistency checker RUNNING for table: " + SPECIALTIES_TABLE_NAME);
+            specialtiesHashCheckConsistency();
+            System.out.println("Consistency checker COMPLETE for table: " + SPECIALTIES_TABLE_NAME);
         }
 
         if (PetClinicApplication.consistencyCheckerType) {
             System.out.println("\nConsistency checker RUNNING for table: " + TYPES_TABLE_NAME);
-            typesCheckConsistency();
+            typesHashCheckConsistency();
             System.out.println("Consistency checker COMPLETE for table: " + TYPES_TABLE_NAME);
         }
     }
@@ -120,6 +121,16 @@ public class ConsistencyChecker implements Runnable {
         }
 	}
 
+    public void ownerHashCheckConsistency() {
+        String oldDatastoreHash = TDGHSQL.getOwnerDatastoreHash();
+        String newDatastoreHash = TDGSQLite.getOwnerDatastoreHash();
+
+        if (!oldDatastoreHash.equals(newDatastoreHash)) {
+            printViolation(OWNER_TABLE_NAME, newDatastoreHash, oldDatastoreHash);
+            ownerCheckConsistency();
+        }
+    }
+
     public void petCheckConsistency() {
         List<Pet> oldDatastorePets = TDGHSQL.getAllPets();
         List<Pet> newDatastorePets = TDGSQLite.getAllPets();
@@ -148,6 +159,16 @@ public class ConsistencyChecker implements Runnable {
                 fixInconsistencyInPets(actual.getId(), expected);
                 newDatastorePets.set(i, expected);
             }
+        }
+    }
+
+    public void petHashCheckConsistency() {
+        String oldDatastoreHash = TDGHSQL.getPetDatastoreHash();
+        String newDatastoreHash = TDGSQLite.getPetDatastoreHash();
+
+        if (!oldDatastoreHash.equals(newDatastoreHash)) {
+            printViolation(PET_TABLE_NAME, newDatastoreHash, oldDatastoreHash);
+            petCheckConsistency();
         }
     }
 
@@ -182,9 +203,19 @@ public class ConsistencyChecker implements Runnable {
         }
     }
 
+    public void visitsHashCheckConsistency() {
+        String oldDatastoreHash = TDGHSQL.getVisitDatastoreHash();
+        String newDatastoreHash = TDGSQLite.getVisitDatastoreHash();
+
+        if (!oldDatastoreHash.equals(newDatastoreHash)) {
+            printViolation(VISIT_TABLE_NAME, newDatastoreHash, oldDatastoreHash);
+            visitCheckConsistency();
+        }
+    }
+
     public void vetCheckConsistency() {
         List<Vet> oldDatastoreVets = TDGHSQL.getAllVets();
-        List<Vet> newDatastoreVets = TDGSQLite.getAllVets();
+        List<Vet> newDatastoreVets = TDGSQLite.getAllVetsConsistencyChecker();
 
         for (int i = 0; i < oldDatastoreVets.size(); i++) {
             Vet expected = oldDatastoreVets.get(i);
@@ -213,6 +244,16 @@ public class ConsistencyChecker implements Runnable {
         }
     }
 
+    public void vetHashCheckConsistency() {
+        String oldDatastoreHash = TDGHSQL.getVetDatastoreHash();
+        String newDatastoreHash = TDGSQLite.getVetDatastoreHash();
+
+        if (!oldDatastoreHash.equals(newDatastoreHash)) {
+            printViolation(VET_TABLE_NAME, newDatastoreHash, oldDatastoreHash);
+            vetCheckConsistency();
+        }
+    }
+
     public void specialtiesCheckConsistency() {
         List<Specialty> oldDatastoreSpecialties = TDGHSQL.getAllSpecialties();
         List<Specialty> newDatastoreSpecialties = TDGSQLite.getAllSpecialties();
@@ -224,7 +265,7 @@ public class ConsistencyChecker implements Runnable {
                 actual = newDatastoreSpecialties.get(i);
             } catch (IndexOutOfBoundsException e) {
                 // New data was added since the forklift
-                printViolation(SPECIALITIES_TABLE_NAME, "null", expected.displayInfo());
+                printViolation(SPECIALTIES_TABLE_NAME, "null", expected.displayInfo());
                 nbOfSpecialtiesInconsistencies++;
 
                 insertNewSpecialtyIntoSQLite(expected);
@@ -235,12 +276,22 @@ public class ConsistencyChecker implements Runnable {
 
             if (actual != null && !actual.equals(expected)) {
                 // Inconsistency for a specific row between new and old datastores
-                printViolation(SPECIALITIES_TABLE_NAME, actual.displayInfo(), expected.displayInfo());
+                printViolation(SPECIALTIES_TABLE_NAME, actual.displayInfo(), expected.displayInfo());
                 nbOfSpecialtiesInconsistencies++;
 
                 fixInconsistencyInSpecialties(actual.getId(), expected);
                 newDatastoreSpecialties.set(i, expected);
             }
+        }
+    }
+
+    public void specialtiesHashCheckConsistency() {
+    	String oldDatastoreHash = TDGHSQL.getSpecialtyDatastoreHash();
+        String newDatastoreHash = TDGSQLite.getSpecialtyDatastoreHash();
+
+        if (!oldDatastoreHash.equals(newDatastoreHash)) {
+            printViolation(SPECIALTIES_TABLE_NAME, newDatastoreHash, oldDatastoreHash);
+            specialtiesCheckConsistency();
         }
     }
 
@@ -272,6 +323,16 @@ public class ConsistencyChecker implements Runnable {
                 fixInconsistencyInTypes(actual.getId(), expected);
                 newDatastoreTypes.set(i, expected);
             }
+        }
+    }
+
+    public void typesHashCheckConsistency() {
+    	String oldDatastoreHash = TDGHSQL.getTypesDatastoreHash();
+        String newDatastoreHash = TDGSQLite.getTypesDatastoreHash();
+
+        if (!oldDatastoreHash.equals(newDatastoreHash)) {
+            printViolation(TYPES_TABLE_NAME, newDatastoreHash, oldDatastoreHash);
+            typesCheckConsistency();
         }
     }
 
@@ -363,14 +424,14 @@ public class ConsistencyChecker implements Runnable {
     }
 
     private static void insertNewSpecialtyIntoSQLite(Specialty expected) {
-        System.out.println("<SQLite> Inserting new visit in table: " + SPECIALITIES_TABLE_NAME);
+        System.out.println("<SQLite> Inserting new visit in table: " + SPECIALTIES_TABLE_NAME);
         TDGSQLite.addSpecialty(
             expected.getName()
         );
     }
 
     private static void fixInconsistencyInSpecialties(int id, Specialty expected) {
-        System.out.println("<SQLite> Updating visit in table: " + SPECIALITIES_TABLE_NAME);
+        System.out.println("<SQLite> Updating visit in table: " + SPECIALTIES_TABLE_NAME);
         TDGSQLite.updatedSpecialty(
             id,
             expected.getName()
@@ -392,7 +453,7 @@ public class ConsistencyChecker implements Runnable {
         );
     }
 
-    private static void resetInconsistencyCounters() {
+    public static void resetInconsistencyCounters() {
         nbOfOwnerInconsistencies = 0;
         nbOfPetInconsistencies = 0;
         nbOfVisitInconsistencies = 0;
@@ -400,7 +461,7 @@ public class ConsistencyChecker implements Runnable {
         nbOfSpecialtiesInconsistencies = 0;
         nbOfTypeInconsistencies = 0;
     }
-    
+
     private static void resetNewWritesCounters(){
     	nbOfOwnerNewWrites = 0;
     	nbOfOwnerNewWritesInconsistencies = 0;
@@ -408,9 +469,9 @@ public class ConsistencyChecker implements Runnable {
         nbOfPetNewWritesInconsistencies = 0;
         nbOfVisitNewWrites = 0;
         nbOfVisitNewWritesInconsistencies = 0;
-    	
+
     }
-    
+
     private static void resetNewReadsCounters(){
     	nbOfOwnerNewReads = 0;
         nbOfOwnerNewReadsInconsistencies = 0;
@@ -453,10 +514,9 @@ public class ConsistencyChecker implements Runnable {
         return nbOfTypeInconsistencies;
     }
 
-
     public static boolean shadowWritesConsistencyCheckerOwner(Owner oldDatastoreOwner, Owner newDatastoreOwner) throws SQLException{
 
-    	nbOfOwnerNewWrites++;
+        nbOfOwnerNewWrites++;
         if(!oldDatastoreOwner.equals(newDatastoreOwner)) {
             System.out.println("Inconsistency detected for owner: ");
             System.out.println("[Actual]: " + newDatastoreOwner.toString());
@@ -472,9 +532,9 @@ public class ConsistencyChecker implements Runnable {
 
         return true;
     }
-    
+
     public static boolean shadowReadsConsistencyCheckerOwner(Owner oldDatastoreOwner, Owner newDatastoreOwner) throws SQLException{
-    	nbOfOwnerNewReads++;
+        nbOfOwnerNewReads++;
         if(!oldDatastoreOwner.equals(newDatastoreOwner)) {
             System.out.println("Inconsistency detected for owner: ");
             System.out.println("[Actual]: " + newDatastoreOwner.toString());
@@ -490,67 +550,35 @@ public class ConsistencyChecker implements Runnable {
 
         return true;
     }
-    
-    public static boolean shadowReadsConsistencyCheckerOwners(Collection<Owner> oldDatastoreOwners) {
-        int countInconsistencies = 0;
-
-        for (Owner owner: oldDatastoreOwners){
-            Owner actual;
-            try{
-                actual = TDGSQLite.getOwner(owner.getId());
-                nbOfOwnerNewReads++;
-
-                if(actual != null){
-                    if(!owner.equals(actual)){
-                        printViolation(OWNER_TABLE_NAME, actual.toString(), owner.toString());
-
-                        nbOfOwnerNewReadsInconsistencies++;
-
-                        fixInconsistencyInOwners(owner.getId(), owner);
-                        countInconsistencies++;
-                    }
-                }
-            }
-            catch(IndexOutOfBoundsException e){
-                insertNewOwnerIntoSQLite(owner);
-            }
-        }
-
-        if(countInconsistencies > 0){
-            return false;
-        }
-
-        return true;
-    }
 
     public static boolean shadowWritesConsistencyCheckerPet(Pet oldDatastorePet, Pet newDatastorePet) throws SQLException{
 
-    	nbOfPetNewWrites++;
-        
+        nbOfPetNewWrites++;
+
         if(!oldDatastorePet.equals(newDatastorePet)) {
             System.out.println("Inconsistency detected for pet: ");
             System.out.println("[Actual]: " + newDatastorePet.toString());
             System.out.println("[Expected]: " + oldDatastorePet.toString());
 
             nbOfPetNewWritesInconsistencies++;
-            
+
             TDGSQLite.updatePet(oldDatastorePet.getId(), oldDatastorePet.getName(), Date.valueOf(oldDatastorePet.getBirthDate()),
                 oldDatastorePet.getType().getId(), oldDatastorePet.getOwner().getId());
             return false;
         }
         return true;
     }
-    
+
     public static boolean shadowReadsConsistencyCheckerPet(Pet oldDatastorePet, Pet newDatastorePet) throws SQLException{
-    	nbOfPetNewReads++;
-        
+        nbOfPetNewReads++;
+
         if(!oldDatastorePet.equals(newDatastorePet)) {
             System.out.println("Inconsistency detected for pet: ");
             System.out.println("[Actual]: " + newDatastorePet.toString());
             System.out.println("[Expected]: " + oldDatastorePet.toString());
 
             nbOfPetNewReadsInconsistencies++;
-            
+
             TDGSQLite.updatePet(oldDatastorePet.getId(), oldDatastorePet.getName(), Date.valueOf(oldDatastorePet.getBirthDate()),
                 oldDatastorePet.getType().getId(), oldDatastorePet.getOwner().getId());
             return false;
@@ -560,8 +588,8 @@ public class ConsistencyChecker implements Runnable {
 
     public static boolean shadowWritesConsistencyCheckerVisit(Visit oldDatastoreVisit, Visit newDatastoreVisit) throws SQLException{
 
-    	nbOfVisitNewWrites++;
-        
+        nbOfVisitNewWrites++;
+
         if(!oldDatastoreVisit.equals(newDatastoreVisit)) {
             System.out.println("Inconsistency detected for visit: ");
             System.out.println("[Actual]: " + newDatastoreVisit.toString());
@@ -576,13 +604,13 @@ public class ConsistencyChecker implements Runnable {
         return true;
 
     }
-    
+
     public static boolean shadowReadsConsistencyCheckerVets(Vets oldDatastoreVet){
-    	List<Vet> oldVets = oldDatastoreVet.getVetList();
+        List<Vet> oldVets = oldDatastoreVet.getVetList();
         int countInconsistencies = 0;
 
         for (Vet vet: oldVets){
-        	
+
             Vet actual;
             try{
                 actual = TDGSQLite.getVet(vet.getId());
