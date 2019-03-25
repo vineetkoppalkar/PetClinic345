@@ -590,9 +590,7 @@ public class ConsistencyChecker implements Runnable {
 
                 if(actual != null){
                     if(!vet.equals(actual)){
-                        printViolation(OWNER_TABLE_NAME, actual.toString(), vet.toString());
-
-                        //            nbOfOwnerInconsistencies++;
+                        printViolation(VET_TABLE_NAME, actual.toString(), vet.toString());
 
                         fixInconsistencyInVets(vet.getId(), vet);
                         countInconsistencies++;
