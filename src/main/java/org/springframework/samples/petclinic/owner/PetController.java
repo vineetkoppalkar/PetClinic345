@@ -87,7 +87,6 @@ class PetController {
             return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
         } else {
             Integer id = TDGSQLite.addPet(pet.getName(), Date.valueOf(pet.getBirthDate()), pet.getType().getId(), pet.getOwner().getId());
-            System.out.println("-----" + id.toString());
             pet.setId(id);
             return "redirect:/owners/{ownerId}";
         }

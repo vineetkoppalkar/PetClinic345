@@ -86,16 +86,9 @@ class VisitController {
         if (result.hasErrors()) {
             return "pets/createOrUpdateVisitForm";
         } else {
-            this.visits.save(visit);
-            if(PetClinicApplication.shadowWrites){
-                TDGSQLite.addVisit(visit.getId(), visit.getPetId(), Date.valueOf(visit.getDate()), visit.getDescription());
-                try{
-                    ConsistencyChecker.shadowWritesConsistencyCheckerVisit(visit, TDGSQLite.getVisit((Integer)visit.getId()));
-                }
-                catch(SQLException e){
-                    e.printStackTrace();
-                }
-            }
+//            this.visits.save(visit);
+                Integer id = TDGSQLite.addVisit(visit.getId(), visit.getPetId(), Date.valueOf(visit.getDate()), visit.getDescription());
+                visit.setId(id);
             return "redirect:/owners/{ownerId}";
         }
     }

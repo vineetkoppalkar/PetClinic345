@@ -10,12 +10,8 @@ import org.springframework.samples.petclinic.owner.PetType;
 import org.springframework.samples.petclinic.vet.Specialty;
 
 
-import java.sql.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -188,7 +184,7 @@ public class ConsistencyChecker implements Runnable {
 
     public void vetCheckConsistency() {
         List<Vet> oldDatastoreVets = TDGHSQL.getAllVets();
-        List<Vet> newDatastoreVets = TDGSQLite.getAllVetsConsistencyChecker();
+        List<Vet> newDatastoreVets = TDGSQLite.getAllVets();
 
         for (int i = 0; i < oldDatastoreVets.size(); i++) {
             Vet expected = oldDatastoreVets.get(i);

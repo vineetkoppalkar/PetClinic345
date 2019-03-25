@@ -200,7 +200,6 @@ public class TDGSQLite {
             ResultSet bs;
             try {
                 while (rs.next()) {
-                    System.out.println("There is an owner");
                     Owner owner = new Owner();
                     owner.setId(rs.getInt("id"));
                     owner.setFirstName(rs.getString("first_name"));
@@ -272,7 +271,7 @@ public class TDGSQLite {
     	return null;
     }
 
-    public static List<Vet> getAllVetsConsistencyChecker() {
+    public static List<Vet> getAllVets() {
         List<Vet> results = new ArrayList<>();
         ResultSet rs = selectQuery("SELECT * FROM vets");
         try {
@@ -343,8 +342,17 @@ public class TDGSQLite {
         insertQuery("INSERT INTO vet_specialties (vet_id, specialty_id) VALUES ("+ String.valueOf(vetId) + ", "+ String.valueOf(specialtyId) + ");");
     }
     
-    public static void addVisit(Integer id, Integer petId, Date visitDate, String description){
-        insertQuery("INSERT INTO visits (id, pet_id, visit_date, description) VALUES (" + String.valueOf(id) + ", " + String.valueOf(petId) +", DATE('" + visitDate + "'), '" + description + "');");
+    public static Integer addVisit(Integer id, Integer petId, Date visitDate, String description){
+//        insertQuery("INSERT INTO visits (id, pet_id, visit_date, description) VALUES (" + String.valueOf(id) + ", " + String.valueOf(petId) +", DATE('" + visitDate + "'), '" + description + "');");
+        Statement stmt;
+        try {
+            stmt = sqlite.createStatement();
+            stmt.execute("INSERT INTO visits (id, pet_id, visit_date, description) VALUES (" + String.valueOf(id) + ", " + String.valueOf(petId) +", DATE('" + visitDate + "'), '" + description + "');");
+            return stmt.getGeneratedKeys().getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
     
     public static List<Visit> getVisits(Integer petId){

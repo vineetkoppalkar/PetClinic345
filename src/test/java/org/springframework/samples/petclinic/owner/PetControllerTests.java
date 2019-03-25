@@ -65,7 +65,6 @@ public class PetControllerTests {
 
     @Before
     public void setup() {
-        PetClinicApplication.shadowWrites = false;
 
     	when(hamster.getId()).thenReturn(3);
     	when(hamster.getName()).thenReturn("hamster");
